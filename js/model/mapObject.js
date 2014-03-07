@@ -59,8 +59,10 @@ MapObject.prototype.render = function(step,scrollOffset){
 MapObject.prototype.process = function(){
     if (this.processed) return;
 
-    var obj = this.gameObject;
+    var me = this;
+    var obj = me.gameObject;
     var targetObject;
+
 
     if (this.id == GameObjects.PLAYER.id){
 
@@ -75,8 +77,11 @@ MapObject.prototype.process = function(){
                 if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
                     this.animation = ANIMATION.PUSH_RIGHT;
                     if (targetObject.canMove(DIRECTION.RIGHT) && !(targetObject.gameObject.canFall && targetObject.canMove(DIRECTION.DOWN))) {
-                        targetObject.move(DIRECTION.RIGHT);
-                        this.move(DIRECTION.RIGHT);
+                        Maybe(function(){
+                            targetObject.move(DIRECTION.RIGHT);
+                            me.move(DIRECTION.RIGHT);
+                        },1-targetObject.gameObject.canBePushed.friction);
+
                     }
                 }
             }
@@ -85,8 +90,11 @@ MapObject.prototype.process = function(){
                 if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
                     this.animation = ANIMATION.PUSH_LEFT;
                     if (targetObject.canMove(DIRECTION.LEFT) && !(targetObject.gameObject.canFall && targetObject.canMove(DIRECTION.DOWN))){
-                        targetObject.move(DIRECTION.LEFT);
-                        this.move(DIRECTION.LEFT);
+                        Maybe(function(){
+                            targetObject.move(DIRECTION.LEFT);
+                            me.move(DIRECTION.LEFT);
+                        },1-targetObject.gameObject.canBePushed.friction);
+
                     }
                 }
             }

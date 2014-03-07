@@ -36,7 +36,7 @@ var GameObjects = (function(){
 
         game.BOULDER = new GameObject({
             id: 26,
-            code: "Bo",
+            code: "rr",
             spriteIndex: 26,
             canBePickedUp: false,
             canFall: true,
@@ -45,7 +45,8 @@ var GameObjects = (function(){
             },
             canBePushed:{
                 vertical: false,
-                horizontal: true
+                horizontal: true,
+                friction: 0.5
             },
             isStableSurface: false
         });

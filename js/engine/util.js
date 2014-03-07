@@ -40,3 +40,9 @@ function random() {
     var x = Math.sin(randomSeed++) * 10000;
     return x - Math.floor(x);
 }
+
+
+function Maybe(callback,probability){
+    if (isNaN(probability)) probability = 1;
+    if (random() <= probability) callback();
+}
