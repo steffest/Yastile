@@ -153,14 +153,16 @@ var Map = (function(){
                     code = code + line[(x*charCount)+c];
                 }
                 var gameObject = GameObjects[code] || GameObjects.EMPTYSPACE;
+                var object = new MapObject(gameObject,index);
 
-                if (gameObject == GameObjects.PLAYER.id){
+                if (gameObject.id == GameObjects.PLAYER.id){
                    // center player in view;
+                    Map.setPlayerObject(object);
                     scrollTilesX = Math.max(x-10,0);
                     scrollTilesY = Math.max(y-10,0);
                 }
 
-                var object = new MapObject(gameObject,index);
+
 
                 map.push(object);
 

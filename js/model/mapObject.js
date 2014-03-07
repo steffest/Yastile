@@ -57,16 +57,19 @@ MapObject.prototype.render = function(step,scrollOffset){
 };
 
 MapObject.prototype.process = function(){
+    if (this.processed) return;
+
     var obj = this.gameObject;
+    var targetObject;
+
     if (this.id == GameObjects.PLAYER.id){
-        Map.setPlayerObject(this);
-        if (Input.isDown()  && this.canMove(DIRECTION.DOWN))    this.move(DIRECTION.DOWN);
-        if (Input.isUp()    && this.canMove(DIRECTION.UP))      this.move(DIRECTION.UP);
-        if (Input.isLeft()  && this.canMove(DIRECTION.LEFT))    this.move(DIRECTION.LEFT);
-        if (Input.isRight() && this.canMove(DIRECTION.RIGHT))   this.move(DIRECTION.RIGHT);
+
+        if (Input.isDown())  this.moveIfPossible(DIRECTION.DOWN);
+        if (Input.isUp())    this.moveIfPossible(DIRECTION.UP);
+        if (Input.isLeft())  this.moveIfPossible(DIRECTION.LEFT);
+        if (Input.isRight()) this.moveIfPossible(DIRECTION.RIGHT);
 
         if (!this.isMoving()){
-            var targetObject;
             if (Input.isRight()){
                 targetObject = this.getObject(DIRECTION.RIGHT);
                 if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
@@ -81,17 +84,32 @@ MapObject.prototype.process = function(){
                 targetObject = this.getObject(DIRECTION.LEFT);
                 if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
                     this.animation = ANIMATION.PUSH_LEFT;
-                    if (targetObject.canMove(DIRECTION.LEFT)){
+                    if (targetObject.canMove(DIRECTION.LEFT) && !(targetObject.gameObject.canFall && targetObject.canMove(DIRECTION.DOWN))){
                         targetObject.move(DIRECTION.LEFT);
                         this.move(DIRECTION.LEFT);
                     }
-
                 }
             }
         }
 
     }else{
-        if (obj.canFall && this.canMove(DIRECTION.DOWN)) this.move(DIRECTION.DOWN);
+        if (obj.canFall) this.moveIfPossible(DIRECTION.DOWN);
+        if (!this.isMoving()){
+            if (obj.canFall && !this.getObject(DIRECTION.DOWN).gameObject.isStableSurface){
+                var canFallLeft = this.canMove(DIRECTION.LEFTDOWN);
+                var canFallRight = this.canMove(DIRECTION.RIGHTDOWN);
+
+                if (canFallLeft && canFallRight){
+                    this.move(Game.getRandomHorizontalDirection());
+                }
+
+                if (!this.isMoving()){
+                    if (canFallLeft) this.move(DIRECTION.LEFT);
+                    if (canFallRight) this.move(DIRECTION.RIGHT);
+                }
+            }
+        }
+
     }
 
     if (this.wasMoving() && !this.isMoving()){
@@ -102,6 +120,8 @@ MapObject.prototype.process = function(){
         }
     }
 
+    this.processed = true;
+
 
 };
 
@@ -111,6 +131,7 @@ MapObject.prototype.fullStep = function(){
         this.gameObject = GameObjects[this.id];
         this.staticFrame = this.gameObject.getStaticFrame();
         this.movedInFrom = this.movingInFrom;
+        if (this.id == GameObjects.PLAYER.id) Map.setPlayerObject(this);
     }else{
         this.movedInFrom = undefined;
     }
@@ -123,6 +144,7 @@ MapObject.prototype.reset = function(){
     this.next = undefined;
     this.movingInFrom = undefined;
     this.animation = false;
+    this.processed = false;
 };
 
 MapObject.prototype.setNextId = function(id){
@@ -134,17 +156,13 @@ MapObject.prototype.setId = function(id){
 };
 
 MapObject.prototype.getObject = function(direction){
-    if (direction == DIRECTION.DOWN){
-        return map[this.index + Game.getLevel().width]
-    }
-    if (direction == DIRECTION.UP){
-        return map[this.index - Game.getLevel().width]
-    }
-    if (direction == DIRECTION.LEFT){
-        return map[this.index -1]
-    }
-    if (direction == DIRECTION.RIGHT){
-        return map[this.index +1]
+    switch (direction){
+        case DIRECTION.DOWN: return map[this.index + Game.getLevel().width]; break;
+        case DIRECTION.UP: return map[this.index - Game.getLevel().width]; break;
+        case DIRECTION.LEFT: return map[this.index -1]; break;
+        case DIRECTION.RIGHT: return map[this.index +1]; break;
+        case DIRECTION.LEFTDOWN: return map[this.index -1 + Game.getLevel().width]; break;
+        case DIRECTION.RIGHTDOWN: return map[this.index +1 + Game.getLevel().width]; break;
     }
 };
 
@@ -152,13 +170,34 @@ MapObject.prototype.canMove = function(direction){
     // object is already moving
     if (this.isMoving()) return false;
 
-    // targetobject is accepting a moving object
-    var targetObject = this.getObject(direction);
-    if (targetObject.next) return false;
+    var targetObject
+    if (direction > 100){
+        // combines direction
+        if (direction == DIRECTION.LEFTDOWN){
+            var l = this.getObject(DIRECTION.LEFT);
+            var d = this.getObject(DIRECTION.LEFTDOWN);
+            if (l.next || d.next) return false;
+            if (this.gameObject.canMoveTo(l,DIRECTION.LEFT) && this.gameObject.canMoveTo(d,DIRECTION.DOWN)) return true;
+        }
+        if (direction == DIRECTION.RIGHTDOWN){
+            var r = this.getObject(DIRECTION.RIGHT);
+            var d = this.getObject(DIRECTION.RIGHTDOWN);
+            if (r.next || d.next) return false;
+            if (this.gameObject.canMoveTo(r,DIRECTION.RIGHT) && this.gameObject.canMoveTo(d,DIRECTION.DOWN)) return true;
+        }
+    }else{
+        // targetobject is accepting a moving object
+        var targetObject = this.getObject(direction);
+        if (targetObject.next) return false;
 
-    if (this.gameObject.canMoveTo(targetObject.gameObject,direction)){
-        return true;
+        if (this.gameObject.canMoveTo(targetObject,direction)){
+            return true;
+        }
     }
+
+
+
+
 
     return false;
 
@@ -182,4 +221,9 @@ MapObject.prototype.move = function(direction){
     //targetObject.setId(0);
     targetObject.movingInFrom = direction;
 };
+
+MapObject.prototype.moveIfPossible = function(direction){
+    if (this.canMove(direction)) this.move(direction);
+};
+
 

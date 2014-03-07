@@ -4,9 +4,10 @@ var GameObject = function(properties){
         this[key] = properties[key];
     }
 
-    this.canMove = (typeof properties.canMove == "undefined") ? false : properties.canMove;
-    this.canBePickedUp = (typeof properties.canBePickedUp == "undefined") ? true : properties.canBePickedUp;
-    this.canFall = (typeof properties.canFall == "undefined") ? false : properties.canFall;
+    this.setDefault("canMove",false);
+    this.setDefault("canBePickedUp",true);
+    this.setDefault("canFall",false);
+    this.setDefault("isStableSurface",true);
 
     this.spriteIndex = this.id;
     if (properties.spriteIndex) this.spriteIndex = properties.spriteIndex;
@@ -23,10 +24,10 @@ var GameObject = function(properties){
     GameObjects[this.code] = this;
 };
 
-GameObject.prototype.getAnimationFrame = function(direction,step){
+GameObject.prototype.getAnimationFrame = function(animation,step){
     var frame = this.spriteIndex;
-    var animationFrames = this.animationFrames[direction];
-    if (!animationFrames) animationFrames = this["animation" + direction];
+    var animationFrames = this.animationFrames[animation];
+    if (!animationFrames) animationFrames = this["animation" + animation];
     if (animationFrames && animationFrames.length>step){
         frame = animationFrames[step];
     }
@@ -45,13 +46,30 @@ GameObject.prototype.isEmpty = function(){
     return (this.id == 0);
 };
 
+GameObject.prototype.isPlayer = function(){
+    return (this.id == GameObjects.PLAYER.id);
+};
+
+GameObject.prototype.setDefault = function(property,value){
+    if (typeof this[property] == "undefined") this[property]=value;
+}
 
 GameObject.prototype.canMoveTo = function(targetObject,direction){
-    if (targetObject.isEmpty()) return true;
+    var targetGameObject = targetObject.gameObject;
+    if (targetGameObject.isEmpty()) return true;
 
-    if (this.id == GameObjects.PLAYER.id){
-        if (targetObject.canBePickedUp) return true;
+    if (this.isPlayer()){
+        if (targetGameObject.canBePickedUp) return true;
     }
+
+    if (targetGameObject.isPlayer()){
+        if (targetObject.moveDirection){
+            var opposite = DIRECTION_OPPOSITE[targetObject.moveDirection];
+            if (direction != opposite) return true;
+        }
+    }
+
+    return false;
 
 
 };

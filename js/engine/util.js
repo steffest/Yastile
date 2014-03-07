@@ -32,3 +32,11 @@ performance.now = (function() {
             return new Date().getTime();
         };
 })();
+
+// predictable random generator
+// we want to full game to be reproducable given the same seed
+var randomSeed = 1;
+function random() {
+    var x = Math.sin(randomSeed++) * 10000;
+    return x - Math.floor(x);
+}

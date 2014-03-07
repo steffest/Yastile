@@ -22,6 +22,9 @@ var Game= (function(){
 
         settings = properties;
 
+        randomSeed = new Date().getTime();
+        settings.seed =  randomSeed;
+
         canvas = document.createElement("canvas");
 
         if(navigator.isCocoonJS) {
@@ -156,6 +159,12 @@ var Game= (function(){
     }
 
     function processGrid(){
+
+        //process Player first
+        var playerObject = Map.getPlayerObject();
+        if (playerObject) playerObject.process();
+
+
         for (var i = 0, len = level.height*level.width; i<len; i++){
             var object = map[i];
             object.process();
@@ -182,9 +191,10 @@ var Game= (function(){
             if (object.isVisible(scrollOffset)) object.render(step,scrollOffset);
         }
 
+        //always Draw Player on Top
         var playerObject = Map.getPlayerObject();
         if ( playerObject)  playerObject.render(step,scrollOffset);
-        //always Draw Player on Top
+
 
 
         //draw Mask
@@ -245,6 +255,14 @@ var Game= (function(){
 
     self.getSettings = function(){
         return settings;
+    };
+
+    self.getRandomHorizontalDirection = function(){
+        if (random()<=0.5){
+            return DIRECTION.LEFT;
+        }else{
+            return DIRECTION.RIGHT;
+        }
     };
 
     return self;

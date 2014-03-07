@@ -46,7 +46,8 @@ var GameObjects = (function(){
             canBePushed:{
                 vertical: false,
                 horizontal: true
-            }
+            },
+            isStableSurface: false
         });
 
         game.PLAYER = new GameObject({
