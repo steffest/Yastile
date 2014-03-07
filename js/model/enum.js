@@ -11,3 +11,8 @@ var DIRECTION = {
     DOWN: 40,
     NONE: 0
 };
+
+var ANIMATION = {
+    PUSH_RIGHT : "PushRight",
+    PUSH_LEFT : "PushLeft"
+};

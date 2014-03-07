@@ -45,8 +45,8 @@ MapObject.prototype.render = function(step,scrollOffset){
 
     if (this.id>0){
         var frame;
-        if (this.moveDirection){
-            frame = this.gameObject.getAnimationFrame(this.moveDirection,step);
+        if (this.animation){
+            frame = this.gameObject.getAnimationFrame(this.animation,step);
         }else{
             frame = sprites[this.staticFrame];
         }
@@ -57,28 +57,72 @@ MapObject.prototype.render = function(step,scrollOffset){
 };
 
 MapObject.prototype.process = function(){
+    var obj = this.gameObject;
     if (this.id == GameObjects.PLAYER.id){
         Map.setPlayerObject(this);
         if (Input.isDown()  && this.canMove(DIRECTION.DOWN))    this.move(DIRECTION.DOWN);
         if (Input.isUp()    && this.canMove(DIRECTION.UP))      this.move(DIRECTION.UP);
         if (Input.isLeft()  && this.canMove(DIRECTION.LEFT))    this.move(DIRECTION.LEFT);
         if (Input.isRight() && this.canMove(DIRECTION.RIGHT))   this.move(DIRECTION.RIGHT);
+
+        if (!this.isMoving()){
+            var targetObject;
+            if (Input.isRight()){
+                targetObject = this.getObject(DIRECTION.RIGHT);
+                if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
+                    this.animation = ANIMATION.PUSH_RIGHT;
+                    if (targetObject.canMove(DIRECTION.RIGHT) && !(targetObject.gameObject.canFall && targetObject.canMove(DIRECTION.DOWN))) {
+                        targetObject.move(DIRECTION.RIGHT);
+                        this.move(DIRECTION.RIGHT);
+                    }
+                }
+            }
+            if (Input.isLeft()){
+                targetObject = this.getObject(DIRECTION.LEFT);
+                if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
+                    this.animation = ANIMATION.PUSH_LEFT;
+                    if (targetObject.canMove(DIRECTION.LEFT)){
+                        targetObject.move(DIRECTION.LEFT);
+                        this.move(DIRECTION.LEFT);
+                    }
+
+                }
+            }
+        }
+
+    }else{
+        if (obj.canFall && this.canMove(DIRECTION.DOWN)) this.move(DIRECTION.DOWN);
     }
+
+    if (this.wasMoving() && !this.isMoving()){
+        // object stopped moving
+        if (this.movedInFrom == DIRECTION.DOWN){
+            // object has fallen onto something;
+            if (obj.onFallen) obj.onFallen(this.getObject(DIRECTION.DOWN))
+        }
+    }
+
+
 };
 
 MapObject.prototype.fullStep = function(){
     if (typeof this.next != "undefined"){
-        //console.error("setting next " + this.id + " to " + this.next)
         this.id = this.next;
         this.gameObject = GameObjects[this.id];
         this.staticFrame = this.gameObject.getStaticFrame();
+        this.movedInFrom = this.movingInFrom;
+    }else{
+        this.movedInFrom = undefined;
     }
+
     this.reset();
 };
 
 MapObject.prototype.reset = function(){
     this.moveDirection = undefined;
     this.next = undefined;
+    this.movingInFrom = undefined;
+    this.animation = false;
 };
 
 MapObject.prototype.setNextId = function(id){
@@ -106,24 +150,36 @@ MapObject.prototype.getObject = function(direction){
 
 MapObject.prototype.canMove = function(direction){
     // object is already moving
-    if (this.moveDirection) return false;
+    if (this.isMoving()) return false;
 
     // targetobject is accepting a moving object
     var targetObject = this.getObject(direction);
     if (targetObject.next) return false;
 
-    if (targetObject.gameObject && !targetObject.gameObject.canMoveThrough) return false;
+    if (this.gameObject.canMoveTo(targetObject.gameObject,direction)){
+        return true;
+    }
 
-    return true;
+    return false;
 
+};
+
+MapObject.prototype.isMoving = function(){
+    return !!this.moveDirection;
+};
+
+MapObject.prototype.wasMoving = function(){
+    return !!this.movedInFrom;
 };
 
 MapObject.prototype.move = function(direction){
     this.moveDirection = direction;
     this.next = 0;
+    this.animation = direction;
 
     var targetObject = this.getObject(direction);
     targetObject.setNextId(this.id);
-    targetObject.setId(0);
+    //targetObject.setId(0);
+    targetObject.movingInFrom = direction;
 };
 

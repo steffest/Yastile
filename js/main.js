@@ -10,9 +10,10 @@ window.addEventListener("load",function(){
         level:{
             width: 64,
             height: 32,
-            map: "random"
+            map: "resources/levels/level1.json"
         }
     });
+
 },false);
 
 

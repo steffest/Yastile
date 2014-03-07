@@ -1,0 +1,42 @@
+{
+    "name": "level1",
+    "width": 64,
+    "height": 32,
+    "mapStructure" : {
+        "charCount" : 2
+    },
+    "map":[
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "Ws                              Ws                                                        YdBa                    Ba        BaWs",
+        "WsP1            Bo              WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs                          Ba  BaBaBaWsWsBa                  BaWs",
+        "Ws  $1 .........................$1          ..      Burr      Ws                      WsDgWsBo......Ws                        Ws",
+        "WsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsNuWsWsWsWsWsWsWsWs      WsrrrrrrrrrrrrrrrrrrrrrrWs  Ws..      WsWsWsWsWsWsWsWs          Ws",
+        "Ws                              Ws    ..              Ws      Ws$3$1$1$1$1$1$1$1$1$1$3Ws  Ws        Dy            Dy          Ws",
+        "Ws                              Ws                    WsBoBoBoWsWsWsWsWsWsWsWsWsWsWsWsWs  Ws        W3    BsBs    W3          Ws",
+        "Ws    I1I2I3                    Ws                    Ws      Ws                          Ws        W3    BSBS    W3          Ws",
+        "Ws    I4I5I6                    Ws                    Ws      Ws                          Ws        W2W2W2W2W2W2W2Ww          Ws",
+        "Ws    I7I8I9                    Ws                    Ws$1Kb$1WsKg  $3WsWsWsWsWsWs        Ws        BoBoBoBoBoBoBoBo          Ws",
+        "Ws    IaIbIc                    WsWsWsWsWsWsWsWsDbWsWsWsWhWsWsWsrr            $3Ws        Ws                                  Ws",
+        "Ws                              Ws                      ..  rrrrWs            $3Ws        Ws        WsWsWsWsWsWsWsWs          Ws",
+        "Ws                              Ws                        rrrrrrWs  WsWsWsWsWsWsWs        Ws        Ws$1$1$1$1$1$1Ws          Ws",
+        "Ws                            ..Dr.._!  W4W2W2  W2W2W2W2rr  W2WwWs  Ws          Ws        Ws        Ws$1$1$3$3$1$1Ws          Ws",
+        "Ws                            ..Dr.._!  W3Yd                    WsBuWs    $3    Ws        Ws        Ws$1$1$3$3$1$1Ws          Ws",
+        "Ws                            ..Dr.._!  W3rr      rrrr        rrWs  Ws    Ws  BuWs        Ws        Ws$1$1$3$3$1$1Ws          Ws",
+        "Ws                            ..Dr.._!  W2W2W2  W2W2W2W2    W2W3Ws  Ws    Ws    Ws        Ws        Ws$1$1$1$1$1$1Ws        BoWs",
+        "Ws                              Ws                        BorrW3    Ws    Ws    WsWsWs    Ws      BuWsWsWsWsWsWsWsWs      W4W2Ws",
+        "Ws                ....          Ws                          BoW3  BuWs    Ws              Ws                              W3KyWs",
+        "Ws    ..          ..            Ws                          $1W3          Ws              Ws                              W3KyWs",
+        "Ws        ....  ....    ..    ..Ws                          $1W3          Dr    $1$1$1$1$1Dr                              W3KyWs",
+        "WsrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrWsWsDrWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  Ws      ..  ..                  W3KyWs",
+        "Ws                              Wh                              Ws      ..      rr    IX  IX              ..            ..W3KyWs",
+        "WsWsWsWsWsWs  NuNu              Wh                              Ws  $1rr    ....      Ix  Ix        ..  ..    ..          W3KyWs",
+        "Ws..      Bu..  Ws              Wh                              Ws  ..      $1      ..IyXXIY              ..        ..    W3KyWs",
+        "Ws..WsWsWsWsWsWsBuWs            ..                              WsWsWsWs..  rr    Bo..WsWsWs  ..                          W3KyWs",
+        "Ws..        WsBuBuBuWs          Wh                              DrKr              ....Dg..Dy    ..  ..    ..    ..        W3KyWs",
+        "Ws..........WsBuBuBuWsWsWsWsWsWsWsWsDrWsWsWsDyWsWsWsDbWsWsWsDgWsWsWsWsWs        ..  ..Dg..Dy$1....  ..        $1          W3KyWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs      Ws      Ws      Ws      Ws    rr          ....Dg..Dy    ....  ..      ....  ..  ..W3KyWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs  C1  Ws  C2  Ws  C3  Ws  C1  Ws    $3..    rr    ..Dg  Dy    ..$1      ..    ..    ....W3KyWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs      Ws      Ws      Ws      Ws  ..              ..Dg..DyKg        ..          ....    Dy$1Ws",
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs"
+    ]
+}

@@ -1,7 +1,13 @@
 var GameObject = function(properties){
-    this.id = properties.id;
+
+    for (var key in properties){
+        this[key] = properties[key];
+    }
+
     this.canMove = (typeof properties.canMove == "undefined") ? false : properties.canMove;
-    this.canMoveThrough = (typeof properties.canMoveThrough == "undefined") ? true : properties.canMoveThrough;
+    this.canBePickedUp = (typeof properties.canBePickedUp == "undefined") ? true : properties.canBePickedUp;
+    this.canFall = (typeof properties.canFall == "undefined") ? false : properties.canFall;
+
     this.spriteIndex = this.id;
     if (properties.spriteIndex) this.spriteIndex = properties.spriteIndex;
     this.spriteIndexes = properties.spriteIndexes;
@@ -14,11 +20,13 @@ var GameObject = function(properties){
     if (properties.animationDown) this.animationFrames[DIRECTION.DOWN] = properties.animationDown;
 
     GameObjects[this.id] = this;
+    GameObjects[this.code] = this;
 };
 
 GameObject.prototype.getAnimationFrame = function(direction,step){
     var frame = this.spriteIndex;
     var animationFrames = this.animationFrames[direction];
+    if (!animationFrames) animationFrames = this["animation" + direction];
     if (animationFrames && animationFrames.length>step){
         frame = animationFrames[step];
     }
@@ -32,6 +40,22 @@ GameObject.prototype.getStaticFrame = function(){
     }
     return frame;
 };
+
+GameObject.prototype.isEmpty = function(){
+    return (this.id == 0);
+};
+
+
+GameObject.prototype.canMoveTo = function(targetObject,direction){
+    if (targetObject.isEmpty()) return true;
+
+    if (this.id == GameObjects.PLAYER.id){
+        if (targetObject.canBePickedUp) return true;
+    }
+
+
+};
+
 
 
 

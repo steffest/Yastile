@@ -17,7 +17,6 @@ var Game= (function(){
 
     var backgroundPattern;
     var backgroundImage;
-    var maskImage;
 
     self.init = function(properties){
 
@@ -47,7 +46,6 @@ var Game= (function(){
         }
 
 
-
         document.body.appendChild(canvas);
 
         tileSize = properties.tileSize;
@@ -56,11 +54,6 @@ var Game= (function(){
 
         GameObjects.init();
         Map.init(properties);
-
-        level = properties.level;
-        if (level){
-            if (level.map == "random") map = Map.generateRandom(level);
-        }
 
 
         loadResources(properties.spriteSheet,function(){
@@ -79,10 +72,21 @@ var Game= (function(){
 
                 context.drawImage(img, 0, 0);
 
-                main();
-
+                level = properties.level;
+                if (level){
+                    if (level.map == "random") {
+                        map = Map.generateRandom(level);
+                        main();
+                    }else{
+                        Map.loadFromUrl(level.map,function(){
+                            main();
+                        })
+                    }
+                }
             };
             img.src = "resources/back.jpg";
+
+
 
         });
     };
@@ -113,6 +117,7 @@ var Game= (function(){
 
         window.addEventListener("resize", scaleToFit, false);
     }
+
 
     function main(now) {
         var delta = now - lastTickTime;
@@ -167,7 +172,6 @@ var Game= (function(){
         var x = 0-(scrollOffset.tileX * tileSize) + scrollOffset.x*step;
         var y = 0-(scrollOffset.tileY * tileSize) + scrollOffset.y*step;
 
-        //console.error(backgroundImage);
 
         ctx.drawImage(backgroundImage,x, y);
 
@@ -177,6 +181,11 @@ var Game= (function(){
             var object = map[i];
             if (object.isVisible(scrollOffset)) object.render(step,scrollOffset);
         }
+
+        var playerObject = Map.getPlayerObject();
+        if ( playerObject)  playerObject.render(step,scrollOffset);
+        //always Draw Player on Top
+
 
         //draw Mask
         //ctx.drawImage(maskImage,0, 0);
@@ -228,6 +237,14 @@ var Game= (function(){
 
     self.getLevel = function(){
         return level;
+    };
+
+    self.setLevel = function(data){
+        level = data;
+    };
+
+    self.getSettings = function(){
+        return settings;
     };
 
     return self;

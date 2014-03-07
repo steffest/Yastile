@@ -1,14 +1,21 @@
+/*
+    Copies a rectangular piece of an image to a cached canvas
+    Used to cut a spritesheet in individual sprites
+ */
 var Sprite = function(id,img){
+    var tilesize = Game.getSettings().tileSize;
+    var tilesInaRow = Math.floor(img.width/tilesize);
+
     var canvas = document.createElement("canvas");
-    canvas.width = 32;
-    canvas.height = 32;
+    canvas.width = tilesize;
+    canvas.height = tilesize;
     var ctx = canvas.getContext("2d");
 
-    // sprite map is 8 tiles wide
-    var x = id % 8;
-    var y = Math.floor(id / 8);
 
-    ctx.drawImage(img,x*32,y*32,32,32,0,0,32,32);
+    var x = id % tilesInaRow;
+    var y = Math.floor(id / tilesInaRow);
+
+    ctx.drawImage(img,x*tilesize,y*tilesize,tilesize,tilesize,0,0,tilesize,tilesize);
 
     return canvas;
 };

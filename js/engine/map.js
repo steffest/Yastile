@@ -35,6 +35,10 @@ var Map = (function(){
         playerObject = mapObject;
     };
 
+    self.getPlayerObject = function(mapObject){
+        return playerObject;
+    };
+
     self.initScroll = function(){
         // check is the player is close to a border of the viewport
         if (playerObject){
@@ -128,6 +132,50 @@ var Map = (function(){
             map.push(object);
         }
         return map;
+    };
+
+    self.parse = function(data){
+        map = [];
+        var index = 0;
+        var charCount = 1;
+        if (data.mapStructure && data.mapStructure.charCount) charCount = data.mapStructure.charCount;
+
+        var levelHeight = data.map.length;
+
+        for (var y=0; y<levelHeight; y++){
+            var line = data.map[y];
+            var levelWidth = line.length/charCount;
+
+            for (var x=0;x<levelWidth;x++){
+                index = y*(levelWidth) + x;
+                var code = "";
+                for (var c = 0; c<charCount; c++){
+                    code = code + line[(x*charCount)+c];
+                }
+                var gameObject = GameObjects[code] || GameObjects.EMPTYSPACE;
+
+                if (gameObject == GameObjects.PLAYER.id){
+                   // center player in view;
+                    scrollTilesX = Math.max(x-10,0);
+                    scrollTilesY = Math.max(y-10,0);
+                }
+
+                var object = new MapObject(gameObject,index);
+
+                map.push(object);
+
+            }
+        }
+        return map;
+    };
+
+
+    self.loadFromUrl = function(url,callback){
+        loadUrl(url,function(data){
+            Game.setLevel(data);
+            map  = self.parse(data);
+            if (callback) callback();
+        })
     };
 
     return self;
