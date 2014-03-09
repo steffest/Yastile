@@ -12,7 +12,7 @@ module.exports = function(grunt) {
             },
             my_target: {
                 files: {
-                    'js/min.js': ['js/model/*.js','js/engine/*.js','js/*.js']
+                    'js/min.js': ['js/model/*.js','js/engine/*.js','js/*.js','!js/min.js']
                 }
             }
         },
@@ -22,8 +22,8 @@ module.exports = function(grunt) {
                     archive: 'archive.zip'
                 },
                 files: [
-                    {src: ['index.html'], filter: 'isFile'},
-                    {src: ['js/min.js'], filter: 'isFile'},
+                    {src: ['index.html']},
+                    {src: ['js/min.js']},
                     {src: ['resources/**']}
                 ]
             }

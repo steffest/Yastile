@@ -1,7 +1,9 @@
 var loadResources = function(resource,callback){
     var img = new Image();
     img.onload = function() {
-        for (var i=0;i<30;i++){
+        var t = Game.getSettings().tileSize;
+        var maxSprites = Math.floor(img.width/t) * Math.floor(img.height/t)
+        for (var i=0;i<maxSprites;i++){
             var s = new Sprite(i,img);
             sprites.push(s);
         }

@@ -64,6 +64,84 @@ var GameObjects = (function(){
             animationPushLeft:[16,17,18,17]
         });
 
+        game.YAM = new GameObject({
+            id: 23,
+            code: "Yd",
+            canMove: true,
+            canBePickedUp: false,
+            eachStep: function(object){
+                if (object.wasMoving()){
+                    object.moveIfPossible(object.sameDirection())
+                }else{
+                    object.moveIfPossible(Game.getRandomDirection());
+                }
+            }
+        });
+
+        game.SPIDER = new GameObject({
+            id: 54,
+            code: "Bu",
+            canMove: true,
+            canBePickedUp: false,
+            animationRight:[56,57,58,59],
+            animationLeft:[60,61,62,63],
+            animationUp:[51,52,53,52],
+            animationDown:[49,48,50,48],
+            animationRotateUpToRight:[68,69,70,71],
+            animationRotateUpToLeft:[68,69,70,71],
+            animationRotateRightToUp:[68,69,70,71],
+            animationRotateRightToDown:[68,69,70,71],
+            animationRotateDownToLeft:[68,69,70,71],
+            animationRotateDownToRight:[68,69,70,71],
+            animationRotateLeftToUp:[68,69,70,71],
+            animationRotateLeftToDown:[68,69,70,71],
+            turn: function(object,direction){
+                var anim = "Rotate"
+                    + Game.getDirectionName(object.wasMovingToDirection)
+                    + "To"
+                    + Game.getDirectionName(direction);
+                object.setNext("movingInToDirection",direction);
+                object.setNext("hasTurned",true);
+                object.animate(anim);
+                object.isTurning = true;
+            },
+            eachStep: function(object){
+                if (object.hasTurned){
+                    object.setNext("hasTurned",false);
+                    object.moveIfPossible(object.sameDirection())
+                }
+
+                if (object.wasMoving() && !object.isMoving()){
+                    // turn right if possible
+                    var preferedDirection = Game.getDirectionTurnedRight(object.wasMovingToDirection);
+
+                    if (object.canMove(preferedDirection)){
+                        game.SPIDER.turn(object,preferedDirection);
+                    }else{
+                        // if cannot turn right, move forward
+                        object.moveIfPossible(object.sameDirection());
+
+                        if (!object.isMoving()){
+                            // still not moving? try turn right
+                            var unPreferedDirection = Game.getDirectionTurnedLeft(object.wasMovingToDirection);
+
+                            if (object.canMove(unPreferedDirection)){
+                                game.SPIDER.turn(object,unPreferedDirection);
+                            }else{
+                                // can't go right either, nothing left to do: turn around
+                                game.SPIDER.turn(object,preferedDirection);
+                            }
+                        }
+                    }
+                }
+
+                if (!object.isMoving() && !object.isTurning){
+                    // start of game, Spider should always be moving or turning;
+                    object.moveIfPossible(Game.getRandomDirection());
+                }
+            }
+        });
+
     };
 
     return game;

@@ -62,7 +62,7 @@ MapObject.prototype.process = function(){
     var me = this;
     var obj = me.gameObject;
     var targetObject;
-
+    if (obj.inActive) return; // inanimate object, don't bother;
 
     if (this.id == GameObjects.PLAYER.id){
 
@@ -122,9 +122,15 @@ MapObject.prototype.process = function(){
 
     if (this.wasMoving() && !this.isMoving()){
         // object stopped moving
-        if (this.movedInFrom == DIRECTION.DOWN){
+        if (this.wasMovingToDirection == DIRECTION.DOWN){
             // object has fallen onto something;
             if (obj.onFallen) obj.onFallen(this.getObject(DIRECTION.DOWN))
+        }
+    }
+
+    if (!this.isMoving()){
+        if (obj.eachStep) {
+            obj.eachStep(this);
         }
     }
 
@@ -134,14 +140,16 @@ MapObject.prototype.process = function(){
 };
 
 MapObject.prototype.fullStep = function(){
-    if (typeof this.next != "undefined"){
-        this.id = this.next;
+    if (this.next){
+        for (key in this.next){
+            this[key] = this.next[key];
+        }
         this.gameObject = GameObjects[this.id];
         this.staticFrame = this.gameObject.getStaticFrame();
-        this.movedInFrom = this.movingInFrom;
+        this.wasMovingToDirection = this.movingInToDirection;
         if (this.id == GameObjects.PLAYER.id) Map.setPlayerObject(this);
     }else{
-        this.movedInFrom = undefined;
+        this.wasMovingToDirection = undefined;
     }
 
     this.reset();
@@ -150,17 +158,14 @@ MapObject.prototype.fullStep = function(){
 MapObject.prototype.reset = function(){
     this.moveDirection = undefined;
     this.next = undefined;
-    this.movingInFrom = undefined;
+    this.movingInToDirection = undefined;
     this.animation = false;
     this.processed = false;
 };
 
-MapObject.prototype.setNextId = function(id){
-    this.next = id;
-};
-
-MapObject.prototype.setId = function(id){
-    this.id = id;
+MapObject.prototype.setNext= function(property,value){
+    this.next = this.next || {};
+    this.next[property] = value;
 };
 
 MapObject.prototype.getObject = function(direction){
@@ -196,19 +201,36 @@ MapObject.prototype.canMove = function(direction){
     }else{
         // targetobject is accepting a moving object
         var targetObject = this.getObject(direction);
-        if (targetObject.next) return false;
+        if (targetObject){
+            if (targetObject.next && targetObject.next.id) return false;
 
-        if (this.gameObject.canMoveTo(targetObject,direction)){
-            return true;
+            if (this.gameObject.canMoveTo(targetObject,direction)){
+                return true;
+            }
+        }else{
+            console.error("could not get object in direction" + direction,this);
         }
+
     }
-
-
-
-
 
     return false;
 
+};
+
+MapObject.prototype.canMoveLeft = function(){
+    return this.canMove(DIRECTION.LEFT);
+};
+
+MapObject.prototype.canMoveRight = function(){
+    return this.canMove(DIRECTION.RIGHT);
+};
+
+MapObject.prototype.canMoveUp = function(){
+    return this.canMove(DIRECTION.UP);
+};
+
+MapObject.prototype.canMoveDown = function(){
+    return this.canMove(DIRECTION.DOWN);
 };
 
 MapObject.prototype.isMoving = function(){
@@ -216,22 +238,44 @@ MapObject.prototype.isMoving = function(){
 };
 
 MapObject.prototype.wasMoving = function(){
-    return !!this.movedInFrom;
+    return !!this.wasMovingToDirection;
+};
+
+MapObject.prototype.sameDirection = function(){
+    return this.wasMovingToDirection;
 };
 
 MapObject.prototype.move = function(direction){
     this.moveDirection = direction;
-    this.next = 0;
+    this.setNext("id",0);
     this.animation = direction;
 
     var targetObject = this.getObject(direction);
-    targetObject.setNextId(this.id);
-    //targetObject.setId(0);
-    targetObject.movingInFrom = direction;
+    targetObject.setNext("id",this.id);
+    targetObject.movingInToDirection = direction;
 };
+
 
 MapObject.prototype.moveIfPossible = function(direction){
     if (this.canMove(direction)) this.move(direction);
 };
+MapObject.prototype.turnIfPossible = function(direction){
 
+};
+
+MapObject.prototype.moveLeftIfPossible = function(){
+    this.moveIfPossible(DIRECTION.LEFT);
+};
+MapObject.prototype.moveRightIfPossible = function(){
+    this.moveIfPossible(DIRECTION.RIGHT);
+};
+MapObject.prototype.moveUpIfPossible = function(){
+    this.moveIfPossible(DIRECTION.UP);
+};
+MapObject.prototype.moveDownIfPossible = function(){
+    this.moveIfPossible(DIRECTION.DOWN);
+};
+MapObject.prototype.animate = function(animation){
+    this.animation = animation;
+};
 

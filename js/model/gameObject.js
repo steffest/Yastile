@@ -1,7 +1,9 @@
 var GameObject = function(properties){
 
+    var hasFunction = false;
     for (var key in properties){
         this[key] = properties[key];
+        if (typeof properties[key] == "function") hasFunction=true;
     }
 
     this.setDefault("canMove",false);
@@ -19,6 +21,8 @@ var GameObject = function(properties){
     if (properties.animationLeft) this.animationFrames[DIRECTION.LEFT] = properties.animationLeft;
     if (properties.animationUp) this.animationFrames[DIRECTION.UP] = properties.animationUp;
     if (properties.animationDown) this.animationFrames[DIRECTION.DOWN] = properties.animationDown;
+
+    this.inActive = !(this.canMove || this.canFall || hasFunction);
 
     GameObjects[this.id] = this;
     GameObjects[this.code] = this;
@@ -42,6 +46,7 @@ GameObject.prototype.getStaticFrame = function(){
     return frame;
 };
 
+
 GameObject.prototype.isEmpty = function(){
     return (this.id == 0);
 };
@@ -52,7 +57,7 @@ GameObject.prototype.isPlayer = function(){
 
 GameObject.prototype.setDefault = function(property,value){
     if (typeof this[property] == "undefined") this[property]=value;
-}
+};
 
 GameObject.prototype.canMoveTo = function(targetObject,direction){
     var targetGameObject = targetObject.gameObject;

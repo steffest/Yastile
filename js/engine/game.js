@@ -257,11 +257,38 @@ var Game= (function(){
         return settings;
     };
 
+    self.getRandomDirection = function(){
+        return DIRECTION.LEFT + Math.floor(random()*4);
+    };
+
     self.getRandomHorizontalDirection = function(){
         if (random()<=0.5){
             return DIRECTION.LEFT;
         }else{
             return DIRECTION.RIGHT;
+        }
+    };
+
+    self.getDirectionTurnedLeft = function(direction){
+        var result = direction-1;
+        if (result < DIRECTION.LEFT) result = DIRECTION.DOWN
+        return result;
+    };
+
+    self.getDirectionTurnedRight = function(direction){
+        var result = direction+1;
+        if (result > DIRECTION.DOWN) result = DIRECTION.LEFT;
+        return result;
+    };
+
+    self.getDirectionName = function(direction){
+        // a bit stupid ... but keeping the DIRECTION enum as simple int makes sense
+        switch (direction){
+            case DIRECTION.LEFT: return  "Left"; break;
+            case DIRECTION.RIGHT: return "Right"; break;
+            case DIRECTION.UP: return "Up"; break;
+            case DIRECTION.DOWN: return "Down"; break;
+            default : return "none";
         }
     };
 
