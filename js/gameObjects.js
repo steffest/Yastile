@@ -5,40 +5,40 @@ var GameObjects = (function(){
 
         game.EMPTYSPACE = new GameObject({
             id: 0,
-            code: "  "
+            code: "  ",
+            canBeCollected: true
         });
 
         game.STONEWALL = new GameObject({
             id: 2,
             code: "Ww",
-            spriteIndex: 2,
-            canBePickedUp: false
+            spriteIndex: 2
         });
 
         game.STEELWALL = new GameObject({
             id: 14,
             code: "Ws",
-            spriteIndexes: [14,4,5,6,7],
-            canBePickedUp: false
+            spriteIndexes: [14,4,5,6,7]
         });
 
         game.GRASS = new GameObject({
             id: 15,
             code: "..",
-            spriteIndex: 15
+            spriteIndex: 15,
+            canBeCollected: true
         });
 
         game.EMERALD = new GameObject({
             id: 3,
             code: "$1",
-            spriteIndex: 3
+            spriteIndex: 3,
+            canBeCollected: true
         });
 
         game.BOULDER = new GameObject({
             id: 26,
             code: "rr",
             spriteIndex: 26,
-            canBePickedUp: false,
             canFall: true,
             onFallen: function(mapObject){
                 //console.error("rock fell on "  + mapObject.gameObject.code);
@@ -68,7 +68,6 @@ var GameObjects = (function(){
             id: 23,
             code: "Yd",
             canMove: true,
-            canBePickedUp: false,
             eachStep: function(object){
                 if (object.wasMoving()){
                     object.moveIfPossible(object.sameDirection())
@@ -82,7 +81,6 @@ var GameObjects = (function(){
             id: 54,
             code: "Bu",
             canMove: true,
-            canBePickedUp: false,
             animationRight:[56,57,58,59],
             animationLeft:[60,61,62,63],
             animationUp:[51,52,53,52],
@@ -147,7 +145,6 @@ var GameObjects = (function(){
             id: 40,
             code: "Ro",
             canMove: true,
-            canBePickedUp: false,
             animationPulsate: [40,40,41,41,42,42,43,43,44,44,45,45,46,46,47,47],
             eachStep: function(object){
                 if (!object.isAnimating()){
@@ -155,6 +152,30 @@ var GameObjects = (function(){
                 }
             }
         });
+
+        game.KEY = new GameObject({
+            id: 74,
+            code: "Kg",
+            canBeCollected: true,
+            onCollect: function(object){
+                game.DOOR.shouldOpen = true;
+            }
+        });
+
+        game.DOOR = new GameObject({
+            id: 72,
+            code: "Dg",
+            eachStep: function(object){
+                if (!object.isOpen && this.shouldOpen){
+                    //this.spriteIndex = 73;
+                    //object.isOpen = true;
+                    //object.refresh();
+                    object.transformInto(game.EMPTYSPACE);
+                    object.addLayer(this.id + 1);
+                }
+            }
+        });
+
 
     };
 

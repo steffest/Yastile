@@ -7,7 +7,7 @@ var GameObject = function(properties){
     }
 
     this.setDefault("canMove",false);
-    this.setDefault("canBePickedUp",true);
+    this.setDefault("canBeCollected",false);
     this.setDefault("canFall",false);
     this.setDefault("isStableSurface",true);
 
@@ -63,7 +63,7 @@ GameObject.prototype.canMoveTo = function(targetObject,direction){
     if (targetGameObject.isEmpty()) return true;
 
     if (this.isPlayer()){
-        if (targetGameObject.canBePickedUp) return true;
+        if (targetGameObject.canBeCollected) return true;
     }
 
     if (targetGameObject.isPlayer()){

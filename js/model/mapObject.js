@@ -24,6 +24,12 @@ MapObject.prototype.render = function(step,scrollOffset){
     var x = (this.left-scrollOffset.tileX) * this.tileSize;
     var y = (this.top-scrollOffset.tileY) * this.tileSize;
 
+    x += scrollOffset.x*step;
+    y += scrollOffset.y*step;
+
+    var baseX = x;
+    var baseY = y;
+
     if (this.moveDirection == DIRECTION.DOWN){
         y += step*this.tickOffset;
     }
@@ -40,9 +46,6 @@ MapObject.prototype.render = function(step,scrollOffset){
         x += step*this.tickOffset;
     }
 
-    x += scrollOffset.x*step;
-    y += scrollOffset.y*step;
-
     if (this.id>0){
         var frame;
         if (this.animation){
@@ -52,6 +55,11 @@ MapObject.prototype.render = function(step,scrollOffset){
         }
 
         ctx.drawImage(frame,x, y);
+    }
+
+    if (this.toplayer){
+        frame = sprites[this.toplayer];
+        ctx.drawImage(frame,baseX, baseY);
     }
 
 };
@@ -65,11 +73,17 @@ MapObject.prototype.process = function(){
     if (obj.inActive) return; // inanimate object, don't bother;
 
     if (this.id == GameObjects.PLAYER.id){
+        var d, u, l, r, targetObject;
 
-        if (Input.isDown())  this.moveIfPossible(DIRECTION.DOWN);
-        if (Input.isUp())    this.moveIfPossible(DIRECTION.UP);
-        if (Input.isLeft())  this.moveIfPossible(DIRECTION.LEFT);
-        if (Input.isRight()) this.moveIfPossible(DIRECTION.RIGHT);
+        if (Input.isDown())  d = this.moveIfPossible(DIRECTION.DOWN);
+        if (Input.isUp())    u = this.moveIfPossible(DIRECTION.UP);
+        if (Input.isLeft())  l = this.moveIfPossible(DIRECTION.LEFT);
+        if (Input.isRight()) r = this.moveIfPossible(DIRECTION.RIGHT);
+
+        targetObject = d || u || l || r;
+        if (targetObject && targetObject.gameObject.onCollect){
+            targetObject.gameObject.onCollect(targetObject);
+        }
 
         if (!this.isMoving()){
             if (Input.isRight()){
@@ -260,14 +274,17 @@ MapObject.prototype.move = function(direction){
     var targetObject = this.getObject(direction);
     targetObject.setNext("id",this.id);
     targetObject.movingInToDirection = direction;
+
+    return targetObject;
 };
 
 
 MapObject.prototype.moveIfPossible = function(direction){
-    if (this.canMove(direction)) this.move(direction);
-};
-MapObject.prototype.turnIfPossible = function(direction){
-
+    if (this.canMove(direction)) {
+        return this.move(direction);
+    }else{
+        return false;
+    }
 };
 
 MapObject.prototype.moveLeftIfPossible = function(){
@@ -298,5 +315,17 @@ MapObject.prototype.animate = function(animation){
 
 MapObject.prototype.isAnimating = function(){
     return this.animation;
+};
+MapObject.prototype.refresh = function(){
+    this.setNext("id",this.id);
+};
+
+MapObject.prototype.transformInto = function(gameObject,animation){
+    this.setNext("id",gameObject.id);
+    if (animation) this.animate(animation);
+};
+
+MapObject.prototype.addLayer = function(spriteIndex){
+    this.toplayer = spriteIndex;
 };
 
