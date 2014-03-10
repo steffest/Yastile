@@ -30,10 +30,9 @@ var GameObject = function(properties){
 
 GameObject.prototype.getAnimationFrame = function(animation,step){
     var frame = this.spriteIndex;
-    var animationFrames = this.animationFrames[animation];
-    if (!animationFrames) animationFrames = this["animation" + animation];
-    if (animationFrames && animationFrames.length>step){
-        frame = animationFrames[step];
+    if (animation){
+        var index = Math.min(step,animation.length-1);
+        frame = animation[index];
     }
     return sprites[frame];
 };

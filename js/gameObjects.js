@@ -142,6 +142,20 @@ var GameObjects = (function(){
             }
         });
 
+
+        game.BLOB = new GameObject({
+            id: 40,
+            code: "Ro",
+            canMove: true,
+            canBePickedUp: false,
+            animationPulsate: [40,40,41,41,42,42,43,43,44,44,45,45,46,46,47,47],
+            eachStep: function(object){
+                if (!object.isAnimating()){
+                    object.animate("Pulsate");
+                }
+            }
+        });
+
     };
 
     return game;

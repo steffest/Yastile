@@ -46,7 +46,7 @@ MapObject.prototype.render = function(step,scrollOffset){
     if (this.id>0){
         var frame;
         if (this.animation){
-            frame = this.gameObject.getAnimationFrame(this.animation,step);
+            frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame);
         }else{
             frame = sprites[this.staticFrame];
         }
@@ -75,7 +75,7 @@ MapObject.prototype.process = function(){
             if (Input.isRight()){
                 targetObject = this.getObject(DIRECTION.RIGHT);
                 if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
-                    this.animation = ANIMATION.PUSH_RIGHT;
+                    this.animate(ANIMATION.PUSH_RIGHT);
                     if (targetObject.canMove(DIRECTION.RIGHT) && !(targetObject.gameObject.canFall && targetObject.canMove(DIRECTION.DOWN))) {
                         Maybe(function(){
                             targetObject.move(DIRECTION.RIGHT);
@@ -88,7 +88,7 @@ MapObject.prototype.process = function(){
             if (Input.isLeft()){
                 targetObject = this.getObject(DIRECTION.LEFT);
                 if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.horizontal){
-                    this.animation = ANIMATION.PUSH_LEFT;
+                    this.animate(ANIMATION.PUSH_LEFT);
                     if (targetObject.canMove(DIRECTION.LEFT) && !(targetObject.gameObject.canFall && targetObject.canMove(DIRECTION.DOWN))){
                         Maybe(function(){
                             targetObject.move(DIRECTION.LEFT);
@@ -128,18 +128,18 @@ MapObject.prototype.process = function(){
         }
     }
 
-    if (!this.isMoving()){
+    //if (!this.isMoving()){
         if (obj.eachStep) {
             obj.eachStep(this);
         }
-    }
+    //}
 
     this.processed = true;
 
 
 };
 
-MapObject.prototype.fullStep = function(){
+MapObject.prototype.fullStep = function(step){
     if (this.next){
         for (key in this.next){
             this[key] = this.next[key];
@@ -152,6 +152,14 @@ MapObject.prototype.fullStep = function(){
         this.wasMovingToDirection = undefined;
     }
 
+    if (this.animation){
+        if (this.animation.length > this.animationStartFrame + step){
+            this.animationStartFrame = this.animationStartFrame + step + 1;
+        }else{
+            this.animation = false;
+        }
+    }
+
     this.reset();
 };
 
@@ -159,7 +167,6 @@ MapObject.prototype.reset = function(){
     this.moveDirection = undefined;
     this.next = undefined;
     this.movingInToDirection = undefined;
-    this.animation = false;
     this.processed = false;
 };
 
@@ -248,7 +255,7 @@ MapObject.prototype.sameDirection = function(){
 MapObject.prototype.move = function(direction){
     this.moveDirection = direction;
     this.setNext("id",0);
-    this.animation = direction;
+    this.animate(direction);
 
     var targetObject = this.getObject(direction);
     targetObject.setNext("id",this.id);
@@ -276,6 +283,20 @@ MapObject.prototype.moveDownIfPossible = function(){
     this.moveIfPossible(DIRECTION.DOWN);
 };
 MapObject.prototype.animate = function(animation){
-    this.animation = animation;
+
+    if (typeof animation == "string" || typeof animation == "number"){
+        this.animation = this.gameObject[animation];
+        if (!this.animation) this.animation = this.gameObject["animation" + animation];
+        if (!this.animation) this.animation = this.gameObject.animationFrames[animation];
+        if (!this.animation) this.animation = this.gameObject.animationFrames["animation" + animation];
+    }else{
+        this.animation = animation
+    }
+
+    this.animationStartFrame = 0;
+};
+
+MapObject.prototype.isAnimating = function(){
+    return this.animation;
 };
 

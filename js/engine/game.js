@@ -89,8 +89,6 @@ var Game= (function(){
             };
             img.src = "resources/back.jpg";
 
-
-
         });
     };
 
@@ -153,7 +151,7 @@ var Game= (function(){
             render(step,scrollOffset);
 
             if (step == (targetTicksPerSecond-1)){
-                fullStep();
+                fullStep(step);
             }
         }
     }
@@ -205,12 +203,12 @@ var Game= (function(){
 
     }
 
-    function fullStep(){
+    function fullStep(step){
         for (var i = 0, len = level.height*level.width; i<len; i++){
             var object = map[i];
-            object.fullStep();
+            object.fullStep(step);
         }
-        Map.fullStep();
+        Map.fullStep(step);
     }
 
     function drawFPS(){
