@@ -138,7 +138,7 @@ MapObject.prototype.process = function(){
         // object stopped moving
         if (this.wasMovingToDirection == DIRECTION.DOWN){
             // object has fallen onto something;
-            if (obj.onFallen) obj.onFallen(this.getObject(DIRECTION.DOWN))
+            if (obj.onFallen) obj.onFallen(this,this.getObject(DIRECTION.DOWN))
         }
     }
 
@@ -167,7 +167,7 @@ MapObject.prototype.fullStep = function(step){
     }
 
     if (this.animation){
-        if (this.animation.length > this.animationStartFrame + step){
+        if (this.animation.length > this.animationStartFrame + step + 1){
             this.animationStartFrame = this.animationStartFrame + step + 1;
         }else{
             this.animation = false;
@@ -175,6 +175,11 @@ MapObject.prototype.fullStep = function(step){
     }
 
     this.reset();
+
+    if (this.action){
+        this.action(this);
+        this.action = undefined;
+    }
 };
 
 MapObject.prototype.reset = function(){
@@ -320,9 +325,10 @@ MapObject.prototype.refresh = function(){
     this.setNext("id",this.id);
 };
 
-MapObject.prototype.transformInto = function(gameObject,animation){
+MapObject.prototype.transformInto = function(gameObject,animation,onComplete){
     this.setNext("id",gameObject.id);
     if (animation) this.animate(animation);
+    if (onComplete) this.setNext("action",onComplete)
 };
 
 MapObject.prototype.addLayer = function(spriteIndex){

@@ -176,8 +176,33 @@ var GameObjects = (function(){
             }
         });
 
+        game.EXPLOSION = new GameObject({
+            id: 80,
+            code: "**",
+            animationBoom : [80,81,82,83,84,85,86,87],
+            eachStep: function(object){
+                if (!object.isAnimating()){
+                    object.transformInto(game.EMPTYSPACE,"Boom");
+                }
+            }
+        });
 
+        game.BOMB = new GameObject({
+            id: 34,
+            code: "Bo",
+            canFall: true,
+            canBePushed:{
+                vertical: false,
+                horizontal: true,
+                friction: 0
+            },
+            animationSmash: [35,36,37,38],
+            onFallen: function(object,on){
+                object.transformInto(game.EXPLOSION,"Smash",function(object){
+                    object.transformInto(game.EMERALD,"Boom");
+                })
+            }
+        });
     };
-
     return game;
 }());

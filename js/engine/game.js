@@ -11,7 +11,7 @@ var Game= (function(){
     var tickps;
     var frameInterval = 1000/targetFps;
     var settings;
-    var step = 0;
+    var step = -1;
     var gameSection = 0;
     var level;
 
@@ -139,7 +139,7 @@ var Game= (function(){
     }
 
     function tick(){
-        // one Game Tick - occurs FPS
+        // one Game Tick
         if (gameSection == 0){
             step++;
             if (step>=targetTicksPerSecond) step = 0;
@@ -147,6 +147,7 @@ var Game= (function(){
             if (step == 0){
                 processGrid();
             }
+
             var scrollOffset = Map.getScrollOffset();
             render(step,scrollOffset);
 
