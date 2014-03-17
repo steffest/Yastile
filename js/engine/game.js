@@ -12,11 +12,15 @@ var Game= (function(){
     var frameInterval = 1000/targetFps;
     var settings;
     var step = -1;
-    var gameSection = 0;
-    var level;
+    var _score = 0;
+    var _targetScore = 0;
+    var _isWon = false;
 
     var backgroundPattern;
     var backgroundImage;
+    var gameController;
+
+    var currentTickFunction = function(){};
 
     self.init = function(properties){
 
@@ -34,8 +38,6 @@ var Game= (function(){
 
         }
         ctx = canvas.getContext("2d");
-
-        if (properties.showOnScreenControls) Input.addTouchController();
 
         if (properties.scaleToFit){
             settings.originalViewPortWidth = properties.viewPortWidth;
@@ -55,6 +57,7 @@ var Game= (function(){
 
         properties.borderScrollOffset = 4;
 
+        UI.init();
         GameObjects.init();
         Map.init(properties);
 
@@ -75,22 +78,44 @@ var Game= (function(){
 
                 context.drawImage(img, 0, 0);
 
-                level = properties.level;
-                if (level){
-                    if (level.map == "random") {
-                        map = Map.generateRandom(level);
-                        main();
-                    }else{
-                        Map.loadFromUrl(level.map,function(){
-                            main();
-                        })
-                    }
+                if (properties.start) {
+                    properties.start();
+                }else if (properties.level){
+                    self.loadLevel(properties.level)
+                }else{
+                    console.error("nothing to do!");
                 }
+                main();
             };
             img.src = "resources/back.jpg";
 
         });
     };
+
+    self.start = function(){
+        UI.removeAllElements();
+        if (settings.showOnScreenControls){
+            gameController = new UI.GameController(settings.onScreenControlsImage);
+            UI.addElement(gameController);
+        }
+
+        self.setGameSection(gameLoop)
+    };
+
+    self.loadLevel = function(levelData){
+        console.error("loading level ",levelData)
+        if (typeof levelData == "string"){
+            Map.loadFromUrl(levelData,function(){
+                self.start();
+            })
+        }else{
+
+            if (levelData.map == "random") {
+                map = Map.generateRandom(levelData);
+                self.start();
+            }
+        }
+    }
 
     function scaleToFit(){
         var targetWidth = settings.originalViewPortWidth * settings.tileSize;
@@ -102,16 +127,21 @@ var Game= (function(){
         canvas.width  = targetWidth;
         canvas.height = targetHeight;
 
-        if (settings.showOnScreenControls) Input.setTouchControllerPosition();
+        if (gameController) gameController.setPosition();
 
         if(navigator.isCocoonJS) {
-            // scaling is done by Cocoon internally
+            // scaling is done by Cocoon internaly
+            UI.setScale(1);
         } else {
             //ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = false;
 
             // note: this produces blurry results in Chrome
             canvas.style.width = window.innerWidth + 'px';
             canvas.style.height = window.innerHeight + 'px';
+
+            var scaleFactor = parseInt(canvas.style.width)/canvas.width;
+            UI.setScale(scaleFactor);
+
         }
 
 
@@ -133,6 +163,7 @@ var Game= (function(){
         fps = 1000/(now-lastTime);
         lastTime = now;
 
+        if (settings.showScore) drawScore();
         if (settings.showFPS) drawFPS();
 
         requestAnimFrame(main);
@@ -140,31 +171,34 @@ var Game= (function(){
 
     function tick(){
         // one Game Tick
-        if (gameSection == 0){
-            step++;
-            if (step>=targetTicksPerSecond) step = 0;
+        currentTickFunction();
+    }
 
-            if (step == 0){
-                processGrid();
-            }
+    function gameLoop(){
+        step++;
+        if (step>=targetTicksPerSecond) step = 0;
 
-            var scrollOffset = Map.getScrollOffset();
-            render(step,scrollOffset);
+        if (step == 0){
+            processGrid();
+        }
 
-            if (step == (targetTicksPerSecond-1)){
-                fullStep(step);
-            }
+        var scrollOffset = Map.getScrollOffset();
+        render(step,scrollOffset);
+
+        if (step == (targetTicksPerSecond-1)){
+            fullStep(step);
         }
     }
 
     function processGrid(){
-
         //process Player first
         var playerObject = Map.getPlayerObject();
         if (playerObject) playerObject.process();
 
+        var levelProperties = Map.getLevelProperties();
 
-        for (var i = 0, len = level.height*level.width; i<len; i++){
+
+        for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
             var object = map[i];
             object.process();
         }
@@ -182,10 +216,11 @@ var Game= (function(){
 
 
         ctx.drawImage(backgroundImage,x, y);
+        var levelProperties = Map.getLevelProperties();
 
 
         // draw Sprite Map
-        for (var i = 0, len = level.height*level.width; i<len; i++){
+        for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
             var object = map[i];
             if (object.isVisible(scrollOffset)) object.render(step,scrollOffset);
         }
@@ -194,18 +229,13 @@ var Game= (function(){
         var playerObject = Map.getPlayerObject();
         if ( playerObject)  playerObject.render(step,scrollOffset);
 
-
-
-        //draw Mask
-        //ctx.drawImage(maskImage,0, 0);
-
-
-        Input.drawTouchController();
+        UI.renderElements();
 
     }
 
     function fullStep(step){
-        for (var i = 0, len = level.height*level.width; i<len; i++){
+        var levelProperties = Map.getLevelProperties();
+        for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
             var object = map[i];
             object.fullStep(step);
         }
@@ -230,6 +260,14 @@ var Game= (function(){
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
         ctx.fillText(Math.round(fps) + " frames/s , " + Math.round(tickps) + " ticks/s + (" + average + ")" , 10, 26);
+    }
+
+    function drawScore(){
+        ctx.fillStyle = "Black";
+        ctx.fillRect(0,30,200,30);
+        ctx.fillStyle = "White";
+        ctx.font      = "normal 10pt Arial";
+        ctx.fillText("Score: " + _score , 10, 56);
     }
 
     self.getTileSize = function(){
@@ -289,6 +327,28 @@ var Game= (function(){
             case DIRECTION.DOWN: return "Down"; break;
             default : return "none";
         }
+    };
+
+    self.setTargetScore = function(score){
+        _targetScore = score;
+    };
+
+    self.addScore = function(points){
+        _score += points;
+    };
+
+    self.hasTargetScore = function(){
+        return _score>=_targetScore;
+    };
+
+    self.isWon = function(value){
+        if (value){_isWon = value}
+        if (_isWon) console.error("WON!");
+        return _isWon;
+    };
+
+    self.setGameSection = function(gameStepFunction){
+        currentTickFunction = gameStepFunction;
     };
 
     return self;

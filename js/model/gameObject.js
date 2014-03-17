@@ -26,6 +26,16 @@ var GameObject = function(properties){
 
     GameObjects[this.id] = this;
     GameObjects[this.code] = this;
+
+    if (this.alias){
+        if (typeof this.alias == "string"){
+            GameObjects[this.alias] = this;
+        }else{
+            for (var i = 0; i< this.alias.length; i++){
+                GameObjects[this.alias[i]] = this;
+            }
+        }
+    }
 };
 
 GameObject.prototype.getAnimationFrame = function(animation,step){

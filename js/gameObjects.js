@@ -1,17 +1,35 @@
 var GameObjects = (function(){
     var game = {};
 
+    game.checkLightBulb = function(object){
+        if (object.isLightSocket){
+            object.animateIfPossible("On");
+            if (!object.objectProperties().isActivated){
+                object.objectProperties().isActivated = true;
+                Game.addScore(1);
+                if (Game.hasTargetScore()) Game.isWon(true);
+            }
+        }else{
+            if (object.objectProperties().isActivated){
+                object.objectProperties().isActivated = false;
+                Game.addScore(-1);
+            }
+        }
+    };
+
     game.init = function(){
 
         game.EMPTYSPACE = new GameObject({
             id: 0,
             code: "  ",
+            alias: " ",
             canBeCollected: true
         });
 
         game.STONEWALL = new GameObject({
             id: 2,
             code: "Ww",
+            alias: "W",
             spriteIndex: 2
         });
 
@@ -39,6 +57,7 @@ var GameObjects = (function(){
             id: 26,
             code: "rr",
             spriteIndex: 26,
+            spriteIndexes: [24,25,26],
             canFall: true,
             onFallen: function(mapObject){
                 //console.error("rock fell on "  + mapObject.gameObject.code);
@@ -54,6 +73,7 @@ var GameObjects = (function(){
         game.PLAYER = new GameObject({
             id: 9,
             code: "P1",
+            alias: "P",
             canMove: true,
             spriteIndex: 9,
             animationRight:[11,12,13,12],
@@ -70,7 +90,7 @@ var GameObjects = (function(){
             canMove: true,
             eachStep: function(object){
                 if (object.wasMoving()){
-                    object.moveIfPossible(object.sameDirection())
+                    object.moveIfPossible(object.sameDirection());
                 }else{
                     object.moveIfPossible(Game.getRandomDirection());
                 }
@@ -94,10 +114,10 @@ var GameObjects = (function(){
             animationRotateLeftToUp:[68,69,70,71],
             animationRotateLeftToDown:[68,69,70,71],
             turn: function(object,direction){
-                var anim = "Rotate"
-                    + Game.getDirectionName(object.wasMovingToDirection)
-                    + "To"
-                    + Game.getDirectionName(direction);
+                var anim = "Rotate" + 
+                    Game.getDirectionName(object.wasMovingToDirection) +
+                    "To" +
+                    Game.getDirectionName(direction);
                 object.setNext("movingInToDirection",direction);
                 object.setNext("hasTurned",true);
                 object.animate(anim);
@@ -106,7 +126,7 @@ var GameObjects = (function(){
             eachStep: function(object){
                 if (object.hasTurned){
                     object.setNext("hasTurned",false);
-                    object.moveIfPossible(object.sameDirection())
+                    object.moveIfPossible(object.sameDirection());
                 }
 
                 if (object.wasMoving() && !object.isMoving()){
@@ -154,11 +174,17 @@ var GameObjects = (function(){
         });
 
         game.KEY = new GameObject({
-            id: 74,
+            id: 88,
             code: "Kg",
             canBeCollected: true,
+            animationRotate: [88,88,89,89,90,90,91,91,92,92,93,93,94,94,95,95,96,96,97,97,98,98,99,99,88,88,89,89,90,90,91,91,92,92,93,93,94,94,95,95,96,96,97,97,98,98,99,99],
             onCollect: function(object){
                 game.DOOR.shouldOpen = true;
+            },
+            eachStep: function(object){
+                if (!object.isAnimating()){
+                    object.animate("Rotate");
+                }
             }
         });
 
@@ -200,7 +226,53 @@ var GameObjects = (function(){
             onFallen: function(object,on){
                 object.transformInto(game.EXPLOSION,"Smash",function(object){
                     object.transformInto(game.EMERALD,"Boom");
-                })
+                });
+            }
+        });
+
+        game.LIGHTBULB = new GameObject({
+            id: 100,
+            code: "Lb",
+            alias: "o",
+            canBePushed:{
+                vertical: true,
+                horizontal: true,
+                friction: 0
+            },
+            animationOn: [101,101,102,102,103,103,101,101,102,102,103,103],
+            eachStep: function(object){
+                game.checkLightBulb(object);
+            }
+        });
+
+        game.AIRBUBBLE = new GameObject({
+            id: 76,
+            code: "La",
+            alias: "a",
+            canBePushed:{
+                vertical: true,
+                horizontal: true,
+                friction: 0
+            },
+            animationOn: [101,101,102,102,103,103,101,101,102,102,103,103],
+            eachStep: function(object){
+                if (object.wasMoving()){
+                    object.moveIfPossible(object.sameDirection());
+                }
+                game.checkLightBulb(object);
+            }
+        });
+
+        game.LIGHTSOCKET = new GameObject({
+            id: 75,
+            code: "Ls",
+            alias: ":",
+            eachStep: function(object){
+                if (!object.isAnimating()){
+                    object.transformInto(game.EMPTYSPACE);
+                    object.addLayer(this.id,"bottom");
+                    object.isLightSocket = true;
+                }
             }
         });
     };

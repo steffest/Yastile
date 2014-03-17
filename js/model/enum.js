@@ -23,5 +23,7 @@ var DIRECTION_OPPOSITE = {
 
 var ANIMATION = {
     PUSH_RIGHT : "PushRight",
-    PUSH_LEFT : "PushLeft"
+    PUSH_LEFT : "PushLeft",
+    PUSH_UP : "PushUp",
+    PUSH_DOWN : "PushDown"
 };

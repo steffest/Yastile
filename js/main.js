@@ -7,11 +7,9 @@ window.addEventListener("load",function(){
         scaleToFit: true,
         showFPS: true,
         showOnScreenControls: true,
-        level:{
-            width: 64,
-            height: 32,
-            map: "resources/levels/level1.json"
-        }
+        onScreenControlsImage: "resources/controller.png",
+        showScore: true,
+        start: Intro.init
     });
 
 },false);

@@ -2,6 +2,7 @@
     "name": "level1",
     "width": 64,
     "height": 32,
+    "pointsNeeded" : 2,
     "mapStructure" : {
         "charCount" : 2
     },
@@ -13,12 +14,12 @@
         "Ws..WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsNuWsWsWsWsWsWsWsWs      WsrrrrrrrrrrrrrrrrrrrrrrWs  Ws..      WsWsWsWsWsWsWsWs          Ws",
         "Ws            ..rr..            Ws    ..              Ws      Ws$3$1$1$1$1$1$1$1$1$1$3Ws  Ws        Dy            Dy          Ws",
         "WsKg    RoBo  ..rr..            Ws                    WsBoBoBoWsWsWsWsWsWsWsWsWsWsWsWsWs  Ws        W3    BsBs    W3          Ws",
-        "Ws  P1    ..  ......            Ws                    Ws      Ws                          Ws        W3    BSBS    W3          Ws",
+        "Ws  P1    ..  ......    Ls      Ws                    Ws      Ws                          Ws        W3    BSBS    W3          Ws",
         "Ws    DgI5                      Ws                    Ws      Ws                          Ws        W2W2W2W2W2W2W2Ww          Ws",
         "Ws    WsI8      rr              Ws                    Ws$1Kb$1WsKg  $3WsWsWsWsWsWs        Ws        BoBoBoBoBoBoBoBo          Ws",
         "WsDgWsWsIbWs    ..              WsWsWsWsWsWsWsWsDbWsWsWsWhWsWsWsrr            $3Ws        Ws                                  Ws",
-        "Ws                              Ws                      ..  rrrrWs            $3Ws        Ws        WsWsWsWsWsWsWsWs          Ws",
-        "Ws                              Ws                        rrrrrrWs  WsWsWsWsWsWsWs        Ws        Ws$1$1$1$1$1$1Ws          Ws",
+        "Ws                      Lb      Ws                      ..  rrrrWs            $3Ws        Ws        WsWsWsWsWsWsWsWs          Ws",
+        "Ws                    La        Ws                        rrrrrrWs  WsWsWsWsWsWsWs        Ws        Ws$1$1$1$1$1$1Ws          Ws",
         "Ws                            ..Dr.._!  W4W2W2  W2W2W2W2rr  W2WwWs  Ws          Ws        Ws        Ws$1$1$3$3$1$1Ws          Ws",
         "Ws                            ..Dr.._!  W3Yd                    WsBuWs    $3    Ws        Ws        Ws$1$1$3$3$1$1Ws          Ws",
         "Ws                            ..Dr.._!  W3rr      rrrr        rrWs  Ws    Ws  BuWs        Ws        Ws$1$1$3$3$1$1Ws          Ws",

@@ -1,4 +1,4 @@
-var MapObject = function(gameObject,index){
+var MapPosition = function(gameObject,index){
     this.gameObject = gameObject;
     this.id = gameObject.id;
     this.index = index;
@@ -12,14 +12,14 @@ var MapObject = function(gameObject,index){
     this.tickOffset = this.tileSize/Game.getTargetTicksPerSecond();
 };
 
-MapObject.prototype.isVisible = function(scrollOffset){
+MapPosition.prototype.isVisible = function(scrollOffset){
     return this.left >= scrollOffset.tileX-1
         && this.left < scrollOffset.tileX+Game.getViewPort().width+1
         && this.top >= scrollOffset.tileY-1
         && this.top < scrollOffset.tileY+Game.getViewPort().height+1;
 };
 
-MapObject.prototype.render = function(step,scrollOffset){
+MapPosition.prototype.render = function(step,scrollOffset){
 
     var x = (this.left-scrollOffset.tileX) * this.tileSize;
     var y = (this.top-scrollOffset.tileY) * this.tileSize;
@@ -46,6 +46,11 @@ MapObject.prototype.render = function(step,scrollOffset){
         x += step*this.tickOffset;
     }
 
+    if (this.bottomlayer){
+        frame = sprites[this.bottomlayer];
+        ctx.drawImage(frame,baseX, baseY);
+    }
+
     if (this.id>0){
         var frame;
         if (this.animation){
@@ -64,7 +69,7 @@ MapObject.prototype.render = function(step,scrollOffset){
 
 };
 
-MapObject.prototype.process = function(){
+MapPosition.prototype.process = function(){
     if (this.processed) return;
 
     var me = this;
@@ -112,6 +117,33 @@ MapObject.prototype.process = function(){
                     }
                 }
             }
+
+            if (Input.isUp()){
+                targetObject = this.getObject(DIRECTION.UP);
+                if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.vertical){
+                    this.animate(ANIMATION.PUSH_UP);
+                    if (targetObject.canMove(DIRECTION.UP)){
+                        Maybe(function(){
+                            targetObject.move(DIRECTION.UP);
+                            me.move(DIRECTION.UP);
+                        },1-targetObject.gameObject.canBePushed.friction);
+
+                    }
+                }
+            }
+
+            if (Input.isDown()){
+                targetObject = this.getObject(DIRECTION.DOWN);
+                if (targetObject.gameObject.canBePushed && targetObject.gameObject.canBePushed.vertical){
+                    this.animate(ANIMATION.PUSH_DOWN);
+                    if (targetObject.canMove(DIRECTION.DOWN)){
+                        Maybe(function(){
+                            targetObject.move(DIRECTION.DOWN);
+                            me.move(DIRECTION.DOWN);
+                        },1-targetObject.gameObject.canBePushed.friction);
+                    }
+                }
+            }
         }
 
     }else{
@@ -153,7 +185,7 @@ MapObject.prototype.process = function(){
 
 };
 
-MapObject.prototype.fullStep = function(step){
+MapPosition.prototype.fullStep = function(step){
     if (this.next){
         for (key in this.next){
             this[key] = this.next[key];
@@ -162,6 +194,7 @@ MapObject.prototype.fullStep = function(step){
         this.staticFrame = this.gameObject.getStaticFrame();
         this.wasMovingToDirection = this.movingInToDirection;
         if (this.id == GameObjects.PLAYER.id) Map.setPlayerObject(this);
+        this.animation = false;
     }else{
         this.wasMovingToDirection = undefined;
     }
@@ -182,19 +215,19 @@ MapObject.prototype.fullStep = function(step){
     }
 };
 
-MapObject.prototype.reset = function(){
+MapPosition.prototype.reset = function(){
     this.moveDirection = undefined;
     this.next = undefined;
     this.movingInToDirection = undefined;
     this.processed = false;
 };
 
-MapObject.prototype.setNext= function(property,value){
+MapPosition.prototype.setNext= function(property,value){
     this.next = this.next || {};
     this.next[property] = value;
 };
 
-MapObject.prototype.getObject = function(direction){
+MapPosition.prototype.getObject = function(direction){
     switch (direction){
         case DIRECTION.DOWN: return map[this.index + Game.getLevel().width]; break;
         case DIRECTION.UP: return map[this.index - Game.getLevel().width]; break;
@@ -205,7 +238,7 @@ MapObject.prototype.getObject = function(direction){
     }
 };
 
-MapObject.prototype.canMove = function(direction){
+MapPosition.prototype.canMove = function(direction){
     // object is already moving
     if (this.isMoving()) return false;
 
@@ -243,48 +276,49 @@ MapObject.prototype.canMove = function(direction){
 
 };
 
-MapObject.prototype.canMoveLeft = function(){
+MapPosition.prototype.canMoveLeft = function(){
     return this.canMove(DIRECTION.LEFT);
 };
 
-MapObject.prototype.canMoveRight = function(){
+MapPosition.prototype.canMoveRight = function(){
     return this.canMove(DIRECTION.RIGHT);
 };
 
-MapObject.prototype.canMoveUp = function(){
+MapPosition.prototype.canMoveUp = function(){
     return this.canMove(DIRECTION.UP);
 };
 
-MapObject.prototype.canMoveDown = function(){
+MapPosition.prototype.canMoveDown = function(){
     return this.canMove(DIRECTION.DOWN);
 };
 
-MapObject.prototype.isMoving = function(){
+MapPosition.prototype.isMoving = function(){
     return !!this.moveDirection;
 };
 
-MapObject.prototype.wasMoving = function(){
+MapPosition.prototype.wasMoving = function(){
     return !!this.wasMovingToDirection;
 };
 
-MapObject.prototype.sameDirection = function(){
+MapPosition.prototype.sameDirection = function(){
     return this.wasMovingToDirection;
 };
 
-MapObject.prototype.move = function(direction){
+MapPosition.prototype.move = function(direction){
     this.moveDirection = direction;
     this.setNext("id",0);
     this.animate(direction);
 
     var targetObject = this.getObject(direction);
     targetObject.setNext("id",this.id);
+    targetObject.setNext("_objectProperties",this._objectProperties);
     targetObject.movingInToDirection = direction;
 
     return targetObject;
 };
 
 
-MapObject.prototype.moveIfPossible = function(direction){
+MapPosition.prototype.moveIfPossible = function(direction){
     if (this.canMove(direction)) {
         return this.move(direction);
     }else{
@@ -292,19 +326,19 @@ MapObject.prototype.moveIfPossible = function(direction){
     }
 };
 
-MapObject.prototype.moveLeftIfPossible = function(){
+MapPosition.prototype.moveLeftIfPossible = function(){
     this.moveIfPossible(DIRECTION.LEFT);
 };
-MapObject.prototype.moveRightIfPossible = function(){
+MapPosition.prototype.moveRightIfPossible = function(){
     this.moveIfPossible(DIRECTION.RIGHT);
 };
-MapObject.prototype.moveUpIfPossible = function(){
+MapPosition.prototype.moveUpIfPossible = function(){
     this.moveIfPossible(DIRECTION.UP);
 };
-MapObject.prototype.moveDownIfPossible = function(){
+MapPosition.prototype.moveDownIfPossible = function(){
     this.moveIfPossible(DIRECTION.DOWN);
 };
-MapObject.prototype.animate = function(animation){
+MapPosition.prototype.animate = function(animation){
 
     if (typeof animation == "string" || typeof animation == "number"){
         this.animation = this.gameObject[animation];
@@ -318,20 +352,33 @@ MapObject.prototype.animate = function(animation){
     this.animationStartFrame = 0;
 };
 
-MapObject.prototype.isAnimating = function(){
+MapPosition.prototype.animateIfPossible = function(animation){
+    if (!this.isAnimating()) this.animate(animation)
+}
+
+MapPosition.prototype.isAnimating = function(){
     return this.animation;
 };
-MapObject.prototype.refresh = function(){
+MapPosition.prototype.refresh = function(){
     this.setNext("id",this.id);
 };
 
-MapObject.prototype.transformInto = function(gameObject,animation,onComplete){
+MapPosition.prototype.transformInto = function(gameObject,animation,onComplete){
     this.setNext("id",gameObject.id);
     if (animation) this.animate(animation);
     if (onComplete) this.setNext("action",onComplete)
 };
 
-MapObject.prototype.addLayer = function(spriteIndex){
-    this.toplayer = spriteIndex;
+MapPosition.prototype.addLayer = function(spriteIndex,position){
+    if (position == "bottom"){
+        this.bottomlayer = spriteIndex;
+    }else{
+        this.toplayer = spriteIndex;
+    }
+};
+
+MapPosition.prototype.objectProperties = function(){
+    this._objectProperties = this._objectProperties || {};
+    return this._objectProperties;
 };
 

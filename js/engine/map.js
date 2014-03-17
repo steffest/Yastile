@@ -12,6 +12,10 @@ var Map = (function(){
     var viewPortWidth = 10;
     var viewPortHeight = 10;
 
+    var levelWidth;
+    var levelHeight;
+
+
     var borderScrollOffset = 4; // defines what the distance of the player to the levelborder can be before the map scrolls
 
     var playerObject;
@@ -102,21 +106,25 @@ var Map = (function(){
 
     // generate random level - handy for testing
     self.generateRandom = function(level){
+        console.error("random map");
         map = [];
-        var playerPositionX = (Math.random()*(level.width-2))+1;
-        var playerPositionY = (Math.random()*(level.height-2))+1;
-        var playerPos = Math.floor(playerPositionY*level.width + playerPositionX);
+        levelWidth = level.width;
+        levelHeight = level.height;
 
-        for (var i = 0, len = level.height*level.width; i<len; i++){
-            var gameObject = GameObjects.GRASS;
-            if (Math.random()<0.2){gameObject = GameObjects.STONEWALL;}
-            if (Math.random()<0.2){gameObject = GameObjects.APPLE;}
+        var playerPositionX = (Math.random()*(levelWidth-2))+1;
+        var playerPositionY = (Math.random()*(levelHeight-2))+1;
+        var playerPos = Math.floor(playerPositionY*levelWidth + playerPositionX);
+
+        for (var i = 0, len = levelHeight*levelWidth; i<len; i++){
+            var gameObject = GameObjects.KEY;
+            //if (Math.random()<0.2){gameObject = GameObjects.STONEWALL;}
+            //if (Math.random()<0.2){gameObject = GameObjects.BOULDER;}
 
             // borders
-            var left = i % level.width;
-            var top = Math.floor(i / level.width);
-            if (left == 0 || left == level.width-1) gameObject = GameObjects.WALL;
-            if (top == 0 || top == level.height-1) gameObject = GameObjects.WALL;
+            var left = i % levelWidth;
+            var top = Math.floor(i / levelWidth);
+            if (left == 0 || left == levelWidth-1) gameObject = GameObjects.STEELWALL;
+            if (top == 0 || top == levelHeight-1) gameObject = GameObjects.STEELWALL;
 
             if (i==playerPos){
                 gameObject = GameObjects.PLAYER;
@@ -127,7 +135,7 @@ var Map = (function(){
 
 
 
-            var object = new MapObject(gameObject,i);
+            var object = new MapPosition(gameObject,i);
 
             map.push(object);
         }
@@ -139,12 +147,13 @@ var Map = (function(){
         var index = 0;
         var charCount = 1;
         if (data.mapStructure && data.mapStructure.charCount) charCount = data.mapStructure.charCount;
+        Game.setTargetScore(data.minimumScore || 0);
 
-        var levelHeight = data.map.length;
+        levelHeight = data.map.length;
 
         for (var y=0; y<levelHeight; y++){
             var line = data.map[y];
-            var levelWidth = line.length/charCount;
+            levelWidth = line.length/charCount;
 
             for (var x=0;x<levelWidth;x++){
                 index = y*(levelWidth) + x;
@@ -153,7 +162,7 @@ var Map = (function(){
                     code = code + line[(x*charCount)+c];
                 }
                 var gameObject = GameObjects[code] || GameObjects.EMPTYSPACE;
-                var object = new MapObject(gameObject,index);
+                var object = new MapPosition(gameObject,index);
 
                 if (gameObject.id == GameObjects.PLAYER.id){
                    // center player in view;
@@ -161,8 +170,6 @@ var Map = (function(){
                     scrollTilesX = Math.max(x-10,0);
                     scrollTilesY = Math.max(y-10,0);
                 }
-
-
 
                 map.push(object);
 
@@ -179,6 +186,15 @@ var Map = (function(){
             if (callback) callback();
         })
     };
+
+    self.getLevelProperties = function(){
+        return {
+            width: levelWidth,
+            height: levelHeight
+        }
+    };
+
+
 
     return self;
 }());

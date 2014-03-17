@@ -3,14 +3,6 @@ var Input = (function() {
     var self = {};
     var _isdown,_isup,_isleft,_isright;
 
-    var hasTouchController = false;
-    var controllerImg;
-    var controllerPosition = {
-        top: 170,
-        left: 10
-    };
-    var isTouchDown = false;
-
     var KEY={
         left: 37,
         up: 38,
@@ -43,108 +35,23 @@ var Input = (function() {
         }
     }
 
-    self.addTouchController = function(){
-        controllerImg = new Image();
-        controllerImg.onload = function() {
-            hasTouchController = true;
-        };
-        controllerImg.src = "resources/controller.png";
-
-        self.setTouchControllerPosition();
-
-        canvas.addEventListener("mousedown", handleTouchDown,false);
-        canvas.addEventListener("mousemove", handleTouchMove,false);
-        canvas.addEventListener("mouseup", handleTouchUp,false);
-        canvas.addEventListener("touchstart", handleTouchDown,false);
-        canvas.addEventListener("touchmove", handleTouchMove,false);
-        canvas.addEventListener("touchend", handleTouchUp,false);
-    };
-
-    self.setTouchControllerPosition = function(){
-        controllerPosition.top = canvas.height - 150;
-        controllerPosition.left = 10;
-    };
-
-    var handleTouchDown = function(event){
-        isTouchDown = true;
-
-        var x, y;
-        if (event.touches && event.touches.length>0){
-            x = event.touches[0].clientX;
-            y = event.touches[0].clientY;
-        }else{
-            x = event.pageX;
-            y = event.pageY;
-        }
-        setTouchControllerInput(x,y);
-
-        //console.error(x,y);
-    };
-
-    var handleTouchMove = function(event){
-        if (isTouchDown){
-            var x, y;
-            if (event.touches && event.touches.length>0){
-                x = event.touches[0].clientX;
-                y = event.touches[0].clientY;
-            }else{
-                x = event.pageX;
-                y = event.pageY;
-            }
-            setTouchControllerInput(x,y);
-            //console.error(x,y);
-        }
-    };
-
-    var handleTouchUp = function(){
-        isTouchDown = false;
-        _isleft = false;
-        _isright = false;
-        _isup = false;
-        _isdown = false;
-    };
-
-    var setTouchControllerInput = function(x,y){
-        var l = controllerPosition.left - 10;
-        var r = l+130;
-        var t = controllerPosition.top - 10;
-        var b = t + 130;
-
-        var midx = (l+r)/2
-        var midy = (b+t)/2
-
-        if (x>l && x<r && y>t && y<b){
-            // touch is on controller;
-            _isleft = false;
-            _isright = false;
-            _isup = false;
-            _isdown = false;
-            if (x<midx - 20) _isleft = true;
-            if (x>midx + 20) _isright = true;
-            if (y<midy - 20) _isup = true;
-            if (y>midy + 20) _isdown = true;
-        }
-    };
-
-    self.drawTouchController = function(){
-        if (hasTouchController){
-            ctx.drawImage(controllerImg,controllerPosition.left,controllerPosition.top);
-        }
-    };
-
-    self.isDown = function(){
+    self.isDown = function(value){
+        if (typeof value != "undefined") _isdown = value;
         return _isdown;
     };
 
-    self.isUp = function(){
+    self.isUp = function(value){
+        if (typeof value != "undefined") _isup = value;
         return _isup;
     };
 
-    self.isLeft = function(){
+    self.isLeft = function(value){
+        if (typeof value != "undefined") _isleft = value;
         return _isleft;
     };
 
-    self.isRight = function(){
+    self.isRight = function(value){
+        if (typeof value != "undefined") _isright = value;
         return _isright;
     };
 
