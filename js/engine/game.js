@@ -19,6 +19,7 @@ var Game= (function(){
     var backgroundPattern;
     var backgroundImage;
     var gameController;
+    var closeButton;
 
     var currentTickFunction = function(){};
 
@@ -99,7 +100,17 @@ var Game= (function(){
             UI.addElement(gameController);
         }
 
+        closeButton = new UI.Button("resources/close_button.png");
+        closeButton.onClick = function(){
+            self.exit();
+        };
+        UI.addElement(closeButton);
+
         self.setGameSection(gameLoop)
+    };
+
+    self.exit = function(){
+        Intro.init();
     };
 
     self.loadLevel = function(levelData){
@@ -148,6 +159,7 @@ var Game= (function(){
         canvas.height = targetHeight;
 
         if (gameController) gameController.setPosition();
+        if (closeButton) closeButton.setPosition();
 
         if(navigator.isCocoonJS) {
             // scaling is done by Cocoon internaly
