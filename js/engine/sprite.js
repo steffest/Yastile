@@ -2,8 +2,7 @@
     Copies a rectangular piece of an image to a cached canvas
     Used to cut a spritesheet in individual sprites
  */
-var Sprite = function(id,img){
-    var tilesize = Game.getSettings().tileSize;
+var Sprite = function(id,img,tilesize){
     var tilesInaRow = Math.floor(img.width/tilesize);
 
     var canvas = document.createElement("canvas");

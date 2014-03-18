@@ -7,7 +7,7 @@ window.addEventListener("load",function(){
         scaling: SCALING.CONTAIN,
         showFPS: true,
         showOnScreenControls: true,
-        onScreenControlsImage: "resources/controller.png",
+        onScreenControlsImage: "resources/controller_4way.png",
         showScore: true,
         start: Intro.init
     });

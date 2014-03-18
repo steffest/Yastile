@@ -1,7 +1,6 @@
 var UI = (function(){
     var self = {};
 
-    var isTouchDown;
     var objectDown;
     var UIEventElements;
     var screen = [];
@@ -70,7 +69,6 @@ var UI = (function(){
 
 
     function handleDown(event){
-        isTouchDown = true;
 
         var _x, _y;
         if (event.touches && event.touches.length>0){
@@ -85,6 +83,7 @@ var UI = (function(){
         var y = _y/scaleFactorH;
 
         objectDown = UI.getEventElement(x,y);
+        touchData.isTouchDown = true;
         touchData.x = x;
         touchData.y = y;
         touchData.startX = x;
@@ -92,7 +91,7 @@ var UI = (function(){
         touchData.object = objectDown;
 
         if (objectDown && objectDown.element && objectDown.element.onDown){
-            objectDown.element.onDown(objectDown.element,x,y);
+            objectDown.element.onDown(touchData);
         }
 
     }
@@ -112,7 +111,7 @@ var UI = (function(){
         touchData.x = x;
         touchData.y = y;
 
-        if (isTouchDown && objectDown){
+        if (touchData.isTouchDown && objectDown){
             if (objectDown.element && objectDown.element.onDrag){
                 objectDown.element.onDrag(touchData);
             }
@@ -122,12 +121,12 @@ var UI = (function(){
 
     var handleUp = function(){
 
-        if (objectDown && objectDown.element && objectDown.element.onClick){
-            objectDown.element.onClick(touchData);
+        if (objectDown && objectDown.element){
+            var elm = objectDown.element;
+            if (elm.onClick) elm.onClick(touchData);
+            if (elm.onUp) elm.onUp(touchData);
         }
 
-        console.error("up");
-        isTouchDown = false;
         objectDown = undefined;
         touchData = {};
         Input.isDown(false);

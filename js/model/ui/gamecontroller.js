@@ -1,20 +1,30 @@
 UI.GameController = function(image){
     var self = this;
+    this.sprites = [];
+    this.state = 0;
+
     this.image = new Image();
     this.image.onload = function() {
-        self.width = this.width;
-        self.height = this.height;
+        self.tileSize = this.height;
+        for (var i = 0; i<5; i++){
+            var controllerSprite = new Sprite(i,this,self.tileSize);
+            self.sprites.push(controllerSprite);
+        }
         self.imageLoaded = true;
         self.setPosition();
     };
     this.image.src = image;
 
-    this.onDown = function(element,x,y){
-        processInput(x,y);
+    this.onDown = function(touchData){
+        processInput(touchData.x,touchData.y);
     };
 
-    this.onDrag = function(element,x,y){
-        processInput(x,y);
+    this.onDrag = function(touchData){
+        processInput(touchData.x,touchData.y);
+    };
+
+    this.onUp = function(touchData){
+        resetInput();
     };
 
     var resetInput = function(){
@@ -30,11 +40,12 @@ UI.GameController = function(image){
         x = x-self.left;
         y = y-self.top;
         var margin = 16;
+        var half = self.tileSize/2;
 
-        if (x < self.width/2 - margin ) {Input.isLeft(true);    self.state = DIRECTION.LEFT;}
-        if (x > self.width/2 + margin)  {Input.isRight(true);   self.state = DIRECTION.RIGHT;}
-        if (y < self.height/2 - margin) {Input.isUp(true);      self.state = DIRECTION.UP;}
-        if (y > self.height/2 + margin) {Input.isDown(true);    self.state = DIRECTION.DOWN;}
+        if (x < half - margin) {Input.isLeft(true);    self.state = DIRECTION.LEFT;}
+        if (x > half + margin) {Input.isRight(true);   self.state = DIRECTION.RIGHT;}
+        if (y < half - margin) {Input.isUp(true);      self.state = DIRECTION.UP;}
+        if (y > half + margin) {Input.isDown(true);    self.state = DIRECTION.DOWN;}
     }
 };
 
@@ -42,13 +53,14 @@ UI.GameController = function(image){
 UI.GameController.prototype.setPosition = function(){
     this.top = canvas.height - 150;
     this.left = 10;
-    this.right = this.left + this.width;
-    this.bottom = this.top + this.height;
+    this.right = this.left + this.tileSize;
+    this.bottom = this.top + this.tileSize;
 };
 
 UI.GameController.prototype.render = function(){
     if (this.imageLoaded){
-        ctx.drawImage(this.image,this.left,this.top);
+        var spriteIndex = Math.max(this.state - DIRECTION.LEFT + 1,0);
+        ctx.drawImage(this.sprites[spriteIndex],this.left,this.top);
         UI.registerEventElement(this,this.left,this.top,this.right,this.bottom);
     }
 };
