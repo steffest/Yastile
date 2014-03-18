@@ -9,7 +9,7 @@ UI.GameController = function(image){
     };
     this.image.src = image;
 
-    this.onClick = function(element,x,y){
+    this.onDown = function(element,x,y){
         processInput(x,y);
     };
 
@@ -26,10 +26,10 @@ UI.GameController = function(image){
     };
 
     var processInput = function(x,y){
+        resetInput();
         x = x-self.left;
         y = y-self.top;
         var margin = 16;
-        resetInput();
 
         if (x < self.width/2 - margin ) {Input.isLeft(true);    self.state = DIRECTION.LEFT;}
         if (x > self.width/2 + margin)  {Input.isRight(true);   self.state = DIRECTION.RIGHT;}

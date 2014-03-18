@@ -39,10 +39,10 @@ var Game= (function(){
         }
         ctx = canvas.getContext("2d");
 
-        if (properties.scaleToFit){
+        if (properties.scaling){
             settings.originalViewPortWidth = properties.viewPortWidth;
             settings.originalViewPortHeight = properties.viewPortHeight;
-            scaleToFit();
+            scaleCanvas();
         }else{
             var targetWidth = properties.viewPortWidth * properties.tileSize;
             var targetHeight =  properties.viewPortHeight * properties.tileSize;
@@ -115,13 +115,33 @@ var Game= (function(){
                 self.start();
             }
         }
-    }
+    };
 
-    function scaleToFit(){
+    function scaleCanvas(){
         var targetWidth = settings.originalViewPortWidth * settings.tileSize;
-
+        var targetHeight = settings.originalViewPortHeight * settings.tileSize;
         var aspectRatio = window.innerHeight/window.innerWidth;
-        var targetHeight = aspectRatio*targetWidth;
+
+        switch (settings.scaling){
+            case SCALING.FIT_WIDTH:
+                targetHeight = aspectRatio*targetWidth;
+                break;
+            case SCALING.FIT_HEIGHT:
+                aspectRatio = window.innerWidth/window.innerHeight;
+                targetWidth = aspectRatio*targetHeight;
+                break;
+            case SCALING.CONTAIN:
+                var fitHeight = Math.ceil((aspectRatio*targetWidth)/settings.tileSize);
+                if (fitHeight < settings.originalViewPortHeight){
+                    aspectRatio = window.innerWidth/window.innerHeight;
+                    targetWidth = aspectRatio*targetHeight;
+                }else{
+                    targetHeight = aspectRatio*targetWidth;
+                }
+                break;
+        }
+
+        settings.viewPortWidth = Math.ceil(targetWidth/settings.tileSize);
         settings.viewPortHeight = Math.ceil(targetHeight/settings.tileSize);
 
         canvas.width  = targetWidth;
@@ -131,22 +151,23 @@ var Game= (function(){
 
         if(navigator.isCocoonJS) {
             // scaling is done by Cocoon internaly
-            UI.setScale(1);
+            UI.setScale(1,1);
         } else {
-            //ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = false;
 
             // note: this produces blurry results in Chrome
             canvas.style.width = window.innerWidth + 'px';
             canvas.style.height = window.innerHeight + 'px';
 
-            var scaleFactor = parseInt(canvas.style.width)/canvas.width;
-            UI.setScale(scaleFactor);
+            var scaleFactorWidth = parseInt(canvas.style.width)/canvas.width;
+            var scaleFactorHeight = parseInt(canvas.style.height)/canvas.height;
+            UI.setScale(scaleFactorWidth,scaleFactorHeight);
 
         }
 
 
 
-        window.addEventListener("resize", scaleToFit, false);
+        window.addEventListener("resize", scaleCanvas, false);
     }
 
 

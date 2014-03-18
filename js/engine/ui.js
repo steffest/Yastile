@@ -5,7 +5,9 @@ var UI = (function(){
     var objectDown;
     var UIEventElements;
     var screen = [];
-    var scaleFactor = 1;
+    var scaleFactorW = 1;
+    var scaleFactorH = 1;
+    var touchData = {};
 
     self.init = function(){
 
@@ -61,8 +63,9 @@ var UI = (function(){
         }
     };
 
-    self.setScale = function(scale){
-        scaleFactor = scale;
+    self.setScale = function(width,height){
+        scaleFactorW = width;
+        scaleFactorH = height;
     };
 
 
@@ -78,14 +81,20 @@ var UI = (function(){
             _y = event.pageY;
         }
 
-        var x = _x/scaleFactor;
-        var y = _y/scaleFactor;
+        var x = _x/scaleFactorW;
+        var y = _y/scaleFactorH;
 
         objectDown = UI.getEventElement(x,y);
+        touchData.x = x;
+        touchData.y = y;
+        touchData.startX = x;
+        touchData.startY = y;
+        touchData.object = objectDown;
 
-        if (objectDown && objectDown.element && objectDown.element.onClick){
-            objectDown.element.onClick(objectDown.element,x,y);
+        if (objectDown && objectDown.element && objectDown.element.onDown){
+            objectDown.element.onDown(objectDown.element,x,y);
         }
+
     }
 
     function handleMove(event){
@@ -98,21 +107,29 @@ var UI = (function(){
             _y = event.pageY;
         }
 
-        var x = _x/scaleFactor;
-        var y = _y/scaleFactor;
+        var x = _x/scaleFactorW;
+        var y = _y/scaleFactorH;
+        touchData.x = x;
+        touchData.y = y;
 
         if (isTouchDown && objectDown){
             if (objectDown.element && objectDown.element.onDrag){
-                objectDown.element.onDrag(objectDown.element,x,y);
+                objectDown.element.onDrag(touchData);
             }
         }
 
     }
 
     var handleUp = function(){
+
+        if (objectDown && objectDown.element && objectDown.element.onClick){
+            objectDown.element.onClick(touchData);
+        }
+
         console.error("up");
         isTouchDown = false;
         objectDown = undefined;
+        touchData = {};
         Input.isDown(false);
         Input.isUp(false);
         Input.isLeft(false);

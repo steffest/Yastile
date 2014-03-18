@@ -27,3 +27,11 @@ var ANIMATION = {
     PUSH_UP : "PushUp",
     PUSH_DOWN : "PushDown"
 };
+
+var SCALING = {
+    NONE: 0,
+    FIT_WIDTH: 1,
+    FIT_HEIGHT: 2,
+    CONTAIN: 3,
+    STRETCH: 4
+};
