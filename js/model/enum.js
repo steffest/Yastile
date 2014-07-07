@@ -9,6 +9,8 @@ var DIRECTION = {
     UP: 38,
     RIGHT: 39,
     DOWN: 40,
+    LEFTUP:3738,
+    RIGHTUP:3938,
     LEFTDOWN: 3740,
     RIGHTDOWN: 3940,
     NONE: 0

@@ -17,6 +17,34 @@ var GameObjects = (function(){
         }
     };
 
+    game.explode = function(mapPosition,targetObject){
+        mapPosition.transformInto(game.EXPLOSION,"Smash",function(mapPosition){
+            mapPosition.transformInto(targetObject,"Boom");
+        });
+    };
+
+    game.explodeBig = function(mapPosition,targetObject){
+
+        var directions = [
+            DIRECTION.LEFTUP,
+            DIRECTION.UP,
+            DIRECTION.RIGHTUP,
+            DIRECTION.LEFT,
+            DIRECTION.NONE,
+            DIRECTION.RIGHT,
+            DIRECTION.LEFTDOWN,
+            DIRECTION.DOWN,
+            DIRECTION.RIGHTDOWN
+        ];
+
+        for (var i=0; i< directions.length;i++){
+            var thisObject = mapPosition.getObject(directions[i]);
+            thisObject.transformInto(game.EXPLOSION,"",function(mapPosition) {
+                mapPosition.transformInto(targetObject, "Boom");
+            })
+        }
+    };
+
     game.init = function(){
 
         game.EMPTYSPACE = new GameObject({
@@ -59,8 +87,16 @@ var GameObjects = (function(){
             spriteIndex: 26,
             spriteIndexes: [24,25,26],
             canFall: true,
-            onFallen: function(mapObject){
-                //console.error("rock fell on "  + mapObject.gameObject.code);
+            onFallen: function(object,on){
+                console.error("rock fell on "  + on.gameObject.code);
+                if (!on.isMoving() && on.gameObject.canBeCrushed){
+                    object.move(DIRECTION.DOWN);
+                    if (on.gameObject.explodeBig){
+                        game.explodeBig(on,game.EMERALD)
+                    }else{
+                        game.explode(on,game.EMERALD)
+                    }
+                }
             },
             canBePushed:{
                 vertical: false,
@@ -88,6 +124,8 @@ var GameObjects = (function(){
             id: 23,
             code: "Yd",
             canMove: true,
+            canBeCrushed: true,
+            explodeBig: true,
             eachStep: function(object){
                 if (object.wasMoving()){
                     object.moveIfPossible(object.sameDirection());
@@ -224,9 +262,7 @@ var GameObjects = (function(){
             },
             animationSmash: [35,36,37,38],
             onFallen: function(object,on){
-                object.transformInto(game.EXPLOSION,"Smash",function(object){
-                    object.transformInto(game.EMERALD,"Boom");
-                });
+                game.explode(object,game.EMERALD);
             }
         });
 

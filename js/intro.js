@@ -4,6 +4,8 @@ var Intro = (function(){
     var levels = [
         {name: "level 1" , url: "resources/levels/level1.json"},
         {name: "Sokoban 1" , url: "resources/levels/sokoban1.json"},
+        {name: "Sokoban 2" , url: "resources/levels/sokoban2.json"},
+        {name: "Sokoban 3" , url: "resources/levels/sokoban3.json"},
         {name: "level 1" , url: "resources/levels/level1.json"},
         {name: "Sokoban 1" , url: "resources/levels/sokoban1.json"},
         {name: "level 1" , url: "resources/levels/level1.json"},

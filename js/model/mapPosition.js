@@ -235,6 +235,9 @@ MapPosition.prototype.getObject = function(direction){
         case DIRECTION.RIGHT: return map[this.index +1]; break;
         case DIRECTION.LEFTDOWN: return map[this.index -1 + Game.getLevel().width]; break;
         case DIRECTION.RIGHTDOWN: return map[this.index +1 + Game.getLevel().width]; break;
+        case DIRECTION.LEFTUP: return map[this.index -1 - Game.getLevel().width]; break;
+        case DIRECTION.RIGHTUP: return map[this.index +1 - Game.getLevel().width]; break;
+        case DIRECTION.NONE: return map[this.index]; break;
     }
 };
 
@@ -244,7 +247,7 @@ MapPosition.prototype.canMove = function(direction){
 
     var targetObject
     if (direction > 100){
-        // combines direction
+        // combined direction
         if (direction == DIRECTION.LEFTDOWN){
             var l = this.getObject(DIRECTION.LEFT);
             var d = this.getObject(DIRECTION.LEFTDOWN);
