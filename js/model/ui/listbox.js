@@ -9,6 +9,11 @@ UI.Listbox = function(properties){
     this.scrollHistory = [];
     this.scrollThreshold = 5;
 
+    this.itemHeight = 64;
+
+    this.minScollPosition = 0;
+    this.maxScrollPosition = (this.items.length * this.itemHeight) - 100; // TODO: 100 should be listbox Height
+
     var onDrag = function(touchData){
         var delta = touchData.y - touchData.startY;
         self.scrollDeltaY = parseInt(delta);
@@ -19,9 +24,33 @@ UI.Listbox = function(properties){
             self.onSelect(touchData.object.element);
         }else{
             self.scrollElastic = 20;
-            self.scrollSpeed = 0-(getInitialScrollSpeed()/10);
+            var initialScrollSpeed = 0-(getInitialScrollSpeed()/10);
+
+            // calculate target position
+            var currentPosition = self.scrollOffetY + self.scrollDeltaY;
+
+            // som van reeks 1 .. 20
+            var sum = ((1+self.scrollElastic)*self.scrollElastic)/2;
+            var targetPosition =  currentPosition + (sum * initialScrollSpeed);
+
+            // check if target position is in boundary
+            if (targetPosition>self.minScollPosition){
+                // targetPosition towards 0
+                initialScrollSpeed = self.minScollPosition-(currentPosition/sum);
+            }
+
+            if (targetPosition< (0-self.maxScrollPosition)){
+                console.log("self.maxScrollPosition",currentPosition,targetPosition,self.maxScrollPosition);
+                initialScrollSpeed = ((0-currentPosition)-self.maxScrollPosition)/sum;
+            }
+            console.log("initialScrollSpeed",initialScrollSpeed);
+
+
+            self.scrollSpeed = initialScrollSpeed;
+
 
         }
+
         self.scrollOffetY += self.scrollDeltaY;
         self.scrollDeltaY = 0;
         self.scrollHistory = [];
@@ -76,6 +105,7 @@ UI.Listbox.prototype.render = function(){
     this.scrollOffetY = this.scrollOffetY + (this.scrollElastic * this.scrollSpeed);
     var y = 30 + this.scrollOffetY + this.scrollDeltaY;
     var x = 100;
+    var itemHeight = this.itemHeight;
 
     if (this.scrollElastic > 0) this.scrollElastic -= 1;
 
@@ -92,7 +122,7 @@ UI.Listbox.prototype.render = function(){
     }
 
     function renderItem(item){
-        y += 64;
+        y += itemHeight;
         var frame = sprites[4];
         ctx.drawImage(frame,x, y);
 
