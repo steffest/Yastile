@@ -17,10 +17,20 @@ var GameObjects = (function(){
         }
     };
 
-    game.explode = function(mapPosition,targetObject){
-        mapPosition.transformInto(game.EXPLOSION,"Smash",function(mapPosition){
-            mapPosition.transformInto(targetObject,"Boom");
-        });
+    game.explode = function(mapPosition,targetObject,animation){
+        if (typeof animation == "undefined") animation="";
+        console.log("Explode",mapPosition,targetObject);
+
+        if (!mapPosition.gameObject.survivesExplosion){
+            mapPosition.transformInto(game.EXPLOSION,animation,function(mapPosition){
+                mapPosition.transformInto(targetObject,"Boom",function(mapPosition){
+                    if (mapPosition.gameObject.onExplode){
+                        mapPosition.gameObject.onExplode();
+                    }
+                });
+            });
+        }
+
     };
 
     game.explodeBig = function(mapPosition,targetObject){
@@ -38,10 +48,20 @@ var GameObjects = (function(){
         ];
 
         for (var i=0; i< directions.length;i++){
-            var thisObject = mapPosition.getObject(directions[i]);
-            thisObject.transformInto(game.EXPLOSION,"",function(mapPosition) {
-                mapPosition.transformInto(targetObject, "Boom");
-            })
+            var obj = mapPosition.getObject(directions[i]);
+            console.error("explodebig " + obj.gameObject.code);
+            if (directions[i] != DIRECTION.NONE && obj.gameObject.explosionDelay && obj.gameObject.explosionDelay>0){
+                obj.setNext("action",function(thisMapPosition){
+                    console.error("mapPosition next after explosion",thisMapPosition);
+                    thisMapPosition.transformInto(thisMapPosition.gameObject,"Smash",function(thisMapPosition) {
+                        game.explodeBig(thisMapPosition, game.EMERALD, "Smash");
+                    });
+                })
+            }else{
+                game.explode(obj,targetObject,"Smash");
+            }
+
+
         }
     };
 
@@ -64,6 +84,7 @@ var GameObjects = (function(){
         game.STEELWALL = new GameObject({
             id: 14,
             code: "Ws",
+            survivesExplosion: true,
             spriteIndexes: [14,4,5,6,7]
         });
 
@@ -92,9 +113,9 @@ var GameObjects = (function(){
                 if (!on.isMoving() && on.gameObject.canBeCrushed){
                     object.move(DIRECTION.DOWN);
                     if (on.gameObject.explodeBig){
-                        game.explodeBig(on,game.EMERALD)
+                        game.explodeBig(on,game.EMERALD,"Smash")
                     }else{
-                        game.explode(on,game.EMERALD)
+                        game.explode(on,game.EMERALD,"Smash")
                     }
                 }
             },
@@ -260,9 +281,15 @@ var GameObjects = (function(){
                 horizontal: true,
                 friction: 0
             },
+            canBeCrushed: true,
+            explodeBig: true,
+            explosionDelay:1,
             animationSmash: [35,36,37,38],
             onFallen: function(object,on){
-                game.explode(object,game.EMERALD);
+                game.explode(object,game.EMERALD,"Smash");
+            },
+            onExplode: function(){
+                console.error("exploded")
             }
         });
 
