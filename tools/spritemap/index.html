@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+    <style>
+        html,body{
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+
+        canvas {
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+
+            image-rendering: -o-crisp-edges;
+            image-rendering: optimize-contrast;
+            -ms-interpolation-mode: nearest-neighbor;
+        }
+
+        #canvas{
+            width: 320px;
+            height: 320px;
+            position: absolute;
+            left: 320px;
+        }
+
+        #spritelist{
+            position: absolute;
+            width: 256px;
+            height: 960px;
+            background-color: black;
+            top: 32px;
+        }
+
+        #spriteinfo{
+            position: fixed;
+            width: 256px;
+            height: 32px;
+            background-color: black;
+            color: white;
+            z-index: 100;
+        }
+
+        #spriteselector{
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border: 1px solid white;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="spriteinfo"></div>
+<div id="spritelist">
+    <div id="spriteselector"></div>
+    <img src="../../examples/emerald/sprites/VX.png" id="spriteImage">
+</div>
+<script src="js/main.js"></script>
+</body>
+</html>

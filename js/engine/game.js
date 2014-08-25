@@ -13,13 +13,17 @@ var Game= (function(){
     var settings;
     var step = -1;
     var _score = 0;
+    var _hint = "Good luck!";
     var _targetScore = 0;
     var _isWon = false;
+    var _isLost = false;
 
     var backgroundPattern;
     var backgroundImage;
     var gameController;
     var closeButton;
+
+    var scorePosition = {top: 0, left: 0};
 
     var currentTickFunction = function(){};
 
@@ -27,7 +31,7 @@ var Game= (function(){
 
         settings = properties;
 
-        randomSeed = new Date().getTime();
+        var randomSeed = new Date().getTime();
         settings.seed =  randomSeed;
 
         canvas = document.createElement("canvas");
@@ -56,41 +60,52 @@ var Game= (function(){
 
         tileSize = properties.tileSize;
 
-        properties.borderScrollOffset = 4;
+        properties.borderScrollOffset = 8;
 
         UI.init();
         GameObjects.init();
-        Map.init(properties);
 
+        settings.defaultGameObject = GameObjects[settings.defaultGameObject];
+
+        Map.init(properties);
 
         loadResources(properties.spriteSheet,function(){
 
-            backgroundPattern = ctx.createPattern(sprites[28], 'repeat');
+            if (settings.backgroundPattern && isNumeric(settings.backgroundPattern)){
+                backgroundPattern = ctx.createPattern(sprites[settings.backgroundPattern], 'repeat');
+            }
+            if (!backgroundPattern) backgroundPattern = "Black";
 
-            var img = new Image();
-            img.onload = function() {
+            if (settings.backgroundImage){
+                var img = new Image();
+                img.onload = function() {
 
-                backgroundImage = document.createElement("canvas");
-                backgroundImage.width = 2048;
-                backgroundImage.height = 1024;
+                    backgroundImage = document.createElement("canvas");
+                    backgroundImage.width = 2048;
+                    backgroundImage.height = 1024;
 
-                var context = backgroundImage.getContext("2d");
-                context.globalAlpha = 0.5;
+                    var context = backgroundImage.getContext("2d");
+                    context.globalAlpha = settings.backgroundImageAlpha || 1;
 
-                context.drawImage(img, 0, 0);
-
-                if (properties.start) {
-                    properties.start();
-                }else if (properties.level){
-                    self.loadLevel(properties.level)
-                }else{
-                    console.error("nothing to do!");
-                }
-                main();
-            };
-            img.src = "resources/back.jpg";
-
+                    context.drawImage(img, 0, 0);
+                    initDone();
+                };
+                img.src = settings.backgroundImage;
+            }else{
+                initDone();
+            }
         });
+    };
+
+    var initDone = function(){
+        if (settings.start) {
+            settings.start();
+        }else if (settings.level){
+            self.loadLevel(settings.level)
+        }else{
+            console.error("nothing to do!");
+        }
+        main();
     };
 
     self.start = function(){
@@ -105,6 +120,11 @@ var Game= (function(){
             self.exit();
         };
         UI.addElement(closeButton);
+
+        self.resetScore();
+        self.isWon(false);
+        self.isLost(false);
+        self.setHint("Good luck!");
 
         self.setGameSection(gameLoop)
     };
@@ -155,11 +175,33 @@ var Game= (function(){
         settings.viewPortWidth = Math.ceil(targetWidth/settings.tileSize);
         settings.viewPortHeight = Math.ceil(targetHeight/settings.tileSize);
 
+        settings.canvasWidth = targetWidth;
+        settings.canvasHeight = targetHeight;
+
         canvas.width  = targetWidth;
         canvas.height = targetHeight;
 
         if (gameController) gameController.setPosition();
         if (closeButton) closeButton.setPosition();
+
+        scorePosition.left = 0;
+        scorePosition.top = 0;
+
+        scorePosition.hintTop = 0;
+        scorePosition.hintLeft = 150;
+
+        if (settings.showFPS){
+            scorePosition.left = 200;
+            scorePosition.hintLeft = 350;
+
+            if (targetWidth<400){
+                scorePosition.left = 0;
+                scorePosition.top = 24;
+
+                scorePosition.hintLeft = 0;
+                scorePosition.hintTop = 48;
+            }
+        }
 
         if(navigator.isCocoonJS) {
             // scaling is done by Cocoon internaly
@@ -177,7 +219,7 @@ var Game= (function(){
 
         }
 
-
+        Map.onResize(settings);
 
         window.addEventListener("resize", scaleCanvas, false);
     }
@@ -198,6 +240,7 @@ var Game= (function(){
 
         if (settings.showScore) drawScore();
         if (settings.showFPS) drawFPS();
+        if (settings.showHint) drawHint();
 
         requestAnimFrame(main);
     }
@@ -244,15 +287,23 @@ var Game= (function(){
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // draw level background
-        var x = 0-(scrollOffset.tileX * tileSize) + scrollOffset.x*step;
-        var y = 0-(scrollOffset.tileY * tileSize) + scrollOffset.y*step;
+        if (backgroundImage){
+            var x = 0-(scrollOffset.tileX * tileSize) + scrollOffset.x*step;
+            var y = 0-(scrollOffset.tileY * tileSize) + scrollOffset.y*step;
+            ctx.drawImage(backgroundImage,x, y);
+        }
 
-
-        ctx.drawImage(backgroundImage,x, y);
         var levelProperties = Map.getLevelProperties();
 
 
         // draw Sprite Map
+        // first bottomlayer - if any
+        for (var m = 0, maplen = MapLayers.length; m<maplen; m++){
+            var mapLayer = MapLayers[m];
+            mapLayer.render(step,scrollOffset);
+        }
+
+        // then grid
         for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
             var object = map[i];
             if (object.isVisible(scrollOffset)) object.render(step,scrollOffset);
@@ -289,18 +340,27 @@ var Game= (function(){
 
         }
         ctx.fillStyle = "Black";
-        ctx.fillRect(0,0,200,30);
+        ctx.fillRect(0,0,200,24);
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
-        ctx.fillText(Math.round(fps) + " frames/s , " + Math.round(tickps) + " ticks/s + (" + average + ")" , 10, 26);
+        ctx.fillText(Math.round(fps) + " frames/s , " + Math.round(tickps) + " ticks/s + (" + average + ")" , 10, 16);
     }
 
     function drawScore(){
         ctx.fillStyle = "Black";
-        ctx.fillRect(0,30,200,30);
+        ctx.fillRect(scorePosition.left,scorePosition.top,200,24);
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
-        ctx.fillText("Score: " + _score , 10, 56);
+        ctx.fillText("Score: " + _score , scorePosition.left + 10, scorePosition.top + 16);
+        ctx.fillText("Needed: " + _targetScore , scorePosition.left + 80, scorePosition.top + 16);
+    }
+
+    function drawHint(){
+        ctx.fillStyle = "Black";
+        ctx.fillRect(scorePosition.hintLeft,scorePosition.hintTop,200,24);
+        ctx.fillStyle = "White";
+        ctx.font      = "normal 10pt Arial";
+        ctx.fillText(_hint , scorePosition.hintLeft + 10, scorePosition.hintTop + 16);
     }
 
     self.getTileSize = function(){
@@ -313,6 +373,10 @@ var Game= (function(){
 
     self.getViewPort = function(){
         return {width: settings.viewPortWidth, height: settings.viewPortHeight}
+    };
+
+    self.getCanvasSize = function(){
+        return {width: settings.canvasWidth, height: settings.canvasHeight}
     };
 
     self.getLevel = function(){
@@ -370,14 +434,36 @@ var Game= (function(){
         _score += points;
     };
 
+    self.resetScore = function(){
+        _score = 0;
+        console.error("resetscore");
+        GameObjects.resetState();
+    };
+
+    self.setHint = function(s){
+        _hint = s;
+    };
+
     self.hasTargetScore = function(){
         return _score>=_targetScore;
     };
 
     self.isWon = function(value){
         if (value){_isWon = value}
-        if (_isWon) console.error("WON!");
+        if (_isWon){
+            console.error("WON!");
+            _hint = "You made it!";
+        }
         return _isWon;
+    };
+
+    self.isLost = function(value){
+        if (value){_isLost = value}
+        if (_isLost){
+            console.error("FORGET IT!");
+            _hint = "Forget it!";
+        }
+        return _isLost;
     };
 
     self.setGameSection = function(gameStepFunction){

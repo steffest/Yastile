@@ -19,10 +19,12 @@ MapPosition.prototype.isVisible = function(scrollOffset){
         && this.top < scrollOffset.tileY+Game.getViewPort().height+1;
 };
 
-MapPosition.prototype.render = function(step,scrollOffset){
+MapPosition.prototype.render = function(step,scrollOffset,layer){
 
     var x = (this.left-scrollOffset.tileX) * this.tileSize;
     var y = (this.top-scrollOffset.tileY) * this.tileSize;
+
+    if (!isDefined(layer)) layer = 1;
 
     x += scrollOffset.x*step;
     y += scrollOffset.y*step;
@@ -46,26 +48,29 @@ MapPosition.prototype.render = function(step,scrollOffset){
         x += step*this.tickOffset;
     }
 
-    if (this.bottomlayer){
+    if (layer==0 && this.bottomlayer){
         frame = sprites[this.bottomlayer];
         ctx.drawImage(frame,baseX, baseY);
-    }
+    }else{
+        if (this.id>0){
+            var frame;
+            if (this.animation){
+                frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame);
+            }else{
+                frame = sprites[this.staticFrame];
+            }
 
-    if (this.id>0){
-        var frame;
-        if (this.animation){
-            frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame);
-        }else{
-            frame = sprites[this.staticFrame];
+            ctx.drawImage(frame,x, y);
         }
 
-        ctx.drawImage(frame,x, y);
+        if (this.toplayer){
+            frame = sprites[this.toplayer];
+            ctx.drawImage(frame,baseX, baseY);
+        }
     }
 
-    if (this.toplayer){
-        frame = sprites[this.toplayer];
-        ctx.drawImage(frame,baseX, baseY);
-    }
+
+
 
 };
 
@@ -80,14 +85,41 @@ MapPosition.prototype.process = function(){
     if (this.id == GameObjects.PLAYER.id){
         var d, u, l, r, targetObject;
 
-        if (Input.isDown())  d = this.moveIfPossible(DIRECTION.DOWN);
-        if (Input.isUp())    u = this.moveIfPossible(DIRECTION.UP);
-        if (Input.isLeft())  l = this.moveIfPossible(DIRECTION.LEFT);
-        if (Input.isRight()) r = this.moveIfPossible(DIRECTION.RIGHT);
+        if (Input.isAction()){
+            this.actionDownCount = (this.actionDownCount || 0) + 1;
+            if (this.actionDownCount>5 && this.gameObject.onLongPress){
+                this.gameObject.onLongPress(this);
+            }
+
+            if (Input.isDown())  d = this.zapIfPossible(DIRECTION.DOWN);
+            if (Input.isUp())    u = this.zapIfPossible(DIRECTION.UP);
+            if (Input.isLeft())  l = this.zapIfPossible(DIRECTION.LEFT);
+            if (Input.isRight()) r = this.zapIfPossible(DIRECTION.RIGHT);
+        }else{
+            this.actionDownCount = 0;
+            if (Input.isDown())  d = this.moveIfPossible(DIRECTION.DOWN);
+            if (Input.isUp())    u = this.moveIfPossible(DIRECTION.UP);
+            if (Input.isLeft())  l = this.moveIfPossible(DIRECTION.LEFT);
+            if (Input.isRight()) r = this.moveIfPossible(DIRECTION.RIGHT);
+        }
 
         targetObject = d || u || l || r;
-        if (targetObject && targetObject.gameObject.onCollect){
-            targetObject.gameObject.onCollect(targetObject);
+
+        if (targetObject){
+                var direction = undefined;
+                if (d) direction = DIRECTION.DOWN;
+                if (u) direction = DIRECTION.UP;
+                if (l) direction = DIRECTION.LEFT;
+                if (r) direction = DIRECTION.RIGHT;
+
+                if (targetObject.gameObject.onCollected){
+                    targetObject.gameObject.onCollected(this,targetObject,direction);
+                }
+
+                if (Input.isAction()){
+                    // object is zapped;
+                    targetObject.transformInto(Game.getSettings().defaultGameObject);
+                }
         }
 
         if (!this.isMoving()){
@@ -148,7 +180,7 @@ MapPosition.prototype.process = function(){
 
     }else{
         if (obj.canFall) this.moveIfPossible(DIRECTION.DOWN);
-        if (!this.isMoving()){
+        if (!this.isMoving() && !this.wasMoving()){
             if (obj.canFall && !this.getObject(DIRECTION.DOWN).gameObject.isStableSurface){
                 var canFallLeft = this.canMove(DIRECTION.LEFTDOWN);
                 var canFallRight = this.canMove(DIRECTION.RIGHTDOWN);
@@ -163,14 +195,15 @@ MapPosition.prototype.process = function(){
                 }
             }
         }
-
     }
 
     if (this.wasMoving() && !this.isMoving()){
         // object stopped moving
         if (this.wasMovingToDirection == DIRECTION.DOWN){
             // object has fallen onto something;
-            if (obj.onFallen) obj.onFallen(this,this.getObject(DIRECTION.DOWN))
+            var targetObject = this.getObject(DIRECTION.DOWN);
+            if (obj.onFallen) obj.onFallen(this,targetObject);
+            if (targetObject.gameObject.onHit) targetObject.gameObject.onHit(this,DIRECTION.DOWN,targetObject);
         }
     }
 
@@ -195,6 +228,7 @@ MapPosition.prototype.fullStep = function(step){
         this.wasMovingToDirection = this.movingInToDirection;
         if (this.id == GameObjects.PLAYER.id) Map.setPlayerObject(this);
         this.animation = false;
+        if (this.previousObject) this.setNext("previousObject",undefined);
     }else{
         this.wasMovingToDirection = undefined;
     }
@@ -309,8 +343,14 @@ MapPosition.prototype.sameDirection = function(){
 
 MapPosition.prototype.move = function(direction){
     this.moveDirection = direction;
-    this.setNext("id",0);
+    var nextObjectId = this.nextObjectId || 0;
+    this.setNext("id",nextObjectId);
+    this.nextObjectId = undefined;
     this.animate(direction);
+    if (this.onMove){
+        this.onMove(this);
+        this.onMove = undefined;
+    }
 
     var targetObject = this.getObject(direction);
     targetObject.setNext("id",this.id);
@@ -320,8 +360,7 @@ MapPosition.prototype.move = function(direction){
     return targetObject;
 };
 
-
-MapPosition.prototype.moveIfPossible = function(direction){
+MapPosition.prototype. moveIfPossible = function(direction){
     if (this.canMove(direction)) {
         return this.move(direction);
     }else{
@@ -355,9 +394,18 @@ MapPosition.prototype.animate = function(animation){
     this.animationStartFrame = 0;
 };
 
+MapPosition.prototype.zapIfPossible = function(direction){
+
+    var targetObject = false;
+    if (this.canMove(direction)) {
+        targetObject = this.getObject(direction);
+    }
+    return targetObject;
+};
+
 MapPosition.prototype.animateIfPossible = function(animation){
     if (!this.isAnimating()) this.animate(animation)
-}
+};
 
 MapPosition.prototype.isAnimating = function(){
     return this.animation;
@@ -375,8 +423,26 @@ MapPosition.prototype.transformInto = function(gameObject,animation,onComplete){
 MapPosition.prototype.addLayer = function(spriteIndex,position){
     if (position == "bottom"){
         this.bottomlayer = spriteIndex;
+        MapLayers[0].add(this);
     }else{
         this.toplayer = spriteIndex;
+    }
+};
+
+MapPosition.prototype.removeLayer = function(position){
+    if (position == "bottom"){
+        this.bottomlayer = undefined;
+        MapLayers[0].remove(this);
+    }else{
+        this.toplayer = undefined;
+    }
+};
+
+MapPosition.prototype.hasLayer = function(position){
+    if (position == "bottom"){
+        return this.bottomlayer != undefined;
+    }else{
+        return this.toplayer != undefined;
     }
 };
 
@@ -384,4 +450,13 @@ MapPosition.prototype.objectProperties = function(){
     this._objectProperties = this._objectProperties || {};
     return this._objectProperties;
 };
+
+MapPosition.prototype.getExplodeIntoObjects = function(){
+    var obj = Game.getSettings().defaultGameObject;
+    if (this.gameObject.explodeIntoObjects) obj = this.gameObject.explodeIntoObjects();
+    if (this.gameObject.explodeIntoObject) obj = this.gameObject.explodeIntoObject;
+    return obj;
+};
+
+
 

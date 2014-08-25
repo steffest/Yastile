@@ -16,7 +16,7 @@ var Map = (function(){
     var levelHeight;
 
 
-    var borderScrollOffset = 4; // defines what the distance of the player to the levelborder can be before the map scrolls
+    var borderScrollOffset; // defines what the distance of the player to the levelborder can be before the map scrolls
 
     var playerObject;
 
@@ -24,6 +24,18 @@ var Map = (function(){
         viewPortHeight = properties.viewPortHeight;
         viewPortWidth  = properties.viewPortWidth;
         borderScrollOffset = properties.borderScrollOffset;
+    };
+
+    self.onResize = function(settings){
+        viewPortWidth = settings.viewPortWidth;
+        viewPortHeight = settings.viewPortHeight;
+
+        if (playerObject){
+            // re-center player?
+            scrollTilesX = Math.max(playerObject.left-10,0);
+            scrollTilesY = Math.max(playerObject.top-10,0);
+        }
+
     };
 
     self.getScrollOffset = function(){
@@ -144,6 +156,11 @@ var Map = (function(){
 
     self.parse = function(data){
         map = [];
+        MapLayers = [];
+        MapLayers.push(new MapLayer({
+            type: MAPLAYERTYPE.SPOT
+        }))
+
         var index = 0;
         var charCount = 1;
         if (data.mapStructure && data.mapStructure.charCount) charCount = data.mapStructure.charCount;
@@ -161,7 +178,7 @@ var Map = (function(){
                 for (var c = 0; c<charCount; c++){
                     code = code + line[(x*charCount)+c];
                 }
-                var gameObject = GameObjects[code] || GameObjects.EMPTYSPACE;
+                var gameObject = GameObjects[code] || Game.getSettings().defaultGameObject;
                 var object = new MapPosition(gameObject,index);
 
                 if (gameObject.id == GameObjects.PLAYER.id){

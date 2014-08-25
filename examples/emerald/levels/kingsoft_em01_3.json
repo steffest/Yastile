@@ -1,0 +1,43 @@
+{
+    "name" : "Emerald_Mine_1_3",
+    "width" :64,
+    "height" :32,
+    "minimumScore" :10,
+    "mapStructure" : {
+        "charCount" : 2
+    },
+    "map" : [
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsWsWsWsWsYlWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsYlWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs    Ws    WsWsWs    WsWsWsWsWsWsWs",
+        "WsWsWsWsWs                                                      $1    WsWsWsWsWsWsWsWs                    $1              WsWsWs",
+        "WsWsWsWsWs  WsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs  WsWsWsWsWsWsWsWs  WsWsWs  YlWs  YlWsWsWs  YlWsWsWs  WsWsWs",
+        "WsWsWsWsWs  WsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs  WsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs",
+        "WsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs",
+        "WsWsWsWsWs  Ws  WsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWs    YlWsWs",
+        "WsWsWsWsWs  Ws  WsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsYl            WsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs",
+        "WsWsWsWsWs                $1                    WsWsWsWsWsWsWs  WsWs  WsWs  WsWsWsWsWsXXWsWsWsWsWsWsWs          $1        WsWsWs",
+        "WsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWs  WsWsWsWsWs  WsWsWsWsWsWsWs              WsWsWsWsWsXXWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsWsYlWsWs  WsWsWsWsWsWsYlWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWs  WsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsYl          WsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs                    WsWsWs",
+        "WsWsWsWsWsWs    $1            WsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWs          $1        WsWsWsWsWsWsWsWsWsWsYlWsWsWsWsWs  WsWsWs",
+        "WsWsWsWsWsWs  WsWsWs  WsWsWs  WsWsWsWsWsWsWsWs  WsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs",
+        "WsWsWsWsWsWs  WsWsWs  WsWsWs  WsWsWsWsWsWsWsWs  WsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsYl    WsWs",
+        "WsWsWsWsWsWs  WsWsWsYlWsWsWs  WsWsWsWsWsWsWsWs  WsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsYl        WsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWs  WsWsWsWsWsWsWsWs      $1                    WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWs  WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWs",
+        "WsWsWs            YlWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsYlWsWsWsWsWsWs  WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWs      $1    WsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsYl          WsWsWsWs  WsWsWsWsWsWsWsWsWsWsYl    WsWsWsWsWsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsYl            WsWsWsWsWsWsWsWsYlWsWsWsWsWsWsWsWsWs  WsWsWsWsYl      WsWsWsWsWsWsWsWsWs      WsWsWsWsWsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWs  WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWs      WsWsWsWsWsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWs  WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsYlWs  WsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWs                $1                            WsWsWsWsWsWs  WsWsYlWsWsWsWsWsWs  Ws  WsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWs  WsWsWsWs          WsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsP1WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs            $1    Ws  WsWsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs  WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs"
+    ]
+}

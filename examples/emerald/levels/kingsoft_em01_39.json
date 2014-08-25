@@ -1,0 +1,43 @@
+{
+    "name" : "Emerald_Mine_1_39",
+    "width" :64,
+    "height" :32,
+    "minimumScore" :23,
+    "mapStructure" : {
+        "charCount" : 2
+    },
+    "map" : [
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBodA      ............................Ws",
+        "WsBo......................................................................................Ws  rr......rr  ....................Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWsP1..............  ..........rr....Ws",
+        "Ws......................................................................................BoWs........rr..........  ............Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs......rrNu..$1..rr......rr..rr....Ws",
+        "WsBo......................................................................................Ws........rr  ......  ..............Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs..rr....Nu......rr..Nurr..........Ws",
+        "Ws......................................................................................BoWs..................rr..rrrr........Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs........$1..  rr....NuNu....$1....Ws",
+        "WsBo......................................................................................Ws......................  ....Nu....Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs..Nu....rrrr..Nu..rr..............Ws",
+        "Ws......................................................................................BoWs..Nu........Nu......Nu$1$1........Ws",
+        "Ws......................................................................................BoWs............NuNurr..........Nu....Ws",
+        "Ws......................................................................................BoWs..Nu..........rr......  ..........Ws",
+        "Ws......................................................................................BoWs..........................  ......Ws",
+        "Ws......................................................................................BoWs......rr..$1....NuNu..............Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs..  ....Nu..rr$1..rrNu....Nu..  ..Ws",
+        "WsBo......................................................................................Ws........Nu............rr..........Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs..............  ..................Ws",
+        "Ws......................................................................................BoWs........$1..............rr........Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs..Nu....  ..........rr............Ws",
+        "WsBo......................................................................................Ws..$1........rr..$1................Ws",
+        "WsBo......................................................................................Ws......rr..........Nu......  ......Ws",
+        "WsBo......................................................................................Ws..................................Ws",
+        "WsBo......................................................................................Ws......rr......  ......  Nu........Ws",
+        "WsBo......................................................................................Ws..................................Ws",
+        "WsBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs....  ............................Ws",
+        "Ws......................................................................................BoWs..................................Ws",
+        "WsXXBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoBoWs........  ........................Ws",
+        "WsXX......................................................................................Ws................  ................Ws",
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs"
+    ]
+}

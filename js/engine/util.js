@@ -46,3 +46,38 @@ function Maybe(callback,probability){
     if (isNaN(probability)) probability = 1;
     if (random() <= probability) callback();
 }
+
+// caveat: when arrays are created in a different context (other frame or window) this won't work.
+function typeOf(value) {
+    var s = typeof value;
+    if (s === 'object') {
+        if (value) {
+            if (value instanceof Array) {
+                s = 'array';
+            }
+        } else {
+            s = 'null';
+        }
+    }
+    return s;
+}
+
+function isArray(a){
+    return typeOf(a) == "array";
+}
+
+function isBoolean(o){
+    return typeOf(o) == "boolean";
+}
+
+function isFunction(o){
+    return typeOf(o) == "function";
+}
+
+function isDefined(o){
+    return typeOf(o) != "undefined";
+}
+
+function isNumeric(o){
+    return !isNaN(o);
+}
