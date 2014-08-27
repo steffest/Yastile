@@ -265,6 +265,7 @@ var GameObjects = (function(){
         game.SPIDER = new GameObject({
             id: 54,
             code: "Tl",
+            alias: "Tu,Td,Tr",
             canMove: true,
             canBeCrushedBy: function(object){
                 return object.gameObject.code == GameObjects.BOULDER.code;
@@ -282,17 +283,7 @@ var GameObjects = (function(){
             animationRotateLeftToUp:[68,69,70,71],
             animationRotateLeftToDown:[68,69,70,71],
             explodeIntoObjects: function(){
-                return [
-                    GameObjects.EMERALD,
-                    GameObjects.EMERALD,
-                    GameObjects.EMERALD,
-                    GameObjects.EMERALD,
-                    GameObjects.DIAMOND,
-                    GameObjects.EMERALD,
-                    GameObjects.EMERALD,
-                    GameObjects.EMERALD,
-                    GameObjects.EMERALD
-                ]
+                return GameObjects.EMPTYSPACE;
             },
             turn: function(object,direction){
                 var anim = "Rotate" + 
@@ -305,6 +296,12 @@ var GameObjects = (function(){
                 object.isTurning = true;
             },
             eachStep: function(object){
+
+                if (object.isNextTo(game.PLAYER)){
+                    game.explodeBig(object,object.getExplodeIntoObjects());
+                    return;
+                }
+
                 if (object.hasTurned){
                     object.setNext("hasTurned",false);
                     object.moveIfPossible(object.sameDirection());
@@ -392,6 +389,11 @@ var GameObjects = (function(){
                 object.isTurning = true;
             },
             eachStep: function(object){
+                if (object.isNextTo(game.PLAYER)){
+                    game.explodeBig(object,object.getExplodeIntoObjects());
+                    return;
+                }
+
                 if (object.hasTurned){
                     object.setNext("hasTurned",false);
                     object.moveIfPossible(object.sameDirection());

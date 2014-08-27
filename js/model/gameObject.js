@@ -95,7 +95,6 @@ GameObject.prototype.canMoveTo = function(targetObject,direction){
     }
 
     if (targetGameObject.isPlayer()){
-        console.error('isplayer');
         if (targetObject.moveDirection){
             var opposite = DIRECTION_OPPOSITE[targetObject.moveDirection];
             if (direction != opposite) return true;

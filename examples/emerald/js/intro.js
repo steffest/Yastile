@@ -2,38 +2,51 @@ var Intro = (function(){
     var self = {};
 
     var levels = [
-        {name: "level 1" , url: "examples/emerald/levels/level1.json"},
-        {name: "level 2" , url: "examples/emerald/levels/level2.json"},
-        {name: "Aladdin level 2" , url: "examples/emerald/levels/emc_aladdinMine01_2.json"},
-        {name: "CrazyMine level 0" , url: "examples/emerald/levels/emc_crazymine01_0.json"},
-        {name: "Emerald Mine 1 level 0" , url: "examples/emerald/levels/kingsoft_em01_0.json"},
-        {name: "Emerald Mine 1 level 3" , url: "examples/emerald/levels/kingsoft_em01_3.json"},
-        {name: "Emerald Mine 1 level 39" , url: "examples/emerald/levels/kingsoft_em01_39.json"},
-        {name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
-        {name: "Sokoban 2" , url: "examples/emerald/levels/sokoban2.json"},
-        {name: "Sokoban 3" , url: "examples/emerald/levels/sokoban3.json"},
-        {name: "emeralds" , url: "examples/emerald/levels/emeralds.json"},
-        {name: "bugs" , url: "examples/emerald/levels/bugs.json"},
-        {name: "level 1" , url: "examples/emerald/levels/level1.json"},
-        {name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
-        {name: "level 1" , url: "examples/emerald/levels/level1.json"},
-        {name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
-        {name: "level 1" , url: "examples/emerald/levels/level1.json"},
-        {name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
-        {name: "level 1" , url: "examples/emerald/levels/level1.json"},
-        {name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
-        {name: "level 1" , url: "examples/emerald/levels/level1.json"},
-        {name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"}
+        {icon: 1, name: "level 1" , url: "examples/emerald/levels/level1.json"},
+        {icon: 2, name: "level 2" , url: "examples/emerald/levels/level2.json"},
+        {icon: 3, name: "Aladdin level 2" , url: "examples/emerald/levels/emc_aladdinMine01_2.json"},
+        {icon: 4, name: "CrazyMine level 0" , url: "examples/emerald/levels/emc_crazymine01_0.json"},
+        {icon: 20, name: "Emerald Mine 1 level 0" , url: "examples/emerald/levels/kingsoft_em01_0.json"},
+        {icon: 22, name: "Emerald Mine 1 level 3" , url: "examples/emerald/levels/kingsoft_em01_3.json"},
+        {icon: 23, name: "Emerald Mine 1 level 39" , url: "examples/emerald/levels/kingsoft_em01_39.json"},
+        {icon: 24, name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
+        {icon: 9, name: "Sokoban 2" , url: "examples/emerald/levels/sokoban2.json"},
+        {icon: 10, name: "Sokoban 3" , url: "examples/emerald/levels/sokoban3.json"},
+        {icon: 200, name: "emeralds" , url: "examples/emerald/levels/emeralds.json"},
+        {icon: 169, name: "bugs" , url: "examples/emerald/levels/bugs.json"},
+        {icon: 13, name: "level 1" , url: "examples/emerald/levels/level1.json"},
+        {icon: 14, name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
+        {icon: 15, name: "level 1" , url: "examples/emerald/levels/level1.json"},
+        {icon: 16, name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
+        {icon: 17, name: "level 1" , url: "examples/emerald/levels/level1.json"},
+        {icon: 18, name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
+        {icon: 19, name: "level 1" , url: "examples/emerald/levels/level1.json"},
+        {icon: 20, name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"},
+        {icon: 21, name: "level 1" , url: "examples/emerald/levels/level1.json"},
+        {icon: 22, name: "Sokoban 1" , url: "examples/emerald/levels/sokoban1.json"}
     ];
 
-
+    var state={};
 
     self.init = function(){
 
         UI.removeAllElements();
         var listboxProperties = {
             items: levels,
-            onSelect: function(selectedItem){loadLevel(selectedItem)}
+            itemHeight: 64,
+            left: 20,
+            top: 30,
+            width: Game.getSettings().canvasWidth - 40,
+            height: Game.getSettings().canvasHeight - 100,
+            scrollY: self.getState("listbox_scrollY") || 0,
+            onSelect: function(selectedItem){loadLevel(selectedItem)},
+            onResize: function(listbox){
+                listbox.width = Game.getSettings().canvasWidth - 40;
+                listbox.height = Game.getSettings().canvasHeight - 100;
+            },
+            preserveState: function(key,value){
+                self.setState("listbox_"+key,value)
+            }
         };
 
         var levelSelector = new UI.Listbox(listboxProperties);
@@ -41,6 +54,14 @@ var Intro = (function(){
 
         Game.setGameSection(Intro.levelSelector);
 
+    };
+
+    self.setState = function(key,value){
+        state[key] = value;
+    };
+
+    self.getState = function(key){
+        return state[key];
     };
 
     self.levelSelector = function() {

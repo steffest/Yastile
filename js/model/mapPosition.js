@@ -82,7 +82,7 @@ MapPosition.prototype.process = function(){
     var targetObject;
     if (obj.inActive) return; // inanimate object, don't bother;
 
-    if (this.id == GameObjects.PLAYER.id){
+    if (obj.isPlayer()){
         var d, u, l, r, targetObject;
 
         if (Input.isAction()){
@@ -201,7 +201,7 @@ MapPosition.prototype.process = function(){
         // object stopped moving
         if (this.wasMovingToDirection == DIRECTION.DOWN){
             // object has fallen onto something;
-            var targetObject = this.getObject(DIRECTION.DOWN);
+            targetObject = this.getObject(DIRECTION.DOWN);
             if (obj.onFallen) obj.onFallen(this,targetObject);
             if (targetObject.gameObject.onHit) targetObject.gameObject.onHit(this,DIRECTION.DOWN,targetObject);
         }
@@ -212,6 +212,14 @@ MapPosition.prototype.process = function(){
             obj.eachStep(this);
         }
     //}
+
+
+    if (this.isMoving() && !obj.isPlayer()){
+        targetObject = this.getObject(this.moveDirection);
+        if (targetObject.gameObject.onCollected && !targetObject.isMoving()){
+            targetObject.gameObject.onCollected(obj,targetObject,this.moveDirection)
+        }
+    }
 
     this.processed = true;
 
@@ -410,6 +418,19 @@ MapPosition.prototype.animateIfPossible = function(animation){
 MapPosition.prototype.isAnimating = function(){
     return this.animation;
 };
+
+MapPosition.prototype.isNextTo = function(object){
+    var l = this.getObject(DIRECTION.LEFT).gameObject.id;
+    var r = this.getObject(DIRECTION.RIGHT).gameObject.id;
+    var d = this.getObject(DIRECTION.DOWN).gameObject.id;
+    var u = this.getObject(DIRECTION.UP).gameObject.id;
+
+    var id = object.id;
+
+    return ((l == id) || (u == id) || (r == id) || (d == id))
+};
+
+
 MapPosition.prototype.refresh = function(){
     this.setNext("id",this.id);
 };

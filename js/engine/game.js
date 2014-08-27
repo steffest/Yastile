@@ -21,7 +21,6 @@ var Game= (function(){
     var backgroundPattern;
     var backgroundImage;
     var gameController;
-    var closeButton;
 
     var scorePosition = {top: 0, left: 0};
 
@@ -113,12 +112,51 @@ var Game= (function(){
         if (settings.showOnScreenControls){
             gameController = new UI.GameController(settings.onScreenControlsImage);
             UI.addElement(gameController);
+
+            var actionButton = new UI.Button({
+                id: "action",
+                url: "resources/action_button.png",
+                bottom: canvas.height - 40,
+                right: canvas.width - 20,
+                width: 74,
+                height: 74,
+                states:[
+                    [0,0,74,74],
+                    [79,0,74,74]
+                ],
+                onDown: function(button){
+                    Input.isAction(true);
+                    this.setSate(1);
+                },
+                onUp: function(button){
+                    Input.isAction(false);
+                    this.setSate(0);
+                },
+                onResize:  function(button){
+                    button.right = canvas.width - 20;
+                    button.left = button.right - button.width;
+                    button.bottom = canvas.height - 40;
+                    button.top = button.bottom - button.height;
+                }
+            });
+            UI.addElement(actionButton);
+
         }
 
-        closeButton = new UI.Button("resources/close_button.png");
-        closeButton.onClick = function(){
-            self.exit();
-        };
+        // add Closebutton - top left;
+        var closeButton = new UI.Button({
+            id: "close",
+            url: "resources/close_button.png",
+            top: 10,
+            right: canvas.width - 10,
+            onClick: function(button){
+                self.exit();
+            },
+            onResize:  function(button){
+                button.right = canvas.width - 10;
+                button.left = button.right - button.width;
+            }
+        });
         UI.addElement(closeButton);
 
         self.resetScore();
@@ -182,7 +220,6 @@ var Game= (function(){
         canvas.height = targetHeight;
 
         if (gameController) gameController.setPosition();
-        if (closeButton) closeButton.setPosition();
 
         scorePosition.left = 0;
         scorePosition.top = 0;
@@ -220,6 +257,7 @@ var Game= (function(){
         }
 
         Map.onResize(settings);
+        UI.onResize(settings);
 
         window.addEventListener("resize", scaleCanvas, false);
     }

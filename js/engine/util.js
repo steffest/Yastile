@@ -81,3 +81,4 @@ function isDefined(o){
 function isNumeric(o){
     return !isNaN(o);
 }
+

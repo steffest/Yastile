@@ -1,12 +1,13 @@
 var UI = (function(){
     var self = {};
 
-    var objectDown;
     var UIEventElements;
     var screen = [];
     var scaleFactorW = 1;
     var scaleFactorH = 1;
     var touchData = {};
+
+    touchData.touches = [];
 
     self.init = function(){
 
@@ -30,6 +31,7 @@ var UI = (function(){
     };
 
     self.getEventElement = function(x,y){
+
         var result;
         for (var i = 0, len = UIEventElements.length; i< len; i++){
             var elm = UIEventElements[i];
@@ -49,6 +51,7 @@ var UI = (function(){
 
     self.removeAllElements = function(element){
         screen = [];
+        UIEventElements = [];
     };
 
     self.addElement = function(element){
@@ -67,72 +70,131 @@ var UI = (function(){
         scaleFactorH = height;
     };
 
+    self.onResize = function(){
+        for (var i = 0, len = screen.length; i<len; i++){
+            var UIElement = screen[i];
+            if (UIElement.onResize) UIElement.onResize(UIElement);
+        }
+    };
+
+    var getTouchIndex = function (id) {
+        for (var i=0; i < touchData.touches.length; i++) {
+            if (touchData.touches[i].id === id) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
 
     function handleDown(event){
 
-        var _x, _y;
+        event.preventDefault();
+
         if (event.touches && event.touches.length>0){
-            _x = event.touches[0].clientX;
-            _y = event.touches[0].clientY;
+            var touches = event.changedTouches;
+            for (var i=0; i < touches.length; i++) {
+                var touch = touches[i];
+                initTouch(touch.identifier,touch.pageX,touch.pageY);
+            }
         }else{
-            _x = event.pageX;
-            _y = event.pageY;
+            var touchIndex = getTouchIndex("notouch");
+            if (touchIndex>=0) touchData.touches.splice(touchIndex, 1);
+            initTouch("notouch",event.pageX,event.pageY);
         }
 
-        var x = _x/scaleFactorW;
-        var y = _y/scaleFactorH;
+        function initTouch(id,x,y){
+            touchData.isTouchDown = true;
 
-        objectDown = UI.getEventElement(x,y);
-        touchData.isTouchDown = true;
-        touchData.x = x;
-        touchData.y = y;
-        touchData.startX = x;
-        touchData.startY = y;
-        touchData.object = objectDown;
+            var _x = x/scaleFactorW;
+            var _y = y/scaleFactorH;
 
-        if (objectDown && objectDown.element && objectDown.element.onDown){
-            objectDown.element.onDown(touchData);
+            var thisTouch = {
+                id: id,
+                x: _x,
+                y: _y,
+                startX: _x,
+                startY: _y,
+                UIobject: UI.getEventElement(_x,_y)
+            };
+
+            touchData.touches.push(thisTouch);
+
+            if (thisTouch.UIobject  && thisTouch.UIobject.element && thisTouch.UIobject.element.onDown){
+                thisTouch.UIobject.element.onDown(thisTouch);
+            }
         }
-
     }
 
     function handleMove(event){
-        var _x, _y;
+
+        event.preventDefault();
+
         if (event.touches && event.touches.length>0){
-            _x = event.touches[0].clientX;
-            _y = event.touches[0].clientY;
+            var touches = event.changedTouches;
+
+            for (var i=0; i < touches.length; i++) {
+                var touch = touches[i];
+                updateTouch(getTouchIndex(touch.identifier),touch.pageX,touch.pageY);
+            }
         }else{
-            _x = event.pageX;
-            _y = event.pageY;
+            updateTouch(getTouchIndex("notouch"),event.pageX,event.pageY);
         }
 
-        var x = _x/scaleFactorW;
-        var y = _y/scaleFactorH;
-        touchData.x = x;
-        touchData.y = y;
+        function updateTouch(touchIndex,x,y){
+            if (touchIndex>=0){
+                var thisTouch =touchData.touches[touchIndex];
 
-        if (touchData.isTouchDown && objectDown){
-            if (objectDown.element && objectDown.element.onDrag){
-                objectDown.element.onDrag(touchData);
+                thisTouch.x = x/scaleFactorW;
+                thisTouch.y = y/scaleFactorW;
+
+                touchData.touches.splice(touchIndex, 1, thisTouch);
+
+                if (touchData.isTouchDown && thisTouch.UIobject){
+                    if (thisTouch.UIobject.element && thisTouch.UIobject.element.onDrag){
+                        thisTouch.UIobject.element.onDrag(thisTouch);
+                    }
+                }
+            }
+        }
+    }
+
+    var handleUp = function(event){
+
+        if (event && event.touches){
+            var touches = event.changedTouches;
+
+            for (var i=0; i < touches.length; i++) {
+                var touch = touches[i];
+                endTouch(getTouchIndex(touch.identifier));
+            }
+
+            if (event.touches.length == 0){
+                resetInput();
+            }
+        }else{
+            endTouch(getTouchIndex("notouch"));
+            resetInput();
+        }
+
+        function endTouch(touchIndex){
+            if (touchIndex>=0){
+                var thisTouch =touchData.touches[touchIndex];
+                if (thisTouch.UIobject && thisTouch.UIobject.element){
+                    var elm = thisTouch.UIobject.element;
+                    if (elm.onClick) elm.onClick(thisTouch);
+                    if (elm.onUp) elm.onUp(thisTouch);
+                }
+                touchData.touches.splice(touchIndex, 1);
             }
         }
 
-    }
-
-    var handleUp = function(){
-
-        if (objectDown && objectDown.element){
-            var elm = objectDown.element;
-            if (elm.onClick) elm.onClick(touchData);
-            if (elm.onUp) elm.onUp(touchData);
+        function resetInput(){
+            Input.isDown(false);
+            Input.isUp(false);
+            Input.isLeft(false);
+            Input.isRight(false);
         }
-
-        objectDown = undefined;
-        touchData = {};
-        Input.isDown(false);
-        Input.isUp(false);
-        Input.isLeft(false);
-        Input.isRight(false);
     };
 
 

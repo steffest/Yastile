@@ -2,17 +2,25 @@ UI.Listbox = function(properties){
     var self = this;
     this.items = properties.items;
     this.onSelect = properties.onSelect;
-    this.scrollOffetY = 0;
+    this.onResize = properties.onResize;
+    this.scrollOffetY = properties.scrollY || 0 ;
     this.scrollDeltaY = 0;
     this.scrollSpeed = 0;
     this.scrollElastic = 0;
     this.scrollHistory = [];
     this.scrollThreshold = 5;
 
-    this.itemHeight = 64;
+    this.itemHeight = properties.itemHeight || 64;
+
+    this.top = properties.top;
+    this.left = properties.left || 100;
+    this.width = properties.width || 400;
+    this.height = properties.height || 400;
 
     this.minScollPosition = 0;
-    this.maxScrollPosition = (this.items.length * this.itemHeight) - 100; // TODO: 100 should be listbox Height
+    this.maxScrollPosition = (this.items.length * this.itemHeight) - this.height;
+
+    this.preserveState = properties.preserveState || function(){};
 
     var onDrag = function(touchData){
         var delta = touchData.y - touchData.startY;
@@ -21,7 +29,7 @@ UI.Listbox = function(properties){
 
     var onUp = function(touchData){
         if (Math.abs(self.scrollDeltaY) < self.scrollThreshold){
-            self.onSelect(touchData.object.element);
+            self.onSelect(touchData.UIobject.element);
         }else{
             self.scrollElastic = 20;
             var initialScrollSpeed = 0-(getInitialScrollSpeed()/10);
@@ -37,15 +45,15 @@ UI.Listbox = function(properties){
             if (targetPosition>self.minScollPosition){
                 // targetPosition towards 0
                 initialScrollSpeed = self.minScollPosition-(currentPosition/sum);
+                targetPosition = self.minScollPosition;
             }
 
             if (targetPosition< (0-self.maxScrollPosition)){
-                console.log("self.maxScrollPosition",currentPosition,targetPosition,self.maxScrollPosition);
                 initialScrollSpeed = ((0-currentPosition)-self.maxScrollPosition)/sum;
+                targetPosition = 0-self.maxScrollPosition;
             }
-            console.log("initialScrollSpeed",initialScrollSpeed);
 
-
+            self.preserveState("scrollY",targetPosition);
             self.scrollSpeed = initialScrollSpeed;
 
 
@@ -102,10 +110,15 @@ UI.Listbox = function(properties){
 };
 
 UI.Listbox.prototype.render = function(){
+
     this.scrollOffetY = this.scrollOffetY + (this.scrollElastic * this.scrollSpeed);
-    var y = 30 + this.scrollOffetY + this.scrollDeltaY;
-    var x = 100;
+    var y = this.top + this.scrollOffetY + this.scrollDeltaY;
+    var x = this.left;
     var itemHeight = this.itemHeight;
+    var itemWidth = this.width;
+
+    var lineTop = itemHeight-10;
+    var lineHeight = 0.5;
 
     if (this.scrollElastic > 0) this.scrollElastic -= 1;
 
@@ -123,13 +136,17 @@ UI.Listbox.prototype.render = function(){
 
     function renderItem(item){
         y += itemHeight;
-        var frame = sprites[4];
+        var frame = sprites[item.icon];
+
+        ctx.fillStyle = "Black";
+        ctx.clearRect(x,y+lineTop,itemWidth,lineHeight); // why is this white?
+
         ctx.drawImage(frame,x, y);
 
-        ctx.fillStyle = "White";
+        ctx.fillStyle = "Grey";
         ctx.font      = "normal 10pt Arial";
-        ctx.fillText(item.name, x, y + 42);
+        ctx.fillText(item.name, x + 40, y + 16);
 
-        UI.registerEventElement(item,x,y,x+60,y+60);
+        UI.registerEventElement(item,x,y,x+itemWidth,y+itemHeight);
     }
 };
