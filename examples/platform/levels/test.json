@@ -1,0 +1,29 @@
+{
+    "name": "platform_test",
+    "width": 36,
+    "height": 18,
+    "pointsNeeded" : 2,
+    "mapStructure" : {
+        "charCount" : 1
+    },
+    "map":[
+        "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+        "W                          W       W",
+        "W                          W       W",
+        "W      ****                  **    W",
+        "W                          WWWW    W",
+        "W***   WWWWW     WWWWW     W     * W",
+        "WWWW         **            W    WWWW",
+        "W   **    WWWWWWWW         W       W",
+        "W             W          * WWWW    W",
+        "WWWWWWWWWWWWWWWWWWWWWWWW WWW       W",
+        "W                          W    WWWW",
+        "W     **      W                    W",
+        "WWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWW",
+        "W                          W      *W",
+        "W              **    WW    W     WWW",
+        "W             WWWWW        W       W",
+        "W     **                         WWW",
+        "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ]
+}
