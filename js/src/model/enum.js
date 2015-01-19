@@ -3,6 +3,7 @@ var canvas;
 var ctx;
 var map = [];
 var sprites = [];
+var spriteNames = {};
 
 var DIRECTION = {
     LEFT: 37,
@@ -39,6 +40,13 @@ var SCALING = {
 };
 
 var MAPLAYERTYPE = {
-    GRID: 0,
-    SPOT: 1
+    GRID: 1,
+    SPOT: 2,
+    FREE: 3
 };
+
+var MAPOBJECTTYPE = {
+    GRID : 1,
+    FIXED: 2,
+    FREE: 3
+}

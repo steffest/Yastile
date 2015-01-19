@@ -17,6 +17,14 @@ var UI = (function(){
         canvas.addEventListener("touchstart", handleDown,false);
         canvas.addEventListener("touchmove", handleMove,false);
         canvas.addEventListener("touchend", handleUp,false);
+        canvas.addEventListener("mousewheel", handleMouseWheel,false);
+        canvas.addEventListener("DOMMouseScroll", handleMouseWheel,false);
+
+        if (window.navigator.msPointerEnabled){
+            canvas.addEventListener("MSPointerDown", handleDown,false);
+            canvas.addEventListener("MSPointerMove", handleMove,false);
+            canvas.addEventListener("MSPointerEnd", handleUp,false);
+        }
 
     };
 
@@ -139,6 +147,8 @@ var UI = (function(){
             }
         }else{
             updateTouch(getTouchIndex("notouch"),event.pageX,event.pageY);
+            touchData.currentMouseX = event.pageX;
+            touchData.currentMouseY = event.pageY;
         }
 
         function updateTouch(touchIndex,x,y){
@@ -194,6 +204,22 @@ var UI = (function(){
             Input.isUp(false);
             Input.isLeft(false);
             Input.isRight(false);
+        }
+    };
+
+    var handleMouseWheel = function(event){
+
+        if (touchData.currentMouseX){
+            var delta = event.wheelDelta || -event.detail;
+
+            var _x = touchData.currentMouseX/scaleFactorW;
+            var _y = touchData.currentMouseY/scaleFactorH;
+            var UIobject =  UI.getEventElement(_x,_y);
+
+
+            if (UIobject && UIobject.element && UIobject.element.onMouseWheel){
+                UIobject.element.onMouseWheel(delta);
+            }
         }
     };
 

@@ -7,7 +7,7 @@ UI.GameController = function(image){
     this.image.onload = function() {
         self.tileSize = this.height;
         for (var i = 0; i<5; i++){
-            var controllerSprite = new Sprite(i,this,self.tileSize);
+            var controllerSprite = new Sprite(this,i,self.tileSize);
             self.sprites.push(controllerSprite);
         }
         self.imageLoaded = true;

@@ -25,6 +25,18 @@ var GameObject = function(properties){
     if (properties.spriteIndex) this.spriteIndex = properties.spriteIndex;
     this.spriteIndexes = properties.spriteIndexes;
 
+
+    if (!isNumeric(this.spriteIndex)){
+
+        var index = spriteNames[this.spriteIndex];
+        if (index >= 0){
+            this.spriteIndex = index;
+            console.error("GameObject " + this.code + " set tot sprite " + index)
+        }else{
+            console.error("Warning: GameObject " + this.code + " doesn't seem to have a sprite!")
+        }
+    }
+
     // simple animation system;
     this.animationFrames = {};
     if (properties.animationRight) this.animationFrames[DIRECTION.RIGHT] = properties.animationRight;
@@ -80,7 +92,9 @@ GameObject.prototype.setDefault = function(property,value){
     if (typeof this[property] == "undefined") this[property]=value;
 };
 
+
 GameObject.prototype.canMoveTo = function(targetObject,direction){
+    if (!targetObject) return false;
     var targetGameObject = targetObject.gameObject;
     if (targetGameObject.isEmpty()) return true;
 

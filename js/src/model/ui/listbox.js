@@ -64,6 +64,11 @@ UI.Listbox = function(properties){
         self.scrollHistory = [];
     };
 
+    var onMouseWheel = function(delta){
+        var targetPosition = limitScroll(self.scrollOffetY + delta/3);
+        self.scrollOffetY = targetPosition;
+    };
+
     var getInitialScrollSpeed = function(){
         var speed = 0;
         var h = self.scrollHistory;
@@ -97,6 +102,21 @@ UI.Listbox = function(properties){
 
     };
 
+    function limitScroll(targetPosition){
+
+        // check if target position is in boundary
+        if (targetPosition>self.minScollPosition){
+            // targetPosition towards 0
+            targetPosition = self.minScollPosition;
+        }
+
+        if (targetPosition< (0-self.maxScrollPosition)){
+            targetPosition = 0-self.maxScrollPosition;
+        }
+
+        return targetPosition;
+    }
+
     function sameSign(a,b){
         return (a?a<0?-1:1:0) == (b?b<0?-1:1:0)
     }
@@ -105,6 +125,7 @@ UI.Listbox = function(properties){
     for (var i= 0, len= this.items.length; i<len; i++){
         this.items[i].onUp = onUp;
         this.items[i].onDrag = onDrag;
+        this.items[i].onMouseWheel = onMouseWheel;
     }
 
 };

@@ -1,11 +1,14 @@
-var MapPosition = function(gameObject,index){
+// TODO rename to gridObject
+
+var MapPosition = function(gameObject,index,mapLayer){
     this.gameObject = gameObject;
     this.id = gameObject.id;
     this.index = index;
     this.staticFrame = gameObject.getStaticFrame();
+    this.mapLayer = mapLayer;
 
-    this.left = index % Game.getLevel().width;
-    this.top = Math.floor(index / Game.getLevel().width);
+    this.left = index % mapLayer.levelWidth;
+    this.top = Math.floor(index / mapLayer.levelWidth);
 
     // override this if you want certain tiles to move faster/slower
     this.tileSize = Game.getTileSize();
@@ -13,6 +16,7 @@ var MapPosition = function(gameObject,index){
 };
 
 MapPosition.prototype.isVisible = function(scrollOffset){
+
     return this.left >= scrollOffset.tileX-1
         && this.left < scrollOffset.tileX+Game.getViewPort().width+1
         && this.top >= scrollOffset.tileY-1
@@ -20,6 +24,8 @@ MapPosition.prototype.isVisible = function(scrollOffset){
 };
 
 MapPosition.prototype.render = function(step,scrollOffset,layer){
+
+
 
     var x = (this.left-scrollOffset.tileX) * this.tileSize;
     var y = (this.top-scrollOffset.tileY) * this.tileSize;
@@ -48,7 +54,7 @@ MapPosition.prototype.render = function(step,scrollOffset,layer){
         x += step*this.tickOffset;
     }
 
-    if (layer==0 && this.bottomlayer){
+    if (this.bottomlayer && this.mapLayer.id == "bottom"){
         frame = sprites[this.bottomlayer];
         ctx.drawImage(frame,baseX, baseY);
     }else{
@@ -70,8 +76,6 @@ MapPosition.prototype.render = function(step,scrollOffset,layer){
     }
 
 
-
-
 };
 
 MapPosition.prototype.process = function(){
@@ -83,7 +87,7 @@ MapPosition.prototype.process = function(){
     if (obj.inActive) return; // inanimate object, don't bother;
 
     if (obj.isPlayer()){
-        var d, u, l, r, targetObject;
+        var d, u, l, r;
 
         if (Input.isAction()){
             this.actionDownCount = (this.actionDownCount || 0) + 1;
@@ -228,15 +232,14 @@ MapPosition.prototype.process = function(){
 
 MapPosition.prototype.fullStep = function(step){
     if (this.next){
-        for (key in this.next){
+        for (var key in this.next){
             this[key] = this.next[key];
         }
         this.gameObject = GameObjects[this.id];
         this.staticFrame = this.gameObject.getStaticFrame();
         this.wasMovingToDirection = this.movingInToDirection;
-        if (this.id == GameObjects.PLAYER.id) Map.setPlayerObject(this);
+        if (this.id == GameObjects.PLAYER.id) this.mapLayer.setPlayerObject(this);
         this.animation = false;
-        if (this.previousObject) this.setNext("previousObject",undefined);
     }else{
         this.wasMovingToDirection = undefined;
     }
@@ -270,15 +273,17 @@ MapPosition.prototype.setNext= function(property,value){
 };
 
 MapPosition.prototype.getObject = function(direction){
+    var width = this.mapLayer.levelWidth;
+    var map = this.mapLayer.objects;
     switch (direction){
-        case DIRECTION.DOWN: return map[this.index + Game.getLevel().width]; break;
-        case DIRECTION.UP: return map[this.index - Game.getLevel().width]; break;
+        case DIRECTION.DOWN: return map[this.index + width]; break;
+        case DIRECTION.UP: return map[this.index - width]; break;
         case DIRECTION.LEFT: return map[this.index -1]; break;
         case DIRECTION.RIGHT: return map[this.index +1]; break;
-        case DIRECTION.LEFTDOWN: return map[this.index -1 + Game.getLevel().width]; break;
-        case DIRECTION.RIGHTDOWN: return map[this.index +1 + Game.getLevel().width]; break;
-        case DIRECTION.LEFTUP: return map[this.index -1 - Game.getLevel().width]; break;
-        case DIRECTION.RIGHTUP: return map[this.index +1 - Game.getLevel().width]; break;
+        case DIRECTION.LEFTDOWN: return map[this.index -1 + width]; break;
+        case DIRECTION.RIGHTDOWN: return map[this.index +1 + width]; break;
+        case DIRECTION.LEFTUP: return map[this.index -1 - width]; break;
+        case DIRECTION.RIGHTUP: return map[this.index +1 - width]; break;
         case DIRECTION.NONE: return map[this.index]; break;
     }
 };
@@ -304,7 +309,7 @@ MapPosition.prototype.canMove = function(direction){
         }
     }else{
         // targetobject is accepting a moving object
-        var targetObject = this.getObject(direction);
+        targetObject = this.getObject(direction);
         if (targetObject){
             if (targetObject.next && targetObject.next.id) return false;
 
@@ -430,6 +435,9 @@ MapPosition.prototype.isNextTo = function(object){
     return ((l == id) || (u == id) || (r == id) || (d == id))
 };
 
+MapPosition.prototype.isGameObject = function(object){
+    return this.gameObject.id == object.id;
+};
 
 MapPosition.prototype.refresh = function(){
     this.setNext("id",this.id);
@@ -444,16 +452,28 @@ MapPosition.prototype.transformInto = function(gameObject,animation,onComplete){
 MapPosition.prototype.addLayer = function(spriteIndex,position){
     if (position == "bottom"){
         this.bottomlayer = spriteIndex;
-        MapLayers[0].add(this);
+        var bottomLayer = Map.getLayer("bottom");
+        if (!bottomLayer) {
+            bottomLayer = Map.addLayer({
+                id: "bottom",
+                zIndex: 0,
+                type: MAPLAYERTYPE.SPOT,
+                parentLayer: this.mapLayer});
+            Map.sortLayers();
+        }
+
+        var bottomThis = new MapPosition(this.gameObject,this.index,bottomLayer);
+        bottomLayer.addObject(bottomThis,MAPOBJECTTYPE.GRID);
     }else{
-        this.toplayer = spriteIndex;
+       this.toplayer = spriteIndex;
     }
 };
 
 MapPosition.prototype.removeLayer = function(position){
     if (position == "bottom"){
         this.bottomlayer = undefined;
-        MapLayers[0].remove(this);
+        var bottomLayer = Map.getLayer("bottom");
+        if (bottomLayer) bottomLayer.removeObject(this);
     }else{
         this.toplayer = undefined;
     }

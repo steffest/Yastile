@@ -61,39 +61,51 @@ var Game= (function(){
 
         properties.borderScrollOffset = 8;
 
-        UI.init();
-        GameObjects.init();
 
-        settings.defaultGameObject = GameObjects[settings.defaultGameObject];
+        var preloadResources = [
+            {id: "spritesheet", url: properties.spriteSheet}
+        ];
+        if (settings.backgroundImage) preloadResources.push({id: "backGroundImage", url: settings.backgroundImage});
 
-        Map.init(properties);
+        Preloader.init(preloadResources,function(){
+            console.error("preloader done");
 
-        loadResources(properties.spriteSheet,function(){
+            buildSpriteSheet(Resources.images.spritesheet,function(){
+                console.error("building spritesheet done");
 
-            if (settings.backgroundPattern && isNumeric(settings.backgroundPattern)){
-                backgroundPattern = ctx.createPattern(sprites[settings.backgroundPattern], 'repeat');
-            }
-            if (!backgroundPattern) backgroundPattern = "Black";
+                UI.init();
+                if (typeof GameObjects != "undefined"){
+                    GameObjects.init();
+                    settings.defaultGameObject = GameObjects[settings.defaultGameObject];
+                }
 
-            if (settings.backgroundImage){
-                var img = new Image();
-                img.onload = function() {
 
-                    backgroundImage = document.createElement("canvas");
-                    backgroundImage.width = 2048;
-                    backgroundImage.height = 1024;
+                Map.init(properties);
 
-                    var context = backgroundImage.getContext("2d");
-                    context.globalAlpha = settings.backgroundImageAlpha || 1;
 
-                    context.drawImage(img, 0, 0);
+                if (settings.backgroundPattern && isNumeric(settings.backgroundPattern)){
+                    backgroundPattern = ctx.createPattern(sprites[settings.backgroundPattern], 'repeat');
+                }
+
+                if (!backgroundPattern) backgroundPattern = "Black";
+
+                if (settings.backgroundImage){
+                        backgroundImage = document.createElement("canvas");
+                        backgroundImage.width = 2048;
+                        backgroundImage.height = 1024;
+
+                        var context = backgroundImage.getContext("2d");
+                        context.globalAlpha = settings.backgroundImageAlpha || 1;
+
+                        context.drawImage(Resources.images.backGroundImage, 0, 0);
+                        initDone();
+                }else{
                     initDone();
-                };
-                img.src = settings.backgroundImage;
-            }else{
-                initDone();
-            }
+                }
+            })
+
         });
+
     };
 
     var initDone = function(){
@@ -115,7 +127,7 @@ var Game= (function(){
 
             var actionButton = new UI.Button({
                 id: "action",
-                url: "resources/action_button.png",
+                url: settings.actionButtonImage,
                 bottom: canvas.height - 40,
                 right: canvas.width - 20,
                 width: 74,
@@ -146,7 +158,7 @@ var Game= (function(){
         // add Closebutton - top left;
         var closeButton = new UI.Button({
             id: "close",
-            url: "resources/close_button.png",
+            url: settings.closeButtonImage,
             top: 10,
             right: canvas.width - 10,
             onClick: function(button){
@@ -178,10 +190,9 @@ var Game= (function(){
                 self.start();
             })
         }else{
-
             if (levelData.map == "random") {
-                map = Map.generateRandom(levelData);
-                self.start();
+                //map = Map.generateRandom(levelData);
+                //self.start();
             }
         }
     };
@@ -292,45 +303,34 @@ var Game= (function(){
         step++;
         if (step>=targetTicksPerSecond) step = 0;
 
-        if (step == 0){
-            processGrid();
-        }
+        Map.process(step);
+        render(step);
+        Map.cleanUp();
 
-        var scrollOffset = Map.getScrollOffset();
-        render(step,scrollOffset);
-
-        if (step == (targetTicksPerSecond-1)){
-            fullStep(step);
-        }
     }
 
-    function processGrid(){
-        //process Player first
-        var playerObject = Map.getPlayerObject();
-        if (playerObject) playerObject.process();
-
-        var levelProperties = Map.getLevelProperties();
 
 
-        for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
-            var object = map[i];
-            object.process();
-        }
-        Map.initScroll();
-    }
 
     function render(step,scrollOffset) {
         ctx.fillStyle = backgroundPattern;
         //ctx.fillStyle = "Black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // draw level background
         if (backgroundImage){
-            var x = 0-(scrollOffset.tileX * tileSize) + scrollOffset.x*step;
-            var y = 0-(scrollOffset.tileY * tileSize) + scrollOffset.y*step;
-            ctx.drawImage(backgroundImage,x, y);
+            ctx.drawImage(backgroundImage,0, 0);
         }
 
+        Map.render(step);
+
+        // draw level background
+        //if (backgroundImage){
+        //    var x = 0-(scrollOffset.tileX * tileSize) + scrollOffset.x*step;
+        //    var y = 0-(scrollOffset.tileY * tileSize) + scrollOffset.y*step;
+        //    ctx.drawImage(backgroundImage,x, y);
+        //}
+
+        /*
         var levelProperties = Map.getLevelProperties();
 
 
@@ -338,30 +338,36 @@ var Game= (function(){
         // first bottomlayer - if any
         for (var m = 0, maplen = MapLayers.length; m<maplen; m++){
             var mapLayer = MapLayers[m];
-            mapLayer.render(step,scrollOffset);
+            if (mapLayer.type == MAPLAYERTYPE.SPOT) {
+                mapLayer.render(step, scrollOffset);
+            }
         }
 
         // then grid
         for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
             var object = map[i];
+            //console.error("render",object)
             if (object.isVisible(scrollOffset)) object.render(step,scrollOffset);
         }
+
+        // then floating sprites
+        for (var m = 0, maplen = MapLayers.length; m<maplen; m++){
+            var mapLayer = MapLayers[m];
+            if (mapLayer.type == MAPLAYERTYPE.FREE){
+                mapLayer.render(step,scrollOffset);
+            }
+
+        }
+
 
         //always Draw Player on Top
         var playerObject = Map.getPlayerObject();
         if ( playerObject)  playerObject.render(step,scrollOffset);
 
+        */
+
         UI.renderElements();
 
-    }
-
-    function fullStep(step){
-        var levelProperties = Map.getLevelProperties();
-        for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
-            var object = map[i];
-            object.fullStep(step);
-        }
-        Map.fullStep(step);
     }
 
     function drawFPS(){
@@ -417,14 +423,6 @@ var Game= (function(){
         return {width: settings.canvasWidth, height: settings.canvasHeight}
     };
 
-    self.getLevel = function(){
-        return level;
-    };
-
-    self.setLevel = function(data){
-        level = data;
-    };
-
     self.getSettings = function(){
         return settings;
     };
@@ -475,7 +473,7 @@ var Game= (function(){
     self.resetScore = function(){
         _score = 0;
         console.error("resetscore");
-        GameObjects.resetState();
+        if (typeof GameObjects != "undefined") GameObjects.resetState();
     };
 
     self.setHint = function(s){
