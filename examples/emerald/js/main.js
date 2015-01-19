@@ -10,6 +10,8 @@ window.addEventListener("load",function(){
         showScore: true,
         showHint: true,
         onScreenControlsImage: "resources/controller_4way.png",
+        closeButtonImage: "resources/close_button.png",
+        actionButtonImage: "resources/action_button.png",
         defaultGameObject: "EMPTYSPACE",
         backgroundPattern: 28, // = spritindex - or the name of a color e.g. "Black"
         backgroundImage: "examples/emerald/images//back.jpg",

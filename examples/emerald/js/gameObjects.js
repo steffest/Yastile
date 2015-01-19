@@ -608,8 +608,8 @@ var GameObjects = (function(){
             alias: ":",
             eachStep: function(object){
                 if (!object.isAnimating()){
-                    object.transformInto(game.EMPTYSPACE);
                     object.addLayer(this.id,"bottom");
+                    object.transformInto(game.EMPTYSPACE);
                     object.isLightSocket = true;
                 }
             }
