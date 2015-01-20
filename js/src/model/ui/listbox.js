@@ -157,7 +157,7 @@ UI.Listbox.prototype.render = function(){
 
     function renderItem(item){
         y += itemHeight;
-        var frame = sprites[item.icon];
+        var frame = sprites[item.icon].canvas;
 
         ctx.fillStyle = "Black";
         ctx.clearRect(x,y+lineTop,itemWidth,lineHeight); // why is this white?

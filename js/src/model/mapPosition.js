@@ -55,22 +55,22 @@ MapPosition.prototype.render = function(step,scrollOffset,layer){
     }
 
     if (this.bottomlayer && this.mapLayer.id == "bottom"){
-        frame = sprites[this.bottomlayer];
+        frame = sprites[this.bottomlayer].canvas;
         ctx.drawImage(frame,baseX, baseY);
     }else{
         if (this.id>0){
             var frame;
             if (this.animation){
-                frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame);
+                frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame).canvas;
             }else{
-                frame = sprites[this.staticFrame];
+                frame = sprites[this.staticFrame].canvas;
             }
 
             ctx.drawImage(frame,x, y);
         }
 
         if (this.toplayer){
-            frame = sprites[this.toplayer];
+            frame = sprites[this.toplayer].canvas;
             ctx.drawImage(frame,baseX, baseY);
         }
     }
@@ -245,6 +245,7 @@ MapPosition.prototype.fullStep = function(step){
     }
 
     if (this.animation){
+
         if (this.animation.length > this.animationStartFrame + step + 1){
             this.animationStartFrame = this.animationStartFrame + step + 1;
         }else{

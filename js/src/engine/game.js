@@ -67,6 +67,8 @@ var Game= (function(){
         ];
         if (settings.backgroundImage) preloadResources.push({id: "backGroundImage", url: settings.backgroundImage});
 
+        if (settings.preload) preloadResources = preloadResources.concat(settings.preload);
+
         Preloader.init(preloadResources,function(){
             console.error("preloader done");
 
@@ -84,7 +86,7 @@ var Game= (function(){
 
 
                 if (settings.backgroundPattern && isNumeric(settings.backgroundPattern)){
-                    backgroundPattern = ctx.createPattern(sprites[settings.backgroundPattern], 'repeat');
+                    backgroundPattern = ctx.createPattern(sprites[settings.backgroundPattern].canvas, 'repeat');
                 }
 
                 if (!backgroundPattern) backgroundPattern = "Black";

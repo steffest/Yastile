@@ -21,9 +21,15 @@ var Sprite = function(img,id,x,y,width,height){
     canvas.height = height;
     var ctx = canvas.getContext("2d");
 
+    this.canvas = canvas;
+    this.ctx = ctx;
+
     ctx.drawImage(img,x,y,width,height,0,0,width,height);
 
-    return canvas;
+};
+
+Sprite.prototype.getColorAtPixel = function(x,y){
+    return this.ctx.getImageData(x, y, 1, 1).data;
 };
 
 

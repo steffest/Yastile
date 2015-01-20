@@ -31,7 +31,6 @@ var GameObject = function(properties){
         var index = spriteNames[this.spriteIndex];
         if (index >= 0){
             this.spriteIndex = index;
-            console.error("GameObject " + this.code + " set tot sprite " + index)
         }else{
             console.error("Warning: GameObject " + this.code + " doesn't seem to have a sprite!")
         }

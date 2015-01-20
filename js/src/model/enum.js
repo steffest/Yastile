@@ -42,7 +42,8 @@ var SCALING = {
 var MAPLAYERTYPE = {
     GRID: 1,
     SPOT: 2,
-    FREE: 3
+    FREE: 3,
+    IMAGE: 4
 };
 
 var MAPOBJECTTYPE = {

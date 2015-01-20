@@ -39,8 +39,6 @@ var MapLayer = function(properties){
     this.viewPortWidth = 10;
     this.viewPortHeight = 10;
 
-
-
     this.borderScrollOffset = 5; // defines what the distance of the player to the levelborder can be before the map scrolls
 
     this.step = 0;
@@ -54,32 +52,33 @@ var MapLayer = function(properties){
     if (!this.tileSize) this.tileSize = Game.getTileSize();
     this.scrollStep = this.tileSize/this.targetTicksPerSecond;
 
-    console.error("new maplayer " , this.id, this.targetTicksPerSecond, this.scrollStep);
+    if (!isDefined(this.isVisible)) this.isVisible = true;
 
+    console.log("new maplayer " , this.id, this.targetTicksPerSecond, this.scrollStep);
+
+    if (this.type == MAPLAYERTYPE.IMAGE){
+        var me = this;
+
+        if (me.preloadedSrc){
+            var img = Resources.images[me.preloadedSrc];
+            console.error("proloadSrc",img);
+            me.sprite = new Sprite(img,"",0,0,img.width,img.height);
+        }else if(me.src){
+            console.error("Warning: image " + me.src + " is not preloaded");
+            console.log("loading image for layer " + this.id + ": " + this.src);
+            this.image = new Image();
+            this.image.onload = function(){
+                me.sprite = new Sprite(this,"",0,0,this.width,this.height);
+            };
+            this.image.src = me.src;
+        }
+
+
+    }
 
     if (properties.map){
         parse(properties);
     }
-
-/*
-    self.onResize = function(settings){
-        viewPortWidth = settings.viewPortWidth;
-        viewPortHeight = settings.viewPortHeight;
-
-        if (playerObject){
-            // re-center player?
-            scrollTilesX = Math.max(playerObject.left-10,0);
-            scrollTilesY = Math.max(playerObject.top-10,0);
-        }
-
-    };
-
-
-
-
-
-    */
-
 
     function parse(data){
         console.error("parsing maplayer " + self.id);
@@ -130,7 +129,7 @@ var MapLayer = function(properties){
 };
 
 MapLayer.prototype.isActive = function(){
-    return this.activeObjectCount>0;
+    return this.activeObjectCount>0 && this.isVisible;
 };
 
 MapLayer.prototype.process = function(){
@@ -205,10 +204,17 @@ MapLayer.prototype.setScrollOffset = function(properties){
     this.scrollOffsetY = properties.y || 0;
 };
 
-
 MapLayer.prototype.render = function(){
     this.step++;
     if (this.step >= this.targetTicksPerSecond) this.step = 0;
+
+    if (!this.isVisible) return;
+
+    if (this.sprite){
+        var x = 0 - this.scrollTilesX*this.tileSize + (this.scrollOffsetX*this.step);
+        var y = 0 - this.scrollTilesY*this.tileSize + (this.scrollOffsetY*this.step);
+        ctx.drawImage(this.sprite.canvas,x, y);
+    }
 
     var scrollOffset = this.getScrollOffset();
     for (var i=0, len=this.objects.length;i<len;i++){
@@ -220,11 +226,30 @@ MapLayer.prototype.render = function(){
 MapLayer.prototype.cleanUp = function(){
     if (this.type == MAPLAYERTYPE.GRID){
         if (this.step >= (this.targetTicksPerSecond-1)){
-            if (this.autoScrollDirection == DIRECTION.DOWN && this.scrollTilesY <= 0){
-                if (this.onEnd){
-                    this.onEnd(this);
+            var viewPort = Game.getViewPort();
+            // check to see if the map is about to scroll off screen
+            if (this.autoScrollDirection && this.onEnd){
+                var ended = false;
+                switch (this.autoScrollDirection){
+                    case DIRECTION.DOWN:
+                        var canScrollOffscreen = this.height - viewPort.height - 2;
+                        if (this.scrollTilesY < -canScrollOffscreen) ended = true;
+                    break;
+                    case DIRECTION.LEFT:
+                        var canScrollOffscreen = this.width - viewPort.width - 2;
+                        if (this.scrollTilesX > canScrollOffscreen) ended = true;
+                        break;
                 }
+                if (ended) this.onEnd(this);
+
             }
+            this.fullStep();
+
+        }
+    }
+
+    if (this.type == MAPLAYERTYPE.IMAGE){
+        if (this.step >= (this.targetTicksPerSecond-1)){
             this.fullStep();
         }
     }
@@ -280,7 +305,16 @@ MapLayer.prototype.getObjectAtPixels = function(x,y){
         //todo loop over objects
         return undefined;
     }
+};
 
+MapLayer.prototype.getColorAtPixel = function(x,y){
+    if (this.type == MAPLAYERTYPE.IMAGE && this.sprite){
+        return this.sprite.getColorAtPixel(x,y);
+        //return this.sprite.getImageData(x, y, 1, 1);
+    }else{
+        //todo: get object at coordinates and collect color
+        return undefined;
+    }
 };
 
 MapLayer.prototype.getObjectAtGrid = function(x,y){
@@ -289,7 +323,6 @@ MapLayer.prototype.getObjectAtGrid = function(x,y){
 };
 
 MapLayer.prototype.initScroll = function(){
-
 
     if (this.parentLayer) return;
 
@@ -313,7 +346,6 @@ MapLayer.prototype.initScroll = function(){
     }
 
 
-
     if (this.autoScrollDirection){
         self.scroll(this.autoScrollDirection);
     }
@@ -325,6 +357,7 @@ MapLayer.prototype.setAutoScroll = function(direction){
 };
 
 MapLayer.prototype.scroll = function(direction){
+
     var speed = this.scrollStep;
 
     this.scrollDirection = direction;
@@ -355,6 +388,14 @@ MapLayer.prototype.removeSubLayer = function(layer){
     for (var i=0, len=this.sublayers.length;i<len;i++){
         if (this.sublayers[i].id == layer.id) this.sublayers.splice(i,1);
     }
+};
+
+MapLayer.prototype.show = function(){
+    this.isVisible = true;
+};
+
+MapLayer.prototype.hide= function(){
+    this.isVisible = false;
 };
 
 

@@ -60,7 +60,7 @@ UI.GameController.prototype.setPosition = function(){
 UI.GameController.prototype.render = function(){
     if (this.imageLoaded){
         var spriteIndex = Math.max(this.state - DIRECTION.LEFT + 1,0);
-        ctx.drawImage(this.sprites[spriteIndex],this.left,this.top);
+        ctx.drawImage(this.sprites[spriteIndex].canvas,this.left,this.top);
         UI.registerEventElement(this,this.left,this.top,this.right,this.bottom);
     }
 };

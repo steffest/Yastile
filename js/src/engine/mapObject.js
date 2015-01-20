@@ -6,8 +6,8 @@ var MapObject = function(properties){
     this.id = this.gameObject.id;
     this.staticFrame = this.gameObject.getStaticFrame();
     var sprite = sprites[this.staticFrame];
-    this.height = sprite.height;
-    this.width = sprite.width;
+    this.height = sprite.canvas.height;
+    this.width = sprite.canvas.width;
 };
 
 MapObject.prototype.isVisible = function(scrollOffset){
@@ -15,6 +15,8 @@ MapObject.prototype.isVisible = function(scrollOffset){
 };
 
 MapObject.prototype.render = function(step,scrollOffset,layer){
+
+
 
     var x = this.left - (scrollOffset.tileX * 32) + (scrollOffset.x * step);
     var y = this.top - (scrollOffset.tileY * 32) + (scrollOffset.y * step);
@@ -24,9 +26,9 @@ MapObject.prototype.render = function(step,scrollOffset,layer){
         if (this.animation){
             this.animationStartFrame++;
             if (this.animationStartFrame >= this.animation.length) this.animationStartFrame = 0;
-            frame = this.gameObject.getAnimationFrame(this.animation, this.animationStartFrame);
+            frame = this.gameObject.getAnimationFrame(this.animation, this.animationStartFrame).canvas;
         }else{
-            frame = sprites[this.staticFrame];
+            frame = sprites[this.staticFrame].canvas;
         }
 
         ctx.drawImage(frame,x, y);

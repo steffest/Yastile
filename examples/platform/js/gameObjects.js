@@ -116,6 +116,7 @@ var GameObjects = (function(){
                     if (screenY < 100){scrollDirection = DIRECTION.DOWN;}
                     if (screenY > 200){scrollDirection = DIRECTION.UP;}
 
+
                     gridLayer.scroll(scrollDirection);
                 }
 

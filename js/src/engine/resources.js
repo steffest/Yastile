@@ -11,6 +11,8 @@ var Preloader = (function(){
     var top,left,width,height;
 
     self.init = function(items,onDone){
+
+        console.error("preloaditem",items);
         width = 200;
         height = 10;
         left = (canvas.width-width)/2;

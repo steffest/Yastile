@@ -35,6 +35,7 @@ var Map = (function(){
 
         if (properties.type) layerType=properties.type;
         if (!layerType && properties.map) layerType=MAPLAYERTYPE.GRID;
+        if (!layerType && properties.src) layerType=MAPLAYERTYPE.IMAGE;
         if (!layerType) layerType=MAPLAYERTYPE.FREE;
         properties.type = layerType;
 
