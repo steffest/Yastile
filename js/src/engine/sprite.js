@@ -23,6 +23,9 @@ var Sprite = function(img,id,x,y,width,height){
 
     this.canvas = canvas;
     this.ctx = ctx;
+    this.rotated = {};
+    this.width = width;
+    this.height = height;
 
     ctx.drawImage(img,x,y,width,height,0,0,width,height);
 
@@ -30,6 +33,21 @@ var Sprite = function(img,id,x,y,width,height){
 
 Sprite.prototype.getColorAtPixel = function(x,y){
     return this.ctx.getImageData(x, y, 1, 1).data;
+};
+
+Sprite.prototype.rotate = function(degree){
+
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.width;
+    canvas.height = this.height;
+    var ctx = canvas.getContext("2d");
+    ctx.translate(this.width/2, this.height/2);
+    ctx.rotate(degree*Math.PI/180);
+    ctx.translate(-this.width/2, -this.height/2);
+    ctx.drawImage(this.canvas,0,0);
+
+    this.rotated[degree] = canvas;
+
 };
 
 

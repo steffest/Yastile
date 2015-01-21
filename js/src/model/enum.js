@@ -3,6 +3,7 @@ var canvas;
 var ctx;
 var map = [];
 var sprites = [];
+var spritesRotated = {};
 var spriteNames = {};
 
 var DIRECTION = {

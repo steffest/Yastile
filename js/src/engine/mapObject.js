@@ -8,6 +8,8 @@ var MapObject = function(properties){
     var sprite = sprites[this.staticFrame];
     this.height = sprite.canvas.height;
     this.width = sprite.canvas.width;
+    this.rotation = 0;
+    this.rotationRadiants = 0;
 };
 
 MapObject.prototype.isVisible = function(scrollOffset){
@@ -15,8 +17,6 @@ MapObject.prototype.isVisible = function(scrollOffset){
 };
 
 MapObject.prototype.render = function(step,scrollOffset,layer){
-
-
 
     var x = this.left - (scrollOffset.tileX * 32) + (scrollOffset.x * step);
     var y = this.top - (scrollOffset.tileY * 32) + (scrollOffset.y * step);
@@ -29,6 +29,14 @@ MapObject.prototype.render = function(step,scrollOffset,layer){
             frame = this.gameObject.getAnimationFrame(this.animation, this.animationStartFrame).canvas;
         }else{
             frame = sprites[this.staticFrame].canvas;
+        }
+
+        if (this.rotation) {
+            frame = sprites[this.staticFrame].rotated[this.rotation];
+            if (!frame){
+                console.error('Warning: rotation ' + this.rotation + " is not prerendered for sprite ",sprites[this.staticFrame]);
+                frame = sprites[this.staticFrame].canvas;
+            }
         }
 
         ctx.drawImage(frame,x, y);
@@ -116,5 +124,17 @@ MapObject.prototype.animateIfPossible = function(animation){
 
 MapObject.prototype.isAnimating = function(){
     return this.animation;
+};
+
+MapObject.prototype.rotate = function(degree){
+    this.rotation = ((this.rotation || 0) + degree) % 360;
+    if (this.rotation<0) this.rotation += 360;
+
+    this.rotationRadiants = this.rotation * Math.PI/180;
+
+    var sprite = sprites[this.staticFrame];
+    if (!sprite.rotated[this.rotation]){
+        sprite.rotate(this.rotation);
+    }
 };
 
