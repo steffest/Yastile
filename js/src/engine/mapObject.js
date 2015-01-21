@@ -18,8 +18,16 @@ MapObject.prototype.isVisible = function(scrollOffset){
 
 MapObject.prototype.render = function(step,scrollOffset,layer){
 
-    var x = this.left - (scrollOffset.tileX * 32) + (scrollOffset.x * step);
-    var y = this.top - (scrollOffset.tileY * 32) + (scrollOffset.y * step);
+    var offsetX = scrollOffset.pixelX;
+    var offsetY = scrollOffset.pixelY;
+
+    if (this.mapLayer.tileSize){
+        offsetX = (scrollOffset.tileX * 32) + (scrollOffset.x * step);
+        offsetY = (scrollOffset.tileY * 32) + (scrollOffset.y * step);
+    }
+
+    var x = this.left - offsetX;
+    var y = this.top - offsetY;
 
     if (this.id>0){
         var frame;

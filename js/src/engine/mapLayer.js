@@ -34,6 +34,9 @@ var MapLayer = function(properties){
     this.scrollTilesX = 0;
     this.scrollTilesY = properties.startY || 0;
 
+    this.scrollPixelX = 0;
+    this.scrollPixelY = 0;
+
     this.scrollDirection = 0;
 
     this.viewPortWidth = 10;
@@ -50,7 +53,11 @@ var MapLayer = function(properties){
     }
 
     if (!this.tileSize) this.tileSize = Game.getTileSize();
-    this.scrollStep = this.tileSize/this.targetTicksPerSecond;
+    if (this.tileSize){
+        this.scrollStep = this.tileSize/this.targetTicksPerSecond;
+    }else{
+        this.scrollStep = 1;
+    }
 
     if (!isDefined(this.isVisible)) this.isVisible = true;
 
@@ -192,16 +199,20 @@ MapLayer.prototype.getScrollOffset = function(){
             x: this.scrollOffsetX,
             y: this.scrollOffsetY,
             tileX: this.scrollTilesX,
-            tileY: this.scrollTilesY
+            tileY: this.scrollTilesY,
+            pixelX: this.scrollPixelX,
+            pixelY: this.scrollPixelY
         }
     }
 };
 
 MapLayer.prototype.setScrollOffset = function(properties){
-    this.scrollTilesX = properties.tileX;
-    this.scrollTilesY = properties.tileY;
+    this.scrollTilesX = properties.tileX || 0;
+    this.scrollTilesY = properties.tileY || 0;
     this.scrollOffsetX = properties.x || 0;
     this.scrollOffsetY = properties.y || 0;
+    this.scrollPixelX = properties.pixelX;
+    this.scrollPixelY = properties.pixelY;
 };
 
 MapLayer.prototype.render = function(){
@@ -211,8 +222,13 @@ MapLayer.prototype.render = function(){
     if (!this.isVisible) return;
 
     if (this.sprite){
-        var x = 0 - this.scrollTilesX*this.tileSize + (this.scrollOffsetX*this.step);
-        var y = 0 - this.scrollTilesY*this.tileSize + (this.scrollOffsetY*this.step);
+        if (this.tileSize){
+            this.scrollPixelX = this.scrollTilesX*this.tileSize + (this.scrollOffsetX*this.step);
+            this.scrollPixelX = this.scrollTilesY*this.tileSize + (this.scrollOffsetY*this.step);
+        }else{
+            var x = 0 - this.scrollPixelX;
+            var y = 0 - this.scrollPixelY;
+        }
         ctx.drawImage(this.sprite.canvas,x, y);
     }
 

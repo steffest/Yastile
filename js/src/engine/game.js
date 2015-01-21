@@ -48,8 +48,12 @@ var Game= (function(){
             settings.originalViewPortHeight = properties.viewPortHeight;
             scaleCanvas();
         }else{
-            var targetWidth = properties.viewPortWidth * properties.tileSize;
-            var targetHeight =  properties.viewPortHeight * properties.tileSize;
+            var targetWidth = properties.viewPortWidth;
+            var targetHeight =  properties.viewPortHeight;
+            if (properties.tileSize){
+                targetWidth = targetWidth * properties.tileSize;
+                targetHeight =  targetHeight * properties.tileSize;
+            }
             canvas.width  = targetWidth;
             canvas.height = targetHeight;
         }
@@ -200,8 +204,13 @@ var Game= (function(){
     };
 
     function scaleCanvas(){
-        var targetWidth = settings.originalViewPortWidth * settings.tileSize;
-        var targetHeight = settings.originalViewPortHeight * settings.tileSize;
+
+        var targetWidth = settings.originalViewPortWidth;
+        var targetHeight = settings.originalViewPortHeight;
+        if (settings.tileSize){
+            targetWidth = targetWidth * settings.tileSize;
+            targetHeight = targetHeight * settings.tileSize;
+        }
         var aspectRatio = window.innerHeight/window.innerWidth;
 
         switch (settings.scaling){
@@ -213,7 +222,8 @@ var Game= (function(){
                 targetWidth = aspectRatio*targetHeight;
                 break;
             case SCALING.CONTAIN:
-                var fitHeight = Math.ceil((aspectRatio*targetWidth)/settings.tileSize);
+                var fitHeight = Math.ceil(aspectRatio*targetWidth);
+                if (settings.tileSize) fitHeight = Math.ceil((aspectRatio*targetWidth)/settings.tileSize);
                 if (fitHeight < settings.originalViewPortHeight){
                     aspectRatio = window.innerWidth/window.innerHeight;
                     targetWidth = aspectRatio*targetHeight;
@@ -223,8 +233,11 @@ var Game= (function(){
                 break;
         }
 
-        settings.viewPortWidth = Math.ceil(targetWidth/settings.tileSize);
-        settings.viewPortHeight = Math.ceil(targetHeight/settings.tileSize);
+        if (settings.tileSize){
+            // align to grid
+            settings.viewPortWidth = Math.ceil(targetWidth/settings.tileSize);
+            settings.viewPortHeight = Math.ceil(targetHeight/settings.tileSize);
+        }
 
         settings.canvasWidth = targetWidth;
         settings.canvasHeight = targetHeight;
