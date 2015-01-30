@@ -9,7 +9,7 @@ var Game= (function(){
     var fps;
     var averageFps = [];
     var tickps;
-    var frameInterval = 1000/targetFps;
+    var frameInterval = Math.floor(1000/targetFps);
     var settings;
     var step = -1;
     var _score = 0;
@@ -23,6 +23,7 @@ var Game= (function(){
     var gameController;
 
     var scorePosition = {top: 0, left: 0};
+    var debugInfo = [];
 
     var currentTickFunction = function(){};
 
@@ -32,6 +33,12 @@ var Game= (function(){
 
         var randomSeed = new Date().getTime();
         settings.seed =  randomSeed;
+
+        if (properties.targetFps){
+            targetFps = properties.targetFps;
+            frameInterval = Math.floor(1000/targetFps);
+            if (targetFps >= 60) frameInterval = 0;
+        }
 
         canvas = document.createElement("canvas");
 
@@ -62,9 +69,7 @@ var Game= (function(){
         document.body.appendChild(canvas);
 
         tileSize = properties.tileSize;
-
         properties.borderScrollOffset = 8;
-
 
         var preloadResources = [
             {id: "spritesheet", url: properties.spriteSheet}
@@ -128,7 +133,7 @@ var Game= (function(){
     self.start = function(){
         UI.removeAllElements();
         if (settings.showOnScreenControls){
-            gameController = new UI.GameController(settings.onScreenControlsImage);
+            gameController = new UI.GameController(settings.onScreenControls);
             UI.addElement(gameController);
 
             var actionButton = new UI.Button({
@@ -292,10 +297,9 @@ var Game= (function(){
     function main(now) {
         var delta = now - lastTickTime;
 
-        if (delta > frameInterval) {
+        if (delta >= frameInterval) {
             tick();
             tickps = 1000/(now-lastTickTime);
-            //lastTickTime = now - (delta % frameInterval);
             lastTickTime = now;
         }
 
@@ -338,50 +342,9 @@ var Game= (function(){
 
         Map.render(step);
 
-        // draw level background
-        //if (backgroundImage){
-        //    var x = 0-(scrollOffset.tileX * tileSize) + scrollOffset.x*step;
-        //    var y = 0-(scrollOffset.tileY * tileSize) + scrollOffset.y*step;
-        //    ctx.drawImage(backgroundImage,x, y);
-        //}
-
-        /*
-        var levelProperties = Map.getLevelProperties();
-
-
-        // draw Sprite Map
-        // first bottomlayer - if any
-        for (var m = 0, maplen = MapLayers.length; m<maplen; m++){
-            var mapLayer = MapLayers[m];
-            if (mapLayer.type == MAPLAYERTYPE.SPOT) {
-                mapLayer.render(step, scrollOffset);
-            }
-        }
-
-        // then grid
-        for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
-            var object = map[i];
-            //console.error("render",object)
-            if (object.isVisible(scrollOffset)) object.render(step,scrollOffset);
-        }
-
-        // then floating sprites
-        for (var m = 0, maplen = MapLayers.length; m<maplen; m++){
-            var mapLayer = MapLayers[m];
-            if (mapLayer.type == MAPLAYERTYPE.FREE){
-                mapLayer.render(step,scrollOffset);
-            }
-
-        }
-
-
-        //always Draw Player on Top
-        var playerObject = Map.getPlayerObject();
-        if ( playerObject)  playerObject.render(step,scrollOffset);
-
-        */
-
         UI.renderElements();
+
+        if (settings.showDebug) drawDebug();
 
     }
 
@@ -420,6 +383,36 @@ var Game= (function(){
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
         ctx.fillText(_hint , scorePosition.hintLeft + 10, scorePosition.hintTop + 16);
+    }
+
+
+    self.addDebugRect = function(color,x,y,width,height,persistent){
+        self.addDebugInfo(DEBUGINFOTYPE.RECT,[color,x,y,width,height],persistent);
+    };
+
+    self.addDebugInfo = function(type,data,persistent){
+        debugInfo.push({
+            type: type,
+            data: data,
+            persistent: persistent
+        })
+    };
+
+    function drawDebug(){
+        var persistentDebugInfo = [];
+        for (var i= 0,l=debugInfo.length;i<l;i++){
+            var info = debugInfo[i];
+            if (info && info.type == DEBUGINFOTYPE.RECT){
+                ctx.beginPath();
+                ctx.lineWidth="1";
+                ctx.strokeStyle=info.data[0];
+                ctx.rect(info.data[1],info.data[2],info.data[3],info.data[4]);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            if (info.persistent) persistentDebugInfo.push(info);
+        }
+        debugInfo = persistentDebugInfo;
     }
 
     self.getTileSize = function(){

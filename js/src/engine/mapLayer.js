@@ -34,8 +34,8 @@ var MapLayer = function(properties){
     this.scrollTilesX = 0;
     this.scrollTilesY = properties.startY || 0;
 
-    this.scrollPixelX = 0;
-    this.scrollPixelY = 0;
+    this.scrollPixelX = this.scrollPixelX || 0;
+    this.scrollPixelY = this.scrollPixelY || 0;
 
     this.scrollDirection = 0;
 
@@ -68,7 +68,6 @@ var MapLayer = function(properties){
 
         if (me.preloadedSrc){
             var img = Resources.images[me.preloadedSrc];
-            console.error("proloadSrc",img);
             me.sprite = new Sprite(img,"",0,0,img.width,img.height);
         }else if(me.src){
             console.error("Warning: image " + me.src + " is not preloaded");
@@ -132,6 +131,7 @@ var MapLayer = function(properties){
 
         console.log("parsed level: " + self.activeObjectCount + " active objects, " + self.inactiveObjectCount + " inactive objects");
     }
+
 
 };
 
@@ -240,34 +240,43 @@ MapLayer.prototype.render = function(){
 };
 
 MapLayer.prototype.cleanUp = function(){
-    if (this.type == MAPLAYERTYPE.GRID){
-        if (this.step >= (this.targetTicksPerSecond-1)){
-            var viewPort = Game.getViewPort();
-            // check to see if the map is about to scroll off screen
-            if (this.autoScrollDirection && this.onEnd){
-                var ended = false;
-                switch (this.autoScrollDirection){
-                    case DIRECTION.DOWN:
-                        var canScrollOffscreen = this.height - viewPort.height - 2;
-                        if (this.scrollTilesY < -canScrollOffscreen) ended = true;
-                    break;
-                    case DIRECTION.LEFT:
-                        var canScrollOffscreen = this.width - viewPort.width - 2;
-                        if (this.scrollTilesX > canScrollOffscreen) ended = true;
-                        break;
+    switch (this.type){
+        case MAPLAYERTYPE.GRID:
+            if (this.step >= (this.targetTicksPerSecond-1)){
+                var viewPort = Game.getViewPort();
+                // check to see if the map is about to scroll off screen
+                if (this.autoScrollDirection && this.onEnd){
+                    var ended = false;
+                    switch (this.autoScrollDirection){
+                        case DIRECTION.DOWN:
+                            var canScrollOffscreen = this.height - viewPort.height - 2;
+                            if (this.scrollTilesY < -canScrollOffscreen) ended = true;
+                            break;
+                        case DIRECTION.LEFT:
+                            var canScrollOffscreen = this.width - viewPort.width - 2;
+                            if (this.scrollTilesX > canScrollOffscreen) ended = true;
+                            break;
+                    }
+                    if (ended) this.onEnd(this);
+
                 }
-                if (ended) this.onEnd(this);
+                this.fullStep();
 
             }
-            this.fullStep();
+            break;
 
-        }
-    }
+        case MAPLAYERTYPE.IMAGE:
+            if (this.step >= (this.targetTicksPerSecond-1)){
+                this.fullStep();
+            }
+            break;
 
-    if (this.type == MAPLAYERTYPE.IMAGE){
-        if (this.step >= (this.targetTicksPerSecond-1)){
-            this.fullStep();
-        }
+        case MAPLAYERTYPE.FREE:
+            for (var i = 0, len = this.objects.length; i<len; i++){
+                var object = this.objects[i];
+                if (object) object.fullStep();
+            }
+            break;
     }
 };
 
@@ -317,19 +326,34 @@ MapLayer.prototype.getObjectAtPixels = function(x,y){
 
         return this.getObjectAtGrid(gridX,gridY);
 
-    }else{
-        //todo loop over objects
-        return undefined;
+    }else {
+        var result = [];
+        for (var i = 0, len = this.objects.length; i<len; i++){
+            var object = this.objects[i];
+            if (object.left < x
+                && object.left + object.width > x
+                && object.top < y
+                && object.top + object.height > y
+            ) result.push(object)
+        }
+        return result;
     }
 };
 
 MapLayer.prototype.getColorAtPixel = function(x,y){
+    // warning ... very slow
     if (this.type == MAPLAYERTYPE.IMAGE && this.sprite){
         return this.sprite.getColorAtPixel(x,y);
         //return this.sprite.getImageData(x, y, 1, 1);
     }else{
         //todo: get object at coordinates and collect color
         return undefined;
+    }
+};
+
+MapLayer.prototype.putColorAtPixel = function(color,x,y){
+    if (this.type == MAPLAYERTYPE.IMAGE && this.sprite){
+        this.sprite.putColorAtPixel(color,x,y);
     }
 };
 

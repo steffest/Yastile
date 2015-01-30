@@ -78,13 +78,12 @@ GameObject.prototype.getStaticFrame = function(){
     return frame;
 };
 
-
 GameObject.prototype.isEmpty = function(){
     return (this.id == 0);
 };
 
 GameObject.prototype.isPlayer = function(){
-    return (this.id == GameObjects.PLAYER.id);
+    return (GameObjects.PLAYER && this.id == GameObjects.PLAYER.id);
 };
 
 GameObject.prototype.setDefault = function(property,value){

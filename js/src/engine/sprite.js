@@ -32,11 +32,25 @@ var Sprite = function(img,id,x,y,width,height){
 };
 
 Sprite.prototype.getColorAtPixel = function(x,y){
+    // warning ... very slow
     return this.ctx.getImageData(x, y, 1, 1).data;
+};
+
+Sprite.prototype.putColorAtPixel = function(color,x,y){
+    var c = ctx.createImageData(1,1);
+    if (c){
+        var d  = c.data;
+        d[0] = 255;
+        d[1] = 255;
+        d[3] = 255;
+        d[4] = 255;
+        this.ctx.putImageData(c, x, y);
+    }
 };
 
 Sprite.prototype.rotate = function(degree){
 
+    degree = Math.round(degree);
     var canvas = document.createElement("canvas");
     canvas.width  = this.width;
     canvas.height = this.height;

@@ -89,3 +89,9 @@ function sortByKey(array, key) {
         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
     });
 }
+
+function getPixelFromImageData(imageData,x,y){
+    var index = ((Math.floor(y) * imageData.width) + Math.floor(x))*4;
+    var data = imageData.data;
+    return [data[index],data[index+1],data[index+2]];
+}
