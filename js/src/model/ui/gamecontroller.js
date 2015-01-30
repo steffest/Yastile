@@ -1,4 +1,4 @@
-UI.GameController = function(image){
+UI.GameController = function(settings){
     var self = this;
     this.sprites = [];
     this.state = 0;
@@ -13,7 +13,7 @@ UI.GameController = function(image){
         self.imageLoaded = true;
         self.setPosition();
     };
-    this.image.src = image;
+    this.image.src = settings.image;
 
     this.onDown = function(touchData){
         processInput(touchData.x,touchData.y);
@@ -31,8 +31,11 @@ UI.GameController = function(image){
         self.state = DIRECTION.NONE;
         Input.isLeft(false);
         Input.isRight(false);
-        Input.isUp(false);
-        Input.isDown(false);
+
+        if (settings.input == 4){
+            Input.isUp(false);
+            Input.isDown(false);
+        }
     };
 
     var processInput = function(x,y){
@@ -44,8 +47,11 @@ UI.GameController = function(image){
 
         if (x < half - margin) {Input.isLeft(true);    self.state = DIRECTION.LEFT;}
         if (x > half + margin) {Input.isRight(true);   self.state = DIRECTION.RIGHT;}
-        if (y < half - margin) {Input.isUp(true);      self.state = DIRECTION.UP;}
-        if (y > half + margin) {Input.isDown(true);    self.state = DIRECTION.DOWN;}
+
+        if (settings.input == 4){
+            if (y < half - margin) {Input.isUp(true);      self.state = DIRECTION.UP;}
+            if (y > half + margin) {Input.isDown(true);    self.state = DIRECTION.DOWN;}
+        }
     }
 };
 

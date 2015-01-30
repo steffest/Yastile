@@ -52,3 +52,20 @@ var MAPOBJECTTYPE = {
     FIXED: 2,
     FREE: 3
 }
+
+
+var DEBUGINFOTYPE  = {
+    RECT: 1,
+    TEXT: 2
+}
+
+var ONSCREENCONTROLS = {
+    _4WAY: {
+        image: "../../resources/controller_4way.png",
+        input: 4
+    },
+    _2WAY: {
+        image: "../../resources/controller_2way.png",
+        input: 2
+    }
+}
