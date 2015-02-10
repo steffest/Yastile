@@ -256,11 +256,13 @@ var Game= (function(){
         scorePosition.top = 0;
 
         scorePosition.hintTop = 0;
-        scorePosition.hintLeft = 150;
+        scorePosition.hintLeft = 0;
+
+        if (settings.showScore) scorePosition.hintLeft = 150;
 
         if (settings.showFPS){
             scorePosition.left = 200;
-            scorePosition.hintLeft = 350;
+            scorePosition.hintLeft += 200;
 
             if (targetWidth<400){
                 scorePosition.left = 0;
@@ -374,12 +376,12 @@ var Game= (function(){
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
         ctx.fillText("Score: " + _score , scorePosition.left + 10, scorePosition.top + 16);
-        ctx.fillText("Needed: " + _targetScore , scorePosition.left + 80, scorePosition.top + 16);
+        if (_targetScore) ctx.fillText("Needed: " + _targetScore , scorePosition.left + 80, scorePosition.top + 16);
     }
 
     function drawHint(){
         ctx.fillStyle = "Black";
-        ctx.fillRect(scorePosition.hintLeft,scorePosition.hintTop,200,24);
+        ctx.fillRect(scorePosition.hintLeft,scorePosition.hintTop,300,24);
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
         ctx.fillText(_hint , scorePosition.hintLeft + 10, scorePosition.hintTop + 16);
@@ -387,10 +389,12 @@ var Game= (function(){
 
 
     self.addDebugRect = function(color,x,y,width,height,persistent){
+        if (!settings.showDebug) return;
         self.addDebugInfo(DEBUGINFOTYPE.RECT,[color,x,y,width,height],persistent);
     };
 
     self.addDebugInfo = function(type,data,persistent){
+        if (!settings.showDebug) return;
         debugInfo.push({
             type: type,
             data: data,

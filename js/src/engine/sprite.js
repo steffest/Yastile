@@ -64,6 +64,17 @@ Sprite.prototype.rotate = function(degree){
 
 };
 
+Sprite.prototype.flip = function(horizontal,vertical){
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.width;
+    canvas.height = this.height;
+    var ctx = canvas.getContext("2d");
+    ctx.translate(this.width,0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(this.canvas,0,0);
+    this.flipped = canvas;
+};
+
 
 var buildSpriteSheet = function(img,callback){
 
@@ -77,6 +88,11 @@ var buildSpriteSheet = function(img,callback){
             // todo build spritesheet from multiple source images
             if (co.src){
                 spriteImage = userData[co.src];
+            }
+            if (co.canvas){
+                spriteImage = co.canvas;
+                co.l = 0;
+                co.t = 0;
             }
 
             var  s = new Sprite(spriteImage,co.name,co.l,co.t,co.w,co.h);

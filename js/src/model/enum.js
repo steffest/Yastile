@@ -61,11 +61,11 @@ var DEBUGINFOTYPE  = {
 
 var ONSCREENCONTROLS = {
     _4WAY: {
-        image: "../../resources/controller_4way.png",
+        image: "controller_4way.png",
         input: 4
     },
     _2WAY: {
-        image: "../../resources/controller_2way.png",
+        image: "controller_2way.png",
         input: 2
     }
 }

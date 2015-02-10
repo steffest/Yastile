@@ -450,6 +450,12 @@ MapPosition.prototype.transformInto = function(gameObject,animation,onComplete){
     if (onComplete) this.setNext("action",onComplete)
 };
 
+MapPosition.prototype.setGameObject = function(gameObject){
+    this.gameObject = gameObject;
+    this.id = gameObject.id;
+    this.staticFrame = gameObject.getStaticFrame();
+};
+
 MapPosition.prototype.addLayer = function(spriteIndex,position){
     if (position == "bottom"){
         this.bottomlayer = spriteIndex;

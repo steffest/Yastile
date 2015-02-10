@@ -18,7 +18,7 @@ UI.Button = function(properties){
         self.imageLoaded = true;
         self.setPosition();
     };
-    this.image.src = this.url;
+    this.image.src = Game.getSettings().resourcePath + this.url;
 
 };
 

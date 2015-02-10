@@ -13,7 +13,7 @@ UI.GameController = function(settings){
         self.imageLoaded = true;
         self.setPosition();
     };
-    this.image.src = settings.image;
+    this.image.src = Game.getSettings().resourcePath + settings.image;
 
     this.onDown = function(touchData){
         processInput(touchData.x,touchData.y);

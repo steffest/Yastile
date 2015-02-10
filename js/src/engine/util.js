@@ -83,6 +83,14 @@ function isNumeric(o){
 }
 
 
+function between(min,value,max){
+    return value > max ? max : value < min ? min : value;
+}
+
+function randomBetween(min,max){
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
+
 function sortByKey(array, key) {
     return array.sort(function(a, b) {
         var x = a[key]; var y = b[key];
