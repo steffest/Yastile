@@ -54,8 +54,10 @@ MapObject.prototype.getCurrentFrame = function(){
         }
     }
 
+    if (this.flipped) frame = sprites[this.staticFrame].flipped;
+
     return frame;
-}
+};
 
 MapObject.prototype.isVisible = function(scrollOffset){
     return true;
@@ -117,12 +119,16 @@ MapObject.prototype.destroy = function(){
      this.mapLayer.removeObject(this);
 };
 
-MapObject.prototype.detectCollistion = function(onPixelLevel,onCollision){
+MapObject.prototype.detectCollistion = function(onPixelLevel,onCollision,preFilter){
     var originId = this.id;
     var me = this;
-    for (var i=0; i<me.mapLayer.objects.length; i++){
+    for (var i= 0, len=me.mapLayer.objects.length; i<len; i++){
         var other = me.mapLayer.objects[i];
+
+          var checkObject = true;
+          if (preFilter) checkObject = preFilter(other);
           if (
+              checkObject &&
               other &&
               other.id != this.id &&
               me.left < other.left + other.width &&
@@ -139,27 +145,32 @@ MapObject.prototype.detectCollistion = function(onPixelLevel,onCollision){
 
                     // first find the intersecting rectangle
                     var x = Math.max(me.left,other.left);
-                    var w = me.width - Math.abs(me.left-other.left);
+                    var x2 = Math.min(me.left+me.width,other.left+other.width);
+                    var w = x2-x;
 
                     var y = Math.max(me.top,other.top);
-                    var h = me.height - Math.abs(me.top-other.top);
+                    var y2 = Math.min(me.top+me.height,other.top+other.height);
+                    var h = y2-y;
 
                     Game.addDebugRect("yellow",x-me.mapLayer.scrollPixelX,y-me.mapLayer.scrollPixelY,w,h,false);
 
-                    var thisData = me.getCurrentFrame().getContext("2d").getImageData(x-me.left,y-me.top,w,h).data;
-                    var otherData = other.getCurrentFrame().getContext("2d").getImageData(x-other.left,y-other.top,w,h).data;
+                    if (w>0 && h>0){
+                        var thisData = me.getCurrentFrame().getContext("2d").getImageData(x-me.left,y-me.top,w,h).data;
+                        var otherData = other.getCurrentFrame().getContext("2d").getImageData(x-other.left,y-other.top,w,h).data;
 
-                    // check for pixels that are not transparent in both imageDatas
-                    // TODO: optimise this to work e.g. from the borders to the middle, or use hitpoints
-                    var scanIndex = 0;
-                    while (!isCollision && scanIndex < (w*h)*4){
-                        // only check alpha level
-                        var alphaTreshold = 100;
-                        var thisPixel = thisData[scanIndex + 3];
-                        var otherPixel = otherData[scanIndex + 3];
-                        if (thisPixel>alphaTreshold && otherPixel>alphaTreshold) isCollision = true;
-                        scanIndex +=4;
+                        // check for pixels that are not transparent in both imageDatas
+                        // TODO: optimise this to work e.g. from the borders to the middle, or use hitpoints
+                        var scanIndex = 0;
+                        while (!isCollision && scanIndex < (w*h)*4){
+                            // only check alpha level
+                            var alphaTreshold = 100;
+                            var thisPixel = thisData[scanIndex + 3];
+                            var otherPixel = otherData[scanIndex + 3];
+                            if (thisPixel>alphaTreshold && otherPixel>alphaTreshold) isCollision = true;
+                            scanIndex +=4;
+                        }
                     }
+
                 }
                 if (isCollision) onCollision(other)
           }
@@ -199,5 +210,13 @@ MapObject.prototype.rotate = function(degree){
     if (!sprite.rotated[this.rotation]){
         sprite.rotate(this.rotation);
     }
+};
+
+MapObject.prototype.flip = function(horizontal,vertical){
+    var sprite = sprites[this.staticFrame];
+    if (!sprite.flipped){
+        sprite.flip(horizontal,vertical);
+    }
+    this.flipped = true;
 };
 
