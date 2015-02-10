@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded",function(){
         showOnScreenControls: true,
         showScore: true,
         showHint: true,
-        onScreenControlsImage: "../../resources/controller_4way.png",
+        onScreenControls: ONSCREENCONTROLS._4WAY,
         closeButtonImage: "../../resources/close_button.png",
         actionButtonImage: "../../resources/action_button.png",
         backgroundImage: "images/background2.jpg",

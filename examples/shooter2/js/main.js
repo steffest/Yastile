@@ -12,9 +12,11 @@ window.addEventListener("DOMContentLoaded",function(){
         showOnScreenControls: true,
         showScore: true,
         showHint: true,
-        onScreenControlsImage: "../../resources/controller_4way.png",
-        closeButtonImage: "../../resources/close_button.png",
-        actionButtonImage: "../../resources/action_button.png",
+        showDebug: false,
+        onScreenControls: ONSCREENCONTROLS._4WAY,
+        resourcePath: "../../resources/",
+        closeButtonImage: "close_button.png",
+        actionButtonImage: "action_button.png",
         backgroundPattern: "Black",
         start: World.generate
     });

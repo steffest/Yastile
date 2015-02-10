@@ -72,7 +72,7 @@ var World = (function(){
             var player = new MapObject({
                 left: (canvas.width/2) - 10,
                 top: 200,
-                speed: 4,
+                speed: 8,
                 gameObject: GameObjects.PLAYER
             });
             layer.addObject(player,MAPOBJECTTYPE.FREE);

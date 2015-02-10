@@ -40,7 +40,7 @@ var GameObjects = (function(){
                 if (me.upSpeed>0){
                     // is jumping
                     me.top-=me.upSpeed;
-                    me.upSpeed--;
+                    me.upSpeed -= 2;
 
                     tile = gridLayer.getObjectAtPixels(me.left+16,me.top+4);
                     if (tile && tile.gameObject.onCollected){
@@ -72,7 +72,7 @@ var GameObjects = (function(){
                     }else{
                         if (Input.isUp() || Input.isAction()){
                             // jump
-                            me.upSpeed = me.speed * 3;
+                            me.upSpeed = me.speed * 2;
                         }else{
                             me.upSpeed = 0;
                             me.top = (Math.round(me.top/32) * 32) + 5;

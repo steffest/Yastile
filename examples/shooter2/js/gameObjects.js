@@ -21,6 +21,24 @@ var GameObjects = (function(){
             spriteIndex: "tile1"
         });
 
+        game.TILE2 = new GameObject({
+            id: 3,
+            code: "t1",
+            alias: "1",
+            spriteIndex: "tile2"
+        });
+
+        game.WALL = new GameObject({
+            id: 100,
+            code: "WW",
+            alias: "W",
+            spriteIndex: "wall",
+            isDeadly: true,
+            eachStep : function(me){
+                updateWall(me);
+            }
+        });
+
 
         game.PLAYER = new GameObject({
             id: 1,
@@ -45,20 +63,30 @@ var GameObjects = (function(){
                                 speed: 4,
                                 gameObject: GameObjects.BULLET
                             }));
-                        me.fireDelay = 10;
+                        me.fireDelay = 5;
                     }
 
                 }
 
-                Maybe(function(){
-                    me.mapLayer.addObject(
-                        new MapObject({
-                            left: Math.floor(Math.random() * canvas.width),
-                            top: 0,
-                            speed: 1 + Math.floor(Math.random()*3),
-                            gameObject: GameObjects.ENEMY
-                        }));
-                },0.05);
+                me.left = between(0,me.left,canvas.width-20);
+                me.top = between(0,me.top,canvas.height-20);
+
+
+
+                me.detectCollistion(true,function(object){
+                        me.mapLayer.addObject(
+                            new MapObject({
+                                left: me.left + randomBetween(-25,25),
+                                top: me.top + randomBetween(-25,25),
+                                gameObject: GameObjects.EXPLOSION
+                            }));
+                        Game.addScore(-1);
+                },
+                function(object){
+                    return object.gameObject.isDeadly
+                }) ;
+
+                World.populate(me.mapLayer);
             }
         });
 
@@ -72,7 +100,19 @@ var GameObjects = (function(){
                 if (me.top < -10){
                     me.destroy();
                 }else{
-                    me.detectCollistion();
+                    me.detectCollistion(false,function(object){
+                            me.mapLayer.addObject(
+                                new MapObject({
+                                    left: object.left - 8,
+                                    top: object.top - 8,
+                                    gameObject: GameObjects.EXPLOSION
+                                }));
+                            object.destroy();
+                            Game.addScore(1);
+                    },
+                    function(object){
+                        return object.gameObject.isEnemy;
+                    });
                 }
 
             }
@@ -99,7 +139,7 @@ var GameObjects = (function(){
             isEnemy: true,
             animationRotate: [3,3,4,4,5,5,6,6],
             eachStep : function(me){
-                me.animateIfPossible(me.gameObject.animationRotate);
+                //me.animateIfPossible(me.gameObject.animationRotate);
                 me.top += me.speed;
 
                 var p = me.mapLayer.getPlayerObject();
@@ -117,6 +157,33 @@ var GameObjects = (function(){
             }
         });
 
+        game.ROCK = new GameObject({
+            id: 50,
+            code: "R",
+            canMove: true,
+            spriteIndex: "rock",
+            isDeadly: true,
+            eachStep : function(me){
+                me.top += me.speed;
+                me.left += me.drift;
+                if (me.rotationSpeed){
+                    me.rotate(me.rotationSpeed)
+                }
+
+                if ((me.top > canvas.height) || (me.left < -50) || (me.left > canvas.width)){
+                    me.destroy();
+                }
+
+            }
+        });
+
+
+        function updateWall(me){
+            me.top += me.speed;
+            if (me.top >  Game.getCanvasSize().height){
+                me.destroy();
+            }
+        }
     };
     return game;
 }());
