@@ -68,7 +68,25 @@ var MapLayer = function(properties){
 
         if (me.preloadedSrc){
             var img = Resources.images[me.preloadedSrc];
-            me.sprite = new Sprite(img,"",0,0,img.width,img.height);
+
+            me.imgTiles = [];
+
+
+            // cut large image in pieces
+
+            me.imgTileSize = me.imgTileSize || 100;
+            me.imgTileWidth = Math.floor(img.width/me.imgTileSize);
+            me.imgTileHeight = Math.floor(img.height/me.imgTileSize);
+
+            var maxSprites = me.imgTileWidth * me.imgTileHeight;
+            for (var i=0;i<maxSprites;i++){
+                var s = new Sprite(img,i,me.imgTileSize);
+                me.imgTiles.push(s);
+            }
+
+            console.error("image layer is cut into " + maxSprites + " tiles");
+
+            //me.sprite = new Sprite(img,"",0,0,img.width,img.height);
         }else if(me.src){
             console.error("Warning: image " + me.src + " is not preloaded");
             console.log("loading image for layer " + this.id + ": " + this.src);
@@ -221,7 +239,7 @@ MapLayer.prototype.render = function(){
 
     if (!this.isVisible) return;
 
-    if (this.sprite){
+    /*if (this.sprite){
         if (this.tileSize){
             this.scrollPixelX = this.scrollTilesX*this.tileSize + (this.scrollOffsetX*this.step);
             this.scrollPixelX = this.scrollTilesY*this.tileSize + (this.scrollOffsetY*this.step);
@@ -229,7 +247,48 @@ MapLayer.prototype.render = function(){
             var x = 0 - this.scrollPixelX;
             var y = 0 - this.scrollPixelY;
         }
-        ctx.drawImage(this.sprite.canvas,x, y);
+
+        var w = canvas.width;
+        var h = canvas.height;
+        ctx.drawImage(this.sprite.canvas,this.scrollPixelX, this.scrollPixelY,w,h,0,0,w,h);
+        //ctx.drawImage(this.sprite.canvas,x, y);
+    }*/
+
+
+    if (this.imgTiles){
+
+
+        if (this.tileSize){
+            this.scrollPixelX = this.scrollTilesX*this.tileSize + (this.scrollOffsetX*this.step);
+            this.scrollPixelX = this.scrollTilesY*this.tileSize + (this.scrollOffsetY*this.step);
+        }else{
+            var x = 0 - this.scrollPixelX;
+            var y = 0 - this.scrollPixelY;
+        }
+
+
+        for (var i = 0, len = this.imgTiles.length; i<len;i++){
+            var tile = this.imgTiles[i];
+
+            var iY = Math.floor(i/this.imgTileWidth);
+            var iX = i % this.imgTileWidth;
+
+
+            var tileX = iX * this.imgTileSize + x;
+            var tileY = iY * this.imgTileSize + y;
+
+            var tileX2 = tileX + this.imgTileSize;
+            var tileY2 = tileY + this.imgTileSize;
+
+            // only draw visible tiles
+            if (tileX2 > 0
+                && tileX<canvas.width
+                && tileY2 > 0
+                && tileY < canvas.height){
+                ctx.drawImage(tile.canvas,tileX, tileY);
+            }
+
+        }
     }
 
     var scrollOffset = this.getScrollOffset();
@@ -240,6 +299,7 @@ MapLayer.prototype.render = function(){
 };
 
 MapLayer.prototype.cleanUp = function(){
+    if (!this.isVisible) return;
     switch (this.type){
         case MAPLAYERTYPE.GRID:
             if (this.step >= (this.targetTicksPerSecond-1)){
@@ -249,8 +309,9 @@ MapLayer.prototype.cleanUp = function(){
                     var ended = false;
                     switch (this.autoScrollDirection){
                         case DIRECTION.DOWN:
-                            var canScrollOffscreen = this.height - viewPort.height - 2;
-                            if (this.scrollTilesY < -canScrollOffscreen) ended = true;
+                            var canScrollOffscreen = 2;
+                            if (this.scrollTilesY < canScrollOffscreen) ended = true;
+                            console.error(this.scrollTilesY);
                             break;
                         case DIRECTION.LEFT:
                             var canScrollOffscreen = this.width - viewPort.width - 2;
