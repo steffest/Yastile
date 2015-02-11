@@ -63,6 +63,9 @@ var Game= (function(){
             }
             canvas.width  = targetWidth;
             canvas.height = targetHeight;
+
+            scorePosition.hintTop = 0;
+            scorePosition.hintLeft = 200;
         }
 
 
@@ -297,6 +300,7 @@ var Game= (function(){
 
 
     function main(now) {
+        if (settings.showStats) stats.begin();
         var delta = now - lastTickTime;
 
         if (delta >= frameInterval) {
@@ -311,6 +315,7 @@ var Game= (function(){
         if (settings.showScore) drawScore();
         if (settings.showFPS) drawFPS();
         if (settings.showHint) drawHint();
+        if (settings.showStats) stats.end();
 
         requestAnimFrame(main);
     }

@@ -170,6 +170,7 @@ MapLayer.prototype.process = function(){
 
     if (procesObjects){
         if (this.playerObject) this.playerObject.process();
+        if (this.eachStep) this.eachStep();
         for (var i = 0, len = this.objects.length; i<len; i++){
             var object = this.objects[i];
             if (object) object.process();

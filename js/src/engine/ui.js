@@ -171,6 +171,8 @@ var UI = (function(){
 
     var handleUp = function(event){
 
+        touchData.isTouchDown = false;
+
         if (event && event.touches){
             var touches = event.changedTouches;
 
@@ -221,6 +223,10 @@ var UI = (function(){
                 UIobject.element.onMouseWheel(delta);
             }
         }
+    };
+
+    self.isTouchDown = function(){
+        return touchData.isTouchDown;
     };
 
 

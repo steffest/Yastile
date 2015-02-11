@@ -37,7 +37,7 @@ function loadUrl(url,callback){
     var fps;
     var averageFps = [];
     var tickps;
-    var frameInterval = 1000/targetFps;
+    var frameInterval = Math.floor(1000/targetFps);
     var settings;
     var step = -1;
     var _score = 0;
@@ -51,6 +51,7 @@ function loadUrl(url,callback){
     var gameController;
 
     var scorePosition = {top: 0, left: 0};
+    var debugInfo = [];
 
     var currentTickFunction = function(){};
 
@@ -60,6 +61,12 @@ function loadUrl(url,callback){
 
         var randomSeed = new Date().getTime();
         settings.seed =  randomSeed;
+
+        if (properties.targetFps){
+            targetFps = properties.targetFps;
+            frameInterval = Math.floor(1000/targetFps);
+            if (targetFps >= 60) frameInterval = 0;
+        }
 
         canvas = document.createElement("canvas");
 
@@ -76,24 +83,31 @@ function loadUrl(url,callback){
             settings.originalViewPortHeight = properties.viewPortHeight;
             scaleCanvas();
         }else{
-            var targetWidth = properties.viewPortWidth * properties.tileSize;
-            var targetHeight =  properties.viewPortHeight * properties.tileSize;
+            var targetWidth = properties.viewPortWidth;
+            var targetHeight =  properties.viewPortHeight;
+            if (properties.tileSize){
+                targetWidth = targetWidth * properties.tileSize;
+                targetHeight =  targetHeight * properties.tileSize;
+            }
             canvas.width  = targetWidth;
             canvas.height = targetHeight;
+
+            scorePosition.hintTop = 0;
+            scorePosition.hintLeft = 200;
         }
 
 
         document.body.appendChild(canvas);
 
         tileSize = properties.tileSize;
-
         properties.borderScrollOffset = 8;
-
 
         var preloadResources = [
             {id: "spritesheet", url: properties.spriteSheet}
         ];
         if (settings.backgroundImage) preloadResources.push({id: "backGroundImage", url: settings.backgroundImage});
+
+        if (settings.preload) preloadResources = preloadResources.concat(settings.preload);
 
         Preloader.init(preloadResources,function(){
             console.error("preloader done");
@@ -112,7 +126,7 @@ function loadUrl(url,callback){
 
 
                 if (settings.backgroundPattern && isNumeric(settings.backgroundPattern)){
-                    backgroundPattern = ctx.createPattern(sprites[settings.backgroundPattern], 'repeat');
+                    backgroundPattern = ctx.createPattern(sprites[settings.backgroundPattern].canvas, 'repeat');
                 }
 
                 if (!backgroundPattern) backgroundPattern = "Black";
@@ -150,7 +164,7 @@ function loadUrl(url,callback){
     self.start = function(){
         UI.removeAllElements();
         if (settings.showOnScreenControls){
-            gameController = new UI.GameController(settings.onScreenControlsImage);
+            gameController = new UI.GameController(settings.onScreenControls);
             UI.addElement(gameController);
 
             var actionButton = new UI.Button({
@@ -226,8 +240,13 @@ function loadUrl(url,callback){
     };
 
     function scaleCanvas(){
-        var targetWidth = settings.originalViewPortWidth * settings.tileSize;
-        var targetHeight = settings.originalViewPortHeight * settings.tileSize;
+
+        var targetWidth = settings.originalViewPortWidth;
+        var targetHeight = settings.originalViewPortHeight;
+        if (settings.tileSize){
+            targetWidth = targetWidth * settings.tileSize;
+            targetHeight = targetHeight * settings.tileSize;
+        }
         var aspectRatio = window.innerHeight/window.innerWidth;
 
         switch (settings.scaling){
@@ -239,7 +258,8 @@ function loadUrl(url,callback){
                 targetWidth = aspectRatio*targetHeight;
                 break;
             case SCALING.CONTAIN:
-                var fitHeight = Math.ceil((aspectRatio*targetWidth)/settings.tileSize);
+                var fitHeight = Math.ceil(aspectRatio*targetWidth);
+                if (settings.tileSize) fitHeight = Math.ceil((aspectRatio*targetWidth)/settings.tileSize);
                 if (fitHeight < settings.originalViewPortHeight){
                     aspectRatio = window.innerWidth/window.innerHeight;
                     targetWidth = aspectRatio*targetHeight;
@@ -249,8 +269,11 @@ function loadUrl(url,callback){
                 break;
         }
 
-        settings.viewPortWidth = Math.ceil(targetWidth/settings.tileSize);
-        settings.viewPortHeight = Math.ceil(targetHeight/settings.tileSize);
+        if (settings.tileSize){
+            // align to grid
+            settings.viewPortWidth = Math.ceil(targetWidth/settings.tileSize);
+            settings.viewPortHeight = Math.ceil(targetHeight/settings.tileSize);
+        }
 
         settings.canvasWidth = targetWidth;
         settings.canvasHeight = targetHeight;
@@ -264,11 +287,13 @@ function loadUrl(url,callback){
         scorePosition.top = 0;
 
         scorePosition.hintTop = 0;
-        scorePosition.hintLeft = 150;
+        scorePosition.hintLeft = 0;
+
+        if (settings.showScore) scorePosition.hintLeft = 150;
 
         if (settings.showFPS){
             scorePosition.left = 200;
-            scorePosition.hintLeft = 350;
+            scorePosition.hintLeft += 200;
 
             if (targetWidth<400){
                 scorePosition.left = 0;
@@ -303,12 +328,12 @@ function loadUrl(url,callback){
 
 
     function main(now) {
+        if (settings.showStats) stats.begin();
         var delta = now - lastTickTime;
 
-        if (delta > frameInterval) {
+        if (delta >= frameInterval) {
             tick();
             tickps = 1000/(now-lastTickTime);
-            //lastTickTime = now - (delta % frameInterval);
             lastTickTime = now;
         }
 
@@ -318,6 +343,7 @@ function loadUrl(url,callback){
         if (settings.showScore) drawScore();
         if (settings.showFPS) drawFPS();
         if (settings.showHint) drawHint();
+        if (settings.showStats) stats.end();
 
         requestAnimFrame(main);
     }
@@ -351,50 +377,9 @@ function loadUrl(url,callback){
 
         Map.render(step);
 
-        // draw level background
-        //if (backgroundImage){
-        //    var x = 0-(scrollOffset.tileX * tileSize) + scrollOffset.x*step;
-        //    var y = 0-(scrollOffset.tileY * tileSize) + scrollOffset.y*step;
-        //    ctx.drawImage(backgroundImage,x, y);
-        //}
-
-        /*
-        var levelProperties = Map.getLevelProperties();
-
-
-        // draw Sprite Map
-        // first bottomlayer - if any
-        for (var m = 0, maplen = MapLayers.length; m<maplen; m++){
-            var mapLayer = MapLayers[m];
-            if (mapLayer.type == MAPLAYERTYPE.SPOT) {
-                mapLayer.render(step, scrollOffset);
-            }
-        }
-
-        // then grid
-        for (var i = 0, len = levelProperties.height*levelProperties.width; i<len; i++){
-            var object = map[i];
-            //console.error("render",object)
-            if (object.isVisible(scrollOffset)) object.render(step,scrollOffset);
-        }
-
-        // then floating sprites
-        for (var m = 0, maplen = MapLayers.length; m<maplen; m++){
-            var mapLayer = MapLayers[m];
-            if (mapLayer.type == MAPLAYERTYPE.FREE){
-                mapLayer.render(step,scrollOffset);
-            }
-
-        }
-
-
-        //always Draw Player on Top
-        var playerObject = Map.getPlayerObject();
-        if ( playerObject)  playerObject.render(step,scrollOffset);
-
-        */
-
         UI.renderElements();
+
+        if (settings.showDebug) drawDebug();
 
     }
 
@@ -424,15 +409,47 @@ function loadUrl(url,callback){
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
         ctx.fillText("Score: " + _score , scorePosition.left + 10, scorePosition.top + 16);
-        ctx.fillText("Needed: " + _targetScore , scorePosition.left + 80, scorePosition.top + 16);
+        if (_targetScore) ctx.fillText("Needed: " + _targetScore , scorePosition.left + 80, scorePosition.top + 16);
     }
 
     function drawHint(){
         ctx.fillStyle = "Black";
-        ctx.fillRect(scorePosition.hintLeft,scorePosition.hintTop,200,24);
+        ctx.fillRect(scorePosition.hintLeft,scorePosition.hintTop,300,24);
         ctx.fillStyle = "White";
         ctx.font      = "normal 10pt Arial";
         ctx.fillText(_hint , scorePosition.hintLeft + 10, scorePosition.hintTop + 16);
+    }
+
+
+    self.addDebugRect = function(color,x,y,width,height,persistent){
+        if (!settings.showDebug) return;
+        self.addDebugInfo(DEBUGINFOTYPE.RECT,[color,x,y,width,height],persistent);
+    };
+
+    self.addDebugInfo = function(type,data,persistent){
+        if (!settings.showDebug) return;
+        debugInfo.push({
+            type: type,
+            data: data,
+            persistent: persistent
+        })
+    };
+
+    function drawDebug(){
+        var persistentDebugInfo = [];
+        for (var i= 0,l=debugInfo.length;i<l;i++){
+            var info = debugInfo[i];
+            if (info && info.type == DEBUGINFOTYPE.RECT){
+                ctx.beginPath();
+                ctx.lineWidth="1";
+                ctx.strokeStyle=info.data[0];
+                ctx.rect(info.data[1],info.data[2],info.data[3],info.data[4]);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            if (info.persistent) persistentDebugInfo.push(info);
+        }
+        debugInfo = persistentDebugInfo;
     }
 
     self.getTileSize = function(){
@@ -617,23 +634,24 @@ function loadUrl(url,callback){
 
     self.loadFromUrl = function(url,callback){
         layers = [];
+        var layer;
 
         loadUrl(url,function(data){
             if (!data.layers){
                 // single layer level
                 data.id = "layer1";
                 data.zIndex = 1;
-                self.addLayer(data);
+                layer = self.addLayer(data);
             }else{
                 for (var i = 1; i<=data.layers.length; i++){
                     var layerData = data.layers[i-1];
                     layerData.id = "layer" + i;
                     layerData.zIndex = i;
-                    self.addLayer(layerData);
+                    layer = self.addLayer(layerData);
                 }
             }
 
-            if (callback) callback();
+            if (callback) callback(layer);
         })
     };
 
@@ -643,6 +661,7 @@ function loadUrl(url,callback){
 
         if (properties.type) layerType=properties.type;
         if (!layerType && properties.map) layerType=MAPLAYERTYPE.GRID;
+        if (!layerType && properties.src) layerType=MAPLAYERTYPE.IMAGE;
         if (!layerType) layerType=MAPLAYERTYPE.FREE;
         properties.type = layerType;
 
@@ -729,12 +748,13 @@ function loadUrl(url,callback){
     this.scrollTilesX = 0;
     this.scrollTilesY = properties.startY || 0;
 
+    this.scrollPixelX = this.scrollPixelX || 0;
+    this.scrollPixelY = this.scrollPixelY || 0;
+
     this.scrollDirection = 0;
 
     this.viewPortWidth = 10;
     this.viewPortHeight = 10;
-
-
 
     this.borderScrollOffset = 5; // defines what the distance of the player to the levelborder can be before the map scrolls
 
@@ -747,34 +767,56 @@ function loadUrl(url,callback){
     }
 
     if (!this.tileSize) this.tileSize = Game.getTileSize();
-    this.scrollStep = this.tileSize/this.targetTicksPerSecond;
+    if (this.tileSize){
+        this.scrollStep = this.tileSize/this.targetTicksPerSecond;
+    }else{
+        this.scrollStep = 1;
+    }
 
-    console.error("new maplayer " , this.id, this.targetTicksPerSecond, this.scrollStep);
+    if (!isDefined(this.isVisible)) this.isVisible = true;
 
+    console.log("new maplayer " , this.id, this.targetTicksPerSecond, this.scrollStep);
+
+    if (this.type == MAPLAYERTYPE.IMAGE){
+        var me = this;
+
+        if (me.preloadedSrc){
+            var img = Resources.images[me.preloadedSrc];
+
+            me.imgTiles = [];
+
+
+            // cut large image in pieces
+
+            me.imgTileSize = me.imgTileSize || 100;
+            me.imgTileWidth = Math.floor(img.width/me.imgTileSize);
+            me.imgTileHeight = Math.floor(img.height/me.imgTileSize);
+
+            var maxSprites = me.imgTileWidth * me.imgTileHeight;
+            for (var i=0;i<maxSprites;i++){
+                var s = new Sprite(img,i,me.imgTileSize);
+                me.imgTiles.push(s);
+            }
+
+            console.error("image layer is cut into " + maxSprites + " tiles");
+
+            //me.sprite = new Sprite(img,"",0,0,img.width,img.height);
+        }else if(me.src){
+            console.error("Warning: image " + me.src + " is not preloaded");
+            console.log("loading image for layer " + this.id + ": " + this.src);
+            this.image = new Image();
+            this.image.onload = function(){
+                me.sprite = new Sprite(this,"",0,0,this.width,this.height);
+            };
+            this.image.src = me.src;
+        }
+
+
+    }
 
     if (properties.map){
         parse(properties);
     }
-
-/*
-    self.onResize = function(settings){
-        viewPortWidth = settings.viewPortWidth;
-        viewPortHeight = settings.viewPortHeight;
-
-        if (playerObject){
-            // re-center player?
-            scrollTilesX = Math.max(playerObject.left-10,0);
-            scrollTilesY = Math.max(playerObject.top-10,0);
-        }
-
-    };
-
-
-
-
-
-    */
-
 
     function parse(data){
         console.error("parsing maplayer " + self.id);
@@ -822,10 +864,11 @@ function loadUrl(url,callback){
         console.log("parsed level: " + self.activeObjectCount + " active objects, " + self.inactiveObjectCount + " inactive objects");
     }
 
+
 };
 
 MapLayer.prototype.isActive = function(){
-    return this.activeObjectCount>0;
+    return this.activeObjectCount>0 && this.isVisible;
 };
 
 MapLayer.prototype.process = function(){
@@ -841,6 +884,7 @@ MapLayer.prototype.process = function(){
 
     if (procesObjects){
         if (this.playerObject) this.playerObject.process();
+        if (this.eachStep) this.eachStep();
         for (var i = 0, len = this.objects.length; i<len; i++){
             var object = this.objects[i];
             if (object) object.process();
@@ -888,20 +932,79 @@ MapLayer.prototype.getScrollOffset = function(){
             x: this.scrollOffsetX,
             y: this.scrollOffsetY,
             tileX: this.scrollTilesX,
-            tileY: this.scrollTilesY
+            tileY: this.scrollTilesY,
+            pixelX: this.scrollPixelX,
+            pixelY: this.scrollPixelY
         }
     }
 };
 
 MapLayer.prototype.setScrollOffset = function(properties){
-    this.scrollTilesX = properties.tileX
-    this.scrollTilesY = properties.tileY;
+    this.scrollTilesX = properties.tileX || 0;
+    this.scrollTilesY = properties.tileY || 0;
+    this.scrollOffsetX = properties.x || 0;
+    this.scrollOffsetY = properties.y || 0;
+    this.scrollPixelX = properties.pixelX;
+    this.scrollPixelY = properties.pixelY;
 };
-
 
 MapLayer.prototype.render = function(){
     this.step++;
     if (this.step >= this.targetTicksPerSecond) this.step = 0;
+
+    if (!this.isVisible) return;
+
+    /*if (this.sprite){
+        if (this.tileSize){
+            this.scrollPixelX = this.scrollTilesX*this.tileSize + (this.scrollOffsetX*this.step);
+            this.scrollPixelX = this.scrollTilesY*this.tileSize + (this.scrollOffsetY*this.step);
+        }else{
+            var x = 0 - this.scrollPixelX;
+            var y = 0 - this.scrollPixelY;
+        }
+
+        var w = canvas.width;
+        var h = canvas.height;
+        ctx.drawImage(this.sprite.canvas,this.scrollPixelX, this.scrollPixelY,w,h,0,0,w,h);
+        //ctx.drawImage(this.sprite.canvas,x, y);
+    }*/
+
+
+    if (this.imgTiles){
+
+
+        if (this.tileSize){
+            this.scrollPixelX = this.scrollTilesX*this.tileSize + (this.scrollOffsetX*this.step);
+            this.scrollPixelX = this.scrollTilesY*this.tileSize + (this.scrollOffsetY*this.step);
+        }else{
+            var x = 0 - this.scrollPixelX;
+            var y = 0 - this.scrollPixelY;
+        }
+
+
+        for (var i = 0, len = this.imgTiles.length; i<len;i++){
+            var tile = this.imgTiles[i];
+
+            var iY = Math.floor(i/this.imgTileWidth);
+            var iX = i % this.imgTileWidth;
+
+
+            var tileX = iX * this.imgTileSize + x;
+            var tileY = iY * this.imgTileSize + y;
+
+            var tileX2 = tileX + this.imgTileSize;
+            var tileY2 = tileY + this.imgTileSize;
+
+            // only draw visible tiles
+            if (tileX2 > 0
+                && tileX<canvas.width
+                && tileY2 > 0
+                && tileY < canvas.height){
+                ctx.drawImage(tile.canvas,tileX, tileY);
+            }
+
+        }
+    }
 
     var scrollOffset = this.getScrollOffset();
     for (var i=0, len=this.objects.length;i<len;i++){
@@ -911,15 +1014,45 @@ MapLayer.prototype.render = function(){
 };
 
 MapLayer.prototype.cleanUp = function(){
-    if (this.type == MAPLAYERTYPE.GRID){
-        if (this.step >= (this.targetTicksPerSecond-1)){
-            if (this.autoScrollDirection == DIRECTION.DOWN && this.scrollTilesY <= 0){
-                if (this.onEnd){
-                    this.onEnd(this);
+    if (!this.isVisible) return;
+    switch (this.type){
+        case MAPLAYERTYPE.GRID:
+            if (this.step >= (this.targetTicksPerSecond-1)){
+                var viewPort = Game.getViewPort();
+                // check to see if the map is about to scroll off screen
+                if (this.autoScrollDirection && this.onEnd){
+                    var ended = false;
+                    switch (this.autoScrollDirection){
+                        case DIRECTION.DOWN:
+                            var canScrollOffscreen = 2;
+                            if (this.scrollTilesY < canScrollOffscreen) ended = true;
+                            console.error(this.scrollTilesY);
+                            break;
+                        case DIRECTION.LEFT:
+                            var canScrollOffscreen = this.width - viewPort.width - 2;
+                            if (this.scrollTilesX > canScrollOffscreen) ended = true;
+                            break;
+                    }
+                    if (ended) this.onEnd(this);
+
                 }
+                this.fullStep();
+
             }
-            this.fullStep();
-        }
+            break;
+
+        case MAPLAYERTYPE.IMAGE:
+            if (this.step >= (this.targetTicksPerSecond-1)){
+                this.fullStep();
+            }
+            break;
+
+        case MAPLAYERTYPE.FREE:
+            for (var i = 0, len = this.objects.length; i<len; i++){
+                var object = this.objects[i];
+                if (object) object.fullStep();
+            }
+            break;
     }
 };
 
@@ -961,62 +1094,106 @@ MapLayer.prototype.getPlayerObject = function(mapObject){
     return this.playerObject;
 };
 
+MapLayer.prototype.getObjectAtPixels = function(x,y){
+    if (this.type == MAPLAYERTYPE.GRID){
+        var t = Game.getSettings().tileSize;
+        var gridX = Math.floor(x/t);
+        var gridY = Math.floor(y/t);
+
+        return this.getObjectAtGrid(gridX,gridY);
+
+    }else {
+        var result = [];
+        for (var i = 0, len = this.objects.length; i<len; i++){
+            var object = this.objects[i];
+            if (object.left < x
+                && object.left + object.width > x
+                && object.top < y
+                && object.top + object.height > y
+            ) result.push(object)
+        }
+        return result;
+    }
+};
+
+MapLayer.prototype.getColorAtPixel = function(x,y){
+    // warning ... very slow
+    if (this.type == MAPLAYERTYPE.IMAGE && this.sprite){
+        return this.sprite.getColorAtPixel(x,y);
+        //return this.sprite.getImageData(x, y, 1, 1);
+    }else{
+        //todo: get object at coordinates and collect color
+        return undefined;
+    }
+};
+
+MapLayer.prototype.putColorAtPixel = function(color,x,y){
+    if (this.type == MAPLAYERTYPE.IMAGE && this.sprite){
+        this.sprite.putColorAtPixel(color,x,y);
+    }
+};
+
+MapLayer.prototype.getObjectAtGrid = function(x,y){
+    var index = (y * this.levelWidth) + x;
+    return this.objects[index];
+};
 
 MapLayer.prototype.initScroll = function(){
 
     if (this.parentLayer) return;
 
     var self = this;
-    var scroll = function(direction){
-
-        var speed = self.scrollStep;
-
-        self.scrollDirection = direction;
-        self.scrollOffsetX = 0;
-        self.scrollOffsetY = 0;
-
-        switch (direction){
-            case DIRECTION.LEFT:
-                self.scrollOffsetX = -speed;
-                break;
-            case DIRECTION.RIGHT:
-                self.scrollOffsetX = speed;
-                break;
-            case DIRECTION.DOWN:
-                self.scrollOffsetY = speed;
-                break;
-            case DIRECTION.UP:
-                self.scrollOffsetY = -speed;
-                break;
-        }
-    };
 
     // check if the player is close to a border of the viewport
 
     if (this.playerObject){
         if (((this.scrollTilesX + this.viewPortWidth) - this.playerObject.left < this.borderScrollOffset)
             && this.playerObject.moveDirection == DIRECTION.RIGHT)
-            scroll(DIRECTION.LEFT);
+            self.scroll(DIRECTION.LEFT);
         if ((this.playerObject.left - this.scrollTilesX < this.borderScrollOffset)
             && this.playerObject.moveDirection == DIRECTION.LEFT)
-            scroll(DIRECTION.RIGHT);
+            self.scroll(DIRECTION.RIGHT);
         if (((this.scrollTilesY + this.viewPortHeight) - this.playerObject.top < this.borderScrollOffset)
             && this.playerObject.moveDirection == DIRECTION.DOWN)
-            scroll(DIRECTION.UP);
+            self.scroll(DIRECTION.UP);
         if ((this.playerObject.top - this.scrollTilesY < this.borderScrollOffset)
             && this.playerObject.moveDirection == DIRECTION.UP)
-            scroll(DIRECTION.DOWN);
+            self.scroll(DIRECTION.DOWN);
     }
 
+
     if (this.autoScrollDirection){
-        scroll(this.autoScrollDirection);
+        self.scroll(this.autoScrollDirection);
     }
 
 };
 
-
 MapLayer.prototype.setAutoScroll = function(direction){
     this.autoScrollDirection = direction;
+};
+
+MapLayer.prototype.scroll = function(direction){
+
+    var speed = this.scrollStep;
+
+    this.scrollDirection = direction;
+    this.scrollOffsetX = 0;
+    this.scrollOffsetY = 0;
+
+    switch (direction){
+        case DIRECTION.LEFT:
+            this.scrollOffsetX = -speed;
+            break;
+        case DIRECTION.RIGHT:
+            this.scrollOffsetX = speed;
+            break;
+        case DIRECTION.DOWN:
+            this.scrollOffsetY = speed;
+            break;
+        case DIRECTION.UP:
+            this.scrollOffsetY = -speed;
+            break;
+    }
 };
 
 MapLayer.prototype.addSubLayer = function(layer){
@@ -1029,6 +1206,14 @@ MapLayer.prototype.removeSubLayer = function(layer){
     }
 };
 
+MapLayer.prototype.show = function(){
+    this.isVisible = true;
+};
+
+MapLayer.prototype.hide= function(){
+    this.isVisible = false;
+};
+
 
 
 ;var MapObject = function(properties){
@@ -1036,11 +1221,60 @@ MapLayer.prototype.removeSubLayer = function(layer){
         this[key] = properties[key];
     }
 
-    this.id = this.gameObject.id;
+    this.id = properties.id || this.gameObject.id;
     this.staticFrame = this.gameObject.getStaticFrame();
     var sprite = sprites[this.staticFrame];
-    this.height = sprite.height;
-    this.width = sprite.width;
+    this.height = sprite.canvas.height;
+    this.width = sprite.canvas.width;
+    this.rotation = this.rotation || 0;
+    this.rotationRadiants = 0;
+
+    if (this.rotation>0){
+        var r = this.rotation;
+        this.rotation = 0;
+        this.rotate(r);
+    }
+    if (this.gameObject.onCreate){
+        this.gameObject.onCreate(this);
+    }
+};
+
+MapObject.prototype.setStaticFrame = function(spriteIndex){
+    this.staticFrame = spriteIndex;
+    if (!isNumeric(this.staticFrame)){
+        var index = spriteNames[this.staticFrame];
+        if (index >= 0){
+            this.staticFrame = index;
+        }else{
+            console.error("Warning: MapObject " + this.id + " doesn't seem to have a sprite!")
+        }
+    }
+    var sprite = sprites[this.staticFrame];
+    this.height = sprite.canvas.height;
+    this.width = sprite.canvas.width;
+};
+
+MapObject.prototype.getCurrentFrame = function(){
+    var frame;
+    if (this.animation){
+        this.animationStartFrame++;
+        if (this.animationStartFrame >= this.animation.length) this.animationStartFrame = 0;
+        frame = this.gameObject.getAnimationFrame(this.animation, this.animationStartFrame).canvas;
+    }else{
+        frame = sprites[this.staticFrame].canvas;
+    }
+
+    if (this.rotation) {
+        frame = sprites[this.staticFrame].rotated[this.rotation];
+        if (!frame){
+            //console.error('Warning: rotation ' + this.rotation + " is not prerendered for sprite ",sprites[this.staticFrame]);
+            frame = sprites[this.staticFrame].canvas;
+        }
+    }
+
+    if (this.flipped) frame = sprites[this.staticFrame].flipped;
+
+    return frame;
 };
 
 MapObject.prototype.isVisible = function(scrollOffset){
@@ -1049,26 +1283,25 @@ MapObject.prototype.isVisible = function(scrollOffset){
 
 MapObject.prototype.render = function(step,scrollOffset,layer){
 
-    var x = this.left;
-    var y = this.top;
+    var offsetX = scrollOffset.pixelX;
+    var offsetY = scrollOffset.pixelY;
+
+    if (this.mapLayer.tileSize){
+        offsetX = (scrollOffset.tileX * this.mapLayer.tileSize) - (scrollOffset.x * step);
+        offsetY = (scrollOffset.tileY * this.mapLayer.tileSize) - (scrollOffset.y * step);
+    }
+
+    var x = this.left - offsetX;
+    var y = this.top - offsetY;
 
     if (this.id>0){
-        var frame;
-        if (this.animation){
-            this.animationStartFrame++;
-            if (this.animationStartFrame >= this.animation.length) this.animationStartFrame = 0;
-            frame = this.gameObject.getAnimationFrame(this.animation, this.animationStartFrame);
-        }else{
-            frame = sprites[this.staticFrame];
-        }
-
+        var frame = this.getCurrentFrame();
         ctx.drawImage(frame,x, y);
     }
 
 };
 
 MapObject.prototype.process = function(){
-
 
     if (this.processed) return;
 
@@ -1091,41 +1324,74 @@ MapObject.prototype.process = function(){
     //}
 
 
-
-    //this.processed = true;
-
+    this.processed = true;
 
 };
 
-
+MapObject.prototype.fullStep = function(){
+    this.processed = false;
+    this.collisionChecked = false;
+};
 
 MapObject.prototype.destroy = function(){
      this.mapLayer.removeObject(this);
 };
 
-MapObject.prototype.detectCollistion = function(){
-    for (var i=0; i<this.mapLayer.objects.length; i++){
-        var object = this.mapLayer.objects[i];
+MapObject.prototype.detectCollistion = function(onPixelLevel,onCollision,preFilter){
+    var originId = this.id;
+    var me = this;
+    for (var i= 0, len=me.mapLayer.objects.length; i<len; i++){
+        var other = me.mapLayer.objects[i];
 
+          var checkObject = true;
+          if (preFilter) checkObject = preFilter(other);
           if (
-              object &&
-              object.gameObject.isEnemy &&
-              this.left < object.left + object.width &&
-              this.left + this.width > object.left &&
-              this.top < object.top + object.height &&
-              this.height + this.top > object.top) {
+              checkObject &&
+              other &&
+              other.id != this.id &&
+              me.left < other.left + other.width &&
+              me.left + this.width > other.left &&
+              me.top < other.top + other.height &&
+              me.height + me.top > other.top) {
+                var isCollision = true;
 
+                Game.addDebugRect("red",me.left-me.mapLayer.scrollPixelX,me.top-me.mapLayer.scrollPixelY,me.width,me.height,false);
+                Game.addDebugRect("blue", other.left-me.mapLayer.scrollPixelX,other.top-me.mapLayer.scrollPixelY, other.width,other.height,false);
 
-              this.mapLayer.addObject(
-                  new MapObject({
-                      left: object.left - 8,
-                      top: object.top - 8,
-                      gameObject: GameObjects.EXPLOSION
-                  }));
-              object.destroy();
+                if (onPixelLevel){
+                    isCollision = false;
+
+                    // first find the intersecting rectangle
+                    var x = Math.max(me.left,other.left);
+                    var x2 = Math.min(me.left+me.width,other.left+other.width);
+                    var w = x2-x;
+
+                    var y = Math.max(me.top,other.top);
+                    var y2 = Math.min(me.top+me.height,other.top+other.height);
+                    var h = y2-y;
+
+                    Game.addDebugRect("yellow",x-me.mapLayer.scrollPixelX,y-me.mapLayer.scrollPixelY,w,h,false);
+
+                    if (w>0 && h>0){
+                        var thisData = me.getCurrentFrame().getContext("2d").getImageData(x-me.left,y-me.top,w,h).data;
+                        var otherData = other.getCurrentFrame().getContext("2d").getImageData(x-other.left,y-other.top,w,h).data;
+
+                        // check for pixels that are not transparent in both imageDatas
+                        // TODO: optimise this to work e.g. from the borders to the middle, or use hitpoints
+                        var scanIndex = 0;
+                        while (!isCollision && scanIndex < (w*h)*4){
+                            // only check alpha level
+                            var alphaTreshold = 100;
+                            var thisPixel = thisData[scanIndex + 3];
+                            var otherPixel = otherData[scanIndex + 3];
+                            if (thisPixel>alphaTreshold && otherPixel>alphaTreshold) isCollision = true;
+                            scanIndex +=4;
+                        }
+                    }
+
+                }
+                if (isCollision) onCollision(other)
           }
-
-
     }
 };
 
@@ -1152,6 +1418,26 @@ MapObject.prototype.isAnimating = function(){
     return this.animation;
 };
 
+MapObject.prototype.rotate = function(degree){
+    this.rotation = ((this.rotation || 0) + degree) % 360;
+    if (this.rotation<0) this.rotation += 360;
+
+    this.rotationRadiants = this.rotation * Math.PI/180;
+
+    var sprite = sprites[this.staticFrame];
+    if (!sprite.rotated[this.rotation]){
+        sprite.rotate(this.rotation);
+    }
+};
+
+MapObject.prototype.flip = function(horizontal,vertical){
+    var sprite = sprites[this.staticFrame];
+    if (!sprite.flipped){
+        sprite.flip(horizontal,vertical);
+    }
+    this.flipped = true;
+};
+
 ;var Resources = {
     images: {}
 };
@@ -1165,6 +1451,8 @@ var Preloader = (function(){
     var top,left,width,height;
 
     self.init = function(items,onDone){
+
+        console.error("preloaditem",items);
         width = 200;
         height = 10;
         left = (canvas.width-width)/2;
@@ -1253,9 +1541,58 @@ var Sprite = function(img,id,x,y,width,height){
     canvas.height = height;
     var ctx = canvas.getContext("2d");
 
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.rotated = {};
+    this.width = width;
+    this.height = height;
+
     ctx.drawImage(img,x,y,width,height,0,0,width,height);
 
-    return canvas;
+};
+
+Sprite.prototype.getColorAtPixel = function(x,y){
+    // warning ... very slow
+    return this.ctx.getImageData(x, y, 1, 1).data;
+};
+
+Sprite.prototype.putColorAtPixel = function(color,x,y){
+    var c = ctx.createImageData(1,1);
+    if (c){
+        var d  = c.data;
+        d[0] = 255;
+        d[1] = 255;
+        d[3] = 255;
+        d[4] = 255;
+        this.ctx.putImageData(c, x, y);
+    }
+};
+
+Sprite.prototype.rotate = function(degree){
+
+    degree = Math.round(degree);
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.width;
+    canvas.height = this.height;
+    var ctx = canvas.getContext("2d");
+    ctx.translate(this.width/2, this.height/2);
+    ctx.rotate(degree*Math.PI/180);
+    ctx.translate(-this.width/2, -this.height/2);
+    ctx.drawImage(this.canvas,0,0);
+
+    this.rotated[degree] = canvas;
+
+};
+
+Sprite.prototype.flip = function(horizontal,vertical){
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.width;
+    canvas.height = this.height;
+    var ctx = canvas.getContext("2d");
+    ctx.translate(this.width,0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(this.canvas,0,0);
+    this.flipped = canvas;
 };
 
 
@@ -1272,8 +1609,13 @@ var buildSpriteSheet = function(img,callback){
             if (co.src){
                 spriteImage = userData[co.src];
             }
+            if (co.canvas){
+                spriteImage = co.canvas;
+                co.l = 0;
+                co.t = 0;
+            }
 
-            var  s = new Sprite(spriteImage,co.name,co.l,co.r,co.w,co.h);
+            var  s = new Sprite(spriteImage,co.name,co.l,co.t,co.w,co.h);
             sprites.push(s);
             spriteNames[co.name] = sprites.length-1;
         }
@@ -1464,6 +1806,8 @@ var buildSpriteSheet = function(img,callback){
 
     var handleUp = function(event){
 
+        touchData.isTouchDown = false;
+
         if (event && event.touches){
             var touches = event.changedTouches;
 
@@ -1514,6 +1858,10 @@ var buildSpriteSheet = function(img,callback){
                 UIobject.element.onMouseWheel(delta);
             }
         }
+    };
+
+    self.isTouchDown = function(){
+        return touchData.isTouchDown;
     };
 
 
@@ -1610,17 +1958,71 @@ function isNumeric(o){
 }
 
 
+function between(min,value,max){
+    return value > max ? max : value < min ? min : value;
+}
+
+function randomBetween(min,max){
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
+
 function sortByKey(array, key) {
     return array.sort(function(a, b) {
         var x = a[key]; var y = b[key];
         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
     });
 }
-;//global vars
+
+function getPixelFromImageData(imageData,x,y){
+    var index = ((Math.floor(y) * imageData.width) + Math.floor(x))*4;
+    var data = imageData.data;
+    return [data[index],data[index+1],data[index+2]];
+}
+;var V = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+V.prototype.add = function(v) {
+    return new V(v.x + this.x, v.y + this.y);
+};
+
+V.prototype.subtract = function(v) {
+    return new V(this.x - v.x, this.y - v.y);
+};
+
+V.prototype.scale = function(s) {
+    return new V(this.x * s, this.y * s);
+};
+
+V.prototype.dot = function(v) {
+    return (this.x * v.x + this.y * v.y);
+};
+
+/* Normally the vector cross product function returns a vector. But since we know that all our vectors will only be 2D (x and y only), any cross product we calculate will only have a z-component. Since we don't have a 3D vector class, let's just return the z-component as a scalar. We know that the x and y components will be zero. This is absolutely not the case for 3D. */
+V.prototype.cross = function(v) {
+    return (this.x * v.y - this.y * v.x);
+};
+
+V.prototype.rotate = function(angle, vector) {
+    if (typeof vector == "undefined") vector = new V(0,0);
+    var x = this.x - vector.x;
+    var y = this.y - vector.y;
+
+    var x_prime = vector.x + ((x * Math.cos(angle)) - (y * Math.sin(angle)));
+    var y_prime = vector.y + ((x * Math.sin(angle)) + (y * Math.cos(angle)));
+
+    return new V(x_prime, y_prime);
+};
+
+V.prototype.copy = function(){
+    return new V(this.x, this.y);
+};;//global vars
 var canvas;
 var ctx;
 var map = [];
 var sprites = [];
+var spritesRotated = {};
 var spriteNames = {};
 
 var DIRECTION = {
@@ -1660,13 +2062,31 @@ var SCALING = {
 var MAPLAYERTYPE = {
     GRID: 1,
     SPOT: 2,
-    FREE: 3
+    FREE: 3,
+    IMAGE: 4
 };
 
 var MAPOBJECTTYPE = {
     GRID : 1,
     FIXED: 2,
     FREE: 3
+}
+
+
+var DEBUGINFOTYPE  = {
+    RECT: 1,
+    TEXT: 2
+}
+
+var ONSCREENCONTROLS = {
+    _4WAY: {
+        image: "controller_4way.png",
+        input: 4
+    },
+    _2WAY: {
+        image: "controller_2way.png",
+        input: 2
+    }
 };var GameObjectIndex = [];
 var GameObject = function(properties){
 
@@ -1700,7 +2120,6 @@ var GameObject = function(properties){
         var index = spriteNames[this.spriteIndex];
         if (index >= 0){
             this.spriteIndex = index;
-            console.error("GameObject " + this.code + " set tot sprite " + index)
         }else{
             console.error("Warning: GameObject " + this.code + " doesn't seem to have a sprite!")
         }
@@ -1748,13 +2167,12 @@ GameObject.prototype.getStaticFrame = function(){
     return frame;
 };
 
-
 GameObject.prototype.isEmpty = function(){
     return (this.id == 0);
 };
 
 GameObject.prototype.isPlayer = function(){
-    return (this.id == GameObjects.PLAYER.id);
+    return (GameObjects.PLAYER && this.id == GameObjects.PLAYER.id);
 };
 
 GameObject.prototype.setDefault = function(property,value){
@@ -1762,13 +2180,46 @@ GameObject.prototype.setDefault = function(property,value){
 };
 
 
+GameObject.prototype.canMoveTo = function(targetObject,direction){
+    if (!targetObject) return false;
+    var targetGameObject = targetObject.gameObject;
+    if (targetGameObject.isEmpty()) return true;
+
+    if (this.isPlayer()){
+        if (targetGameObject.canBeCollected){
+            if (isBoolean(targetGameObject.canBeCollected)) return true;
+            if (isFunction(targetGameObject.canBeCollected)){
+                // don't return false as maybe future conditions might be true;
+                if(targetGameObject.canBeCollected(targetObject)) return true;
+            }
+        }
+    }
+
+    if (targetGameObject.isPlayer()){
+        if (targetObject.moveDirection){
+            var opposite = DIRECTION_OPPOSITE[targetObject.moveDirection];
+            if (direction != opposite) return true;
+        }
+
+        if (targetGameObject.canBeCollectedBy(this,targetObject)){
+            return true;
+        }
+    }
+
+    return false;
+
+
+};
 
 
 
 
 
 
-;var MapPosition = function(gameObject,index,mapLayer){
+
+;// TODO rename to gridObject
+
+var MapPosition = function(gameObject,index,mapLayer){
     this.gameObject = gameObject;
     this.id = gameObject.id;
     this.index = index;
@@ -1823,27 +2274,25 @@ MapPosition.prototype.render = function(step,scrollOffset,layer){
     }
 
     if (this.bottomlayer && this.mapLayer.id == "bottom"){
-        frame = sprites[this.bottomlayer];
+        frame = sprites[this.bottomlayer].canvas;
         ctx.drawImage(frame,baseX, baseY);
     }else{
         if (this.id>0){
             var frame;
             if (this.animation){
-                frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame);
+                frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame).canvas;
             }else{
-                frame = sprites[this.staticFrame];
+                frame = sprites[this.staticFrame].canvas;
             }
 
             ctx.drawImage(frame,x, y);
         }
 
         if (this.toplayer){
-            frame = sprites[this.toplayer];
+            frame = sprites[this.toplayer].canvas;
             ctx.drawImage(frame,baseX, baseY);
         }
     }
-
-
 
 
 };
@@ -2015,6 +2464,7 @@ MapPosition.prototype.fullStep = function(step){
     }
 
     if (this.animation){
+
         if (this.animation.length > this.animationStartFrame + step + 1){
             this.animationStartFrame = this.animationStartFrame + step + 1;
         }else{
@@ -2205,6 +2655,9 @@ MapPosition.prototype.isNextTo = function(object){
     return ((l == id) || (u == id) || (r == id) || (d == id))
 };
 
+MapPosition.prototype.isGameObject = function(object){
+    return this.gameObject.id == object.id;
+};
 
 MapPosition.prototype.refresh = function(){
     this.setNext("id",this.id);
@@ -2214,6 +2667,12 @@ MapPosition.prototype.transformInto = function(gameObject,animation,onComplete){
     this.setNext("id",gameObject.id);
     if (animation) this.animate(animation);
     if (onComplete) this.setNext("action",onComplete)
+};
+
+MapPosition.prototype.setGameObject = function(gameObject){
+    this.gameObject = gameObject;
+    this.id = gameObject.id;
+    this.staticFrame = gameObject.getStaticFrame();
 };
 
 MapPosition.prototype.addLayer = function(spriteIndex,position){
@@ -2288,7 +2747,7 @@ MapPosition.prototype.getExplodeIntoObjects = function(){
         self.imageLoaded = true;
         self.setPosition();
     };
-    this.image.src = this.url;
+    this.image.src = Game.getSettings().resourcePath + this.url;
 
 };
 
@@ -2308,7 +2767,7 @@ UI.Button.prototype.render = function(){
         ctx.drawImage(this.image,this.state[0],this.state[1],this.state[2],this.state[3],this.left,this.top,this.width,this.height);
         UI.registerEventElement(this,this.left,this.top,this.right,this.bottom);
     }
-};;UI.GameController = function(image){
+};;UI.GameController = function(settings){
     var self = this;
     this.sprites = [];
     this.state = 0;
@@ -2323,7 +2782,7 @@ UI.Button.prototype.render = function(){
         self.imageLoaded = true;
         self.setPosition();
     };
-    this.image.src = image;
+    this.image.src = Game.getSettings().resourcePath + settings.image;
 
     this.onDown = function(touchData){
         processInput(touchData.x,touchData.y);
@@ -2341,8 +2800,11 @@ UI.Button.prototype.render = function(){
         self.state = DIRECTION.NONE;
         Input.isLeft(false);
         Input.isRight(false);
-        Input.isUp(false);
-        Input.isDown(false);
+
+        if (settings.input == 4){
+            Input.isUp(false);
+            Input.isDown(false);
+        }
     };
 
     var processInput = function(x,y){
@@ -2354,8 +2816,11 @@ UI.Button.prototype.render = function(){
 
         if (x < half - margin) {Input.isLeft(true);    self.state = DIRECTION.LEFT;}
         if (x > half + margin) {Input.isRight(true);   self.state = DIRECTION.RIGHT;}
-        if (y < half - margin) {Input.isUp(true);      self.state = DIRECTION.UP;}
-        if (y > half + margin) {Input.isDown(true);    self.state = DIRECTION.DOWN;}
+
+        if (settings.input == 4){
+            if (y < half - margin) {Input.isUp(true);      self.state = DIRECTION.UP;}
+            if (y > half + margin) {Input.isDown(true);    self.state = DIRECTION.DOWN;}
+        }
     }
 };
 
@@ -2370,7 +2835,7 @@ UI.GameController.prototype.setPosition = function(){
 UI.GameController.prototype.render = function(){
     if (this.imageLoaded){
         var spriteIndex = Math.max(this.state - DIRECTION.LEFT + 1,0);
-        ctx.drawImage(this.sprites[spriteIndex],this.left,this.top);
+        ctx.drawImage(this.sprites[spriteIndex].canvas,this.left,this.top);
         UI.registerEventElement(this,this.left,this.top,this.right,this.bottom);
     }
 };;UI.Listbox = function(properties){
@@ -2532,7 +2997,7 @@ UI.Listbox.prototype.render = function(){
 
     function renderItem(item){
         y += itemHeight;
-        var frame = sprites[item.icon];
+        var frame = sprites[item.icon].canvas;
 
         ctx.fillStyle = "Black";
         ctx.clearRect(x,y+lineTop,itemWidth,lineHeight); // why is this white?
