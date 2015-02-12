@@ -10,9 +10,10 @@ window.addEventListener("DOMContentLoaded",function(){
         showOnScreenControls: true,
         showScore: true,
         showDebug: true,
+        resourcePath: "../../resources/",
         onScreenControls: ONSCREENCONTROLS._2WAY,
-        closeButtonImage: "../../resources/close_button.png",
-        actionButtonImage: "../../resources/action_button.png",
+        closeButtonImage: "close_button.png",
+        actionButtonImage: "action_button.png",
         backgroundPattern: "Black",
         preload: [
             {id: "track" , url: "images/track_warremaurice.png"},
