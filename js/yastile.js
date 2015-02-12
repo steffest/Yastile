@@ -133,13 +133,21 @@ function loadUrl(url,callback){
 
                 if (settings.backgroundImage){
                         backgroundImage = document.createElement("canvas");
-                        backgroundImage.width = 2048;
-                        backgroundImage.height = 1024;
+                        backgroundImage.width = canvas.width;
+                        backgroundImage.height = canvas.height;
 
                         var context = backgroundImage.getContext("2d");
                         context.globalAlpha = settings.backgroundImageAlpha || 1;
 
-                        context.drawImage(Resources.images.backGroundImage, 0, 0);
+                        var w = Resources.images.backGroundImage.width;
+                        var h = Resources.images.backGroundImage.height;
+
+                        if (settings.backgroundScale){
+                            w = backgroundImage.width;
+                            h = backgroundImage.height;
+                        }
+
+                        context.drawImage(Resources.images.backGroundImage, 0, 0,w,h);
                         initDone();
                 }else{
                     initDone();
@@ -162,7 +170,7 @@ function loadUrl(url,callback){
     };
 
     self.start = function(){
-        UI.removeAllElements();
+        UI.removeAllElements(false);
         if (settings.showOnScreenControls){
             gameController = new UI.GameController(settings.onScreenControls);
             UI.addElement(gameController);
@@ -518,7 +526,7 @@ function loadUrl(url,callback){
     self.resetScore = function(){
         _score = 0;
         console.error("resetscore");
-        if (typeof GameObjects != "undefined") GameObjects.resetState();
+        if (typeof GameObjects != "undefined" && GameObjects.resetState) GameObjects.resetState();
     };
 
     self.setHint = function(s){
@@ -1227,6 +1235,9 @@ MapLayer.prototype.hide= function(){
     this.height = sprite.canvas.height;
     this.width = sprite.canvas.width;
     this.rotation = this.rotation || 0;
+    this.scaleIndex = this.scaleIndex || 1;
+    this.flipX = this.flipX ? 1 : 0;
+    this.flipY = this.flipY ? 1 : 0;
     this.rotationRadiants = 0;
 
     if (this.rotation>0){
@@ -1264,15 +1275,13 @@ MapObject.prototype.getCurrentFrame = function(){
         frame = sprites[this.staticFrame].canvas;
     }
 
-    if (this.rotation) {
-        frame = sprites[this.staticFrame].rotated[this.rotation];
+    if (this.isTransformed()) {
+        frame = sprites[this.staticFrame].transformed[this.getTransformation()];
         if (!frame){
-            //console.error('Warning: rotation ' + this.rotation + " is not prerendered for sprite ",sprites[this.staticFrame]);
+            //console.error('Warning: transformation ' + this.rotation + " is not prerendered for sprite ",sprites[this.staticFrame]);
             frame = sprites[this.staticFrame].canvas;
         }
     }
-
-    if (this.flipped) frame = sprites[this.staticFrame].flipped;
 
     return frame;
 };
@@ -1419,23 +1428,40 @@ MapObject.prototype.isAnimating = function(){
 };
 
 MapObject.prototype.rotate = function(degree){
-    this.rotation = ((this.rotation || 0) + degree) % 360;
+    this.rotation = Math.round(((this.rotation || 0) + degree) % 360);
     if (this.rotation<0) this.rotation += 360;
-
     this.rotationRadiants = this.rotation * Math.PI/180;
 
-    var sprite = sprites[this.staticFrame];
-    if (!sprite.rotated[this.rotation]){
-        sprite.rotate(this.rotation);
-    }
+    this.generateTransformedSprite();
 };
 
 MapObject.prototype.flip = function(horizontal,vertical){
+    this.flipX = vertical ? 1 : 0;
+    this.flipY = horizontal ? 1 : 0;
+
+    this.generateTransformedSprite();
+};
+
+MapObject.prototype.scale = function(scaleIndex){
+    this.scaleIndex = scaleIndex;
+    this.generateTransformedSprite();
+};
+
+MapObject.prototype.generateTransformedSprite = function(){
+    var key = this.getTransformation();
+
     var sprite = sprites[this.staticFrame];
-    if (!sprite.flipped){
-        sprite.flip(horizontal,vertical);
+    if (!sprite.transformed[key]){
+        sprite.transform(this.rotation,this.scaleIndex,this.flipX,this.flipY);
     }
-    this.flipped = true;
+};
+
+MapObject.prototype.isTransformed = function(){
+    return (this.rotation != 0 || this.scaleIndex != 1 || this.flipX || this.flipY);
+};
+
+MapObject.prototype.getTransformation = function(){
+    return "" + this.rotation + "_" + this.scaleIndex + "_" + this.flipX + "_" + this.flipY;
 };
 
 ;var Resources = {
@@ -1544,6 +1570,7 @@ var Sprite = function(img,id,x,y,width,height){
     this.canvas = canvas;
     this.ctx = ctx;
     this.rotated = {};
+    this.transformed = {};
     this.width = width;
     this.height = height;
 
@@ -1595,6 +1622,29 @@ Sprite.prototype.flip = function(horizontal,vertical){
     this.flipped = canvas;
 };
 
+Sprite.prototype.transform = function(rotation,scale,flipX,flipY){
+
+    var key = "" + rotation + "_" + scale + "_" + flipX + "_" + flipY;
+
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.width * scale;
+    canvas.height = this.height * scale;
+    var ctx = canvas.getContext("2d");
+
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate(rotation*Math.PI/180);
+    ctx.translate(-canvas.width/2, -canvas.height/2);
+
+    if (flipY){
+        ctx.translate(this.width,0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(this.canvas,0,0);
+    }
+
+    ctx.drawImage(this.canvas,0,0,canvas.width,canvas.height);
+
+    this.transformed[key] = canvas;
+};
 
 var buildSpriteSheet = function(img,callback){
 
@@ -1637,6 +1687,7 @@ var buildSpriteSheet = function(img,callback){
     var self = {};
 
     var UIEventElements;
+    var gameEventElements = [];
     var screen = [];
     var scaleFactorW = 1;
     var scaleFactorH = 1;
@@ -1673,17 +1724,39 @@ var buildSpriteSheet = function(img,callback){
         });
     };
 
+    // registers a Game Object to track for mouse/touch input
+    self.registerGameObjectForTouch = function(object){
+        gameEventElements.push(object);
+    };
+
     self.getEventElement = function(x,y){
 
         var result;
-        for (var i = 0, len = UIEventElements.length; i< len; i++){
-            var elm = UIEventElements[i];
+        var i = 0;
+        var max = UIEventElements.length;
+        var elm;
+
+        while (!result && i<max){
+            elm = UIEventElements[i];
             if (x>=elm.left && x<=elm.right && y>= elm.top && y <= elm.bottom) result = elm;
+            i++;
+        }
+
+        if (!result){
+            i=gameEventElements.length-1;
+            while (!result && i>=0){
+                elm = gameEventElements[i];
+                if (x>=elm.left && x<=(elm.left+elm.width) && y>= elm.top && y <= (elm.top+elm.height)) {
+                    result = elm;
+                    result.element = result.gameObject;
+                }
+                i--;
+            }
         }
         return result;
     };
 
-    self.clear = function(clearPattern){
+        self.clear = function(clearPattern){
         //ctx.fillStyle = backgroundPattern;
         clearPattern = clearPattern || "Black";
         ctx.fillStyle = clearPattern;
@@ -1692,9 +1765,11 @@ var buildSpriteSheet = function(img,callback){
         UIEventElements = [];
     };
 
-    self.removeAllElements = function(element){
+    self.removeAllElements = function(includeGameElements){
         screen = [];
         UIEventElements = [];
+
+        if (includeGameElements) gameEventElements = [];
     };
 
     self.addElement = function(element){
@@ -1764,7 +1839,7 @@ var buildSpriteSheet = function(img,callback){
             touchData.touches.push(thisTouch);
 
             if (thisTouch.UIobject  && thisTouch.UIobject.element && thisTouch.UIobject.element.onDown){
-                thisTouch.UIobject.element.onDown(thisTouch);
+                thisTouch.UIobject.element.onDown(thisTouch,thisTouch.UIobject);
             }
         }
     }
@@ -1797,7 +1872,7 @@ var buildSpriteSheet = function(img,callback){
 
                 if (touchData.isTouchDown && thisTouch.UIobject){
                     if (thisTouch.UIobject.element && thisTouch.UIobject.element.onDrag){
-                        thisTouch.UIobject.element.onDrag(thisTouch);
+                        thisTouch.UIobject.element.onDrag(thisTouch,thisTouch.UIobject);
                     }
                 }
             }
@@ -1829,8 +1904,8 @@ var buildSpriteSheet = function(img,callback){
                 var thisTouch =touchData.touches[touchIndex];
                 if (thisTouch.UIobject && thisTouch.UIobject.element){
                     var elm = thisTouch.UIobject.element;
-                    if (elm.onClick) elm.onClick(thisTouch);
-                    if (elm.onUp) elm.onUp(thisTouch);
+                    if (elm.onClick) elm.onClick(thisTouch,thisTouch.UIobject);
+                    if (elm.onUp) elm.onUp(thisTouch,thisTouch.UIobject);
                 }
                 touchData.touches.splice(touchIndex, 1);
             }

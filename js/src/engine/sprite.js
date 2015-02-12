@@ -24,6 +24,7 @@ var Sprite = function(img,id,x,y,width,height){
     this.canvas = canvas;
     this.ctx = ctx;
     this.rotated = {};
+    this.transformed = {};
     this.width = width;
     this.height = height;
 
@@ -75,6 +76,29 @@ Sprite.prototype.flip = function(horizontal,vertical){
     this.flipped = canvas;
 };
 
+Sprite.prototype.transform = function(rotation,scale,flipX,flipY){
+
+    var key = "" + rotation + "_" + scale + "_" + flipX + "_" + flipY;
+
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.width * scale;
+    canvas.height = this.height * scale;
+    var ctx = canvas.getContext("2d");
+
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate(rotation*Math.PI/180);
+    ctx.translate(-canvas.width/2, -canvas.height/2);
+
+    if (flipY){
+        ctx.translate(this.width,0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(this.canvas,0,0);
+    }
+
+    ctx.drawImage(this.canvas,0,0,canvas.width,canvas.height);
+
+    this.transformed[key] = canvas;
+};
 
 var buildSpriteSheet = function(img,callback){
 

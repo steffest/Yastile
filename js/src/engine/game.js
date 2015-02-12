@@ -105,13 +105,21 @@ var Game= (function(){
 
                 if (settings.backgroundImage){
                         backgroundImage = document.createElement("canvas");
-                        backgroundImage.width = 2048;
-                        backgroundImage.height = 1024;
+                        backgroundImage.width = canvas.width;
+                        backgroundImage.height = canvas.height;
 
                         var context = backgroundImage.getContext("2d");
                         context.globalAlpha = settings.backgroundImageAlpha || 1;
 
-                        context.drawImage(Resources.images.backGroundImage, 0, 0);
+                        var w = Resources.images.backGroundImage.width;
+                        var h = Resources.images.backGroundImage.height;
+
+                        if (settings.backgroundScale){
+                            w = backgroundImage.width;
+                            h = backgroundImage.height;
+                        }
+
+                        context.drawImage(Resources.images.backGroundImage, 0, 0,w,h);
                         initDone();
                 }else{
                     initDone();
@@ -134,7 +142,7 @@ var Game= (function(){
     };
 
     self.start = function(){
-        UI.removeAllElements();
+        UI.removeAllElements(false);
         if (settings.showOnScreenControls){
             gameController = new UI.GameController(settings.onScreenControls);
             UI.addElement(gameController);
@@ -490,7 +498,7 @@ var Game= (function(){
     self.resetScore = function(){
         _score = 0;
         console.error("resetscore");
-        if (typeof GameObjects != "undefined") GameObjects.resetState();
+        if (typeof GameObjects != "undefined" && GameObjects.resetState) GameObjects.resetState();
     };
 
     self.setHint = function(s){

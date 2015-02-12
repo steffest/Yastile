@@ -2,6 +2,7 @@ var UI = (function(){
     var self = {};
 
     var UIEventElements;
+    var gameEventElements = [];
     var screen = [];
     var scaleFactorW = 1;
     var scaleFactorH = 1;
@@ -38,17 +39,39 @@ var UI = (function(){
         });
     };
 
+    // registers a Game Object to track for mouse/touch input
+    self.registerGameObjectForTouch = function(object){
+        gameEventElements.push(object);
+    };
+
     self.getEventElement = function(x,y){
 
         var result;
-        for (var i = 0, len = UIEventElements.length; i< len; i++){
-            var elm = UIEventElements[i];
+        var i = 0;
+        var max = UIEventElements.length;
+        var elm;
+
+        while (!result && i<max){
+            elm = UIEventElements[i];
             if (x>=elm.left && x<=elm.right && y>= elm.top && y <= elm.bottom) result = elm;
+            i++;
+        }
+
+        if (!result){
+            i=gameEventElements.length-1;
+            while (!result && i>=0){
+                elm = gameEventElements[i];
+                if (x>=elm.left && x<=(elm.left+elm.width) && y>= elm.top && y <= (elm.top+elm.height)) {
+                    result = elm;
+                    result.element = result.gameObject;
+                }
+                i--;
+            }
         }
         return result;
     };
 
-    self.clear = function(clearPattern){
+        self.clear = function(clearPattern){
         //ctx.fillStyle = backgroundPattern;
         clearPattern = clearPattern || "Black";
         ctx.fillStyle = clearPattern;
@@ -57,9 +80,11 @@ var UI = (function(){
         UIEventElements = [];
     };
 
-    self.removeAllElements = function(element){
+    self.removeAllElements = function(includeGameElements){
         screen = [];
         UIEventElements = [];
+
+        if (includeGameElements) gameEventElements = [];
     };
 
     self.addElement = function(element){
@@ -129,7 +154,7 @@ var UI = (function(){
             touchData.touches.push(thisTouch);
 
             if (thisTouch.UIobject  && thisTouch.UIobject.element && thisTouch.UIobject.element.onDown){
-                thisTouch.UIobject.element.onDown(thisTouch);
+                thisTouch.UIobject.element.onDown(thisTouch,thisTouch.UIobject);
             }
         }
     }
@@ -162,7 +187,7 @@ var UI = (function(){
 
                 if (touchData.isTouchDown && thisTouch.UIobject){
                     if (thisTouch.UIobject.element && thisTouch.UIobject.element.onDrag){
-                        thisTouch.UIobject.element.onDrag(thisTouch);
+                        thisTouch.UIobject.element.onDrag(thisTouch,thisTouch.UIobject);
                     }
                 }
             }
@@ -194,8 +219,8 @@ var UI = (function(){
                 var thisTouch =touchData.touches[touchIndex];
                 if (thisTouch.UIobject && thisTouch.UIobject.element){
                     var elm = thisTouch.UIobject.element;
-                    if (elm.onClick) elm.onClick(thisTouch);
-                    if (elm.onUp) elm.onUp(thisTouch);
+                    if (elm.onClick) elm.onClick(thisTouch,thisTouch.UIobject);
+                    if (elm.onUp) elm.onUp(thisTouch,thisTouch.UIobject);
                 }
                 touchData.touches.splice(touchIndex, 1);
             }

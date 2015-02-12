@@ -9,6 +9,9 @@ var MapObject = function(properties){
     this.height = sprite.canvas.height;
     this.width = sprite.canvas.width;
     this.rotation = this.rotation || 0;
+    this.scaleIndex = this.scaleIndex || 1;
+    this.flipX = this.flipX ? 1 : 0;
+    this.flipY = this.flipY ? 1 : 0;
     this.rotationRadiants = 0;
 
     if (this.rotation>0){
@@ -46,15 +49,13 @@ MapObject.prototype.getCurrentFrame = function(){
         frame = sprites[this.staticFrame].canvas;
     }
 
-    if (this.rotation) {
-        frame = sprites[this.staticFrame].rotated[this.rotation];
+    if (this.isTransformed()) {
+        frame = sprites[this.staticFrame].transformed[this.getTransformation()];
         if (!frame){
-            //console.error('Warning: rotation ' + this.rotation + " is not prerendered for sprite ",sprites[this.staticFrame]);
+            //console.error('Warning: transformation ' + this.rotation + " is not prerendered for sprite ",sprites[this.staticFrame]);
             frame = sprites[this.staticFrame].canvas;
         }
     }
-
-    if (this.flipped) frame = sprites[this.staticFrame].flipped;
 
     return frame;
 };
@@ -201,22 +202,39 @@ MapObject.prototype.isAnimating = function(){
 };
 
 MapObject.prototype.rotate = function(degree){
-    this.rotation = ((this.rotation || 0) + degree) % 360;
+    this.rotation = Math.round(((this.rotation || 0) + degree) % 360);
     if (this.rotation<0) this.rotation += 360;
-
     this.rotationRadiants = this.rotation * Math.PI/180;
 
-    var sprite = sprites[this.staticFrame];
-    if (!sprite.rotated[this.rotation]){
-        sprite.rotate(this.rotation);
-    }
+    this.generateTransformedSprite();
 };
 
 MapObject.prototype.flip = function(horizontal,vertical){
+    this.flipX = vertical ? 1 : 0;
+    this.flipY = horizontal ? 1 : 0;
+
+    this.generateTransformedSprite();
+};
+
+MapObject.prototype.scale = function(scaleIndex){
+    this.scaleIndex = scaleIndex;
+    this.generateTransformedSprite();
+};
+
+MapObject.prototype.generateTransformedSprite = function(){
+    var key = this.getTransformation();
+
     var sprite = sprites[this.staticFrame];
-    if (!sprite.flipped){
-        sprite.flip(horizontal,vertical);
+    if (!sprite.transformed[key]){
+        sprite.transform(this.rotation,this.scaleIndex,this.flipX,this.flipY);
     }
-    this.flipped = true;
+};
+
+MapObject.prototype.isTransformed = function(){
+    return (this.rotation != 0 || this.scaleIndex != 1 || this.flipX || this.flipY);
+};
+
+MapObject.prototype.getTransformation = function(){
+    return "" + this.rotation + "_" + this.scaleIndex + "_" + this.flipX + "_" + this.flipY;
 };
 
