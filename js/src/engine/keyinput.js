@@ -1,7 +1,7 @@
 var Input = (function() {
 
     var self = {};
-    var _isdown,_isup,_isleft,_isright,_isaction;
+    var keyState = {};
 
     var KEY={
         left: 37,
@@ -9,7 +9,9 @@ var Input = (function() {
         right: 39,
         down: 40,
         space:32,
-        ctrl:17
+        ctrl:17,
+        enter: 13,
+        action:1000
     };
 
     document.addEventListener("keydown",handleKeyDown, false);
@@ -17,54 +19,59 @@ var Input = (function() {
 
     function handleKeyDown(event){
         var keyCode = event.keyCode;
+        keyState[keyCode] = state(keyCode);
+        keyState[keyCode].isDown = true;
 
-        if (keyCode == KEY.down)_isdown = true;
-        if (keyCode == KEY.left)_isleft = true;
-        if (keyCode == KEY.right)_isright = true;
-        if (keyCode == KEY.up) _isup = true;
-        if (keyCode == KEY.space) _isaction = true;
-        if (keyCode == KEY.ctrl) _isaction = true;
+        if (keyCode == KEY.space || keyCode == KEY.ctrl || keyCode == KEY.enter){
+            keyState[KEY.action] = state(KEY.action);
+            keyState[KEY.action].isDown = true;
+        }
     }
 
     function handleKeyUp(event){
         var keyCode = event.keyCode;
+        keyState[keyCode] = state(keyCode);
+        keyState[keyCode].isDown = false;
 
-        if (keyCode == KEY.down)_isdown = false;
-        if (keyCode == KEY.left)_isleft = false;
-        if (keyCode == KEY.right)_isright = false;
-        if (keyCode == KEY.up) _isup = false;
-        if (keyCode == KEY.space) _isaction = false;
-        if (keyCode == KEY.ctrl) _isaction = false;
-
-        if (keyCode == KEY.up){
-            //gameSection = 1;
+        if (keyCode == KEY.space || keyCode == KEY.ctrl || keyCode == KEY.enter){
+            keyState[KEY.action] = state(KEY.action);
+            keyState[KEY.action].isDown = false;
         }
     }
 
     self.isDown = function(value){
-        if (typeof value != "undefined") _isdown = value;
-        return _isdown;
+        return self.isKeyDown(KEY.down,value);
     };
 
     self.isUp = function(value){
-        if (typeof value != "undefined") _isup = value;
-        return _isup;
+        return self.isKeyDown(KEY.up,value);
     };
 
     self.isLeft = function(value){
-        if (typeof value != "undefined") _isleft = value;
-        return _isleft;
+        return self.isKeyDown(KEY.left,value);
     };
 
     self.isRight = function(value){
-        if (typeof value != "undefined") _isright = value;
-        return _isright;
+        return self.isKeyDown(KEY.right,value);
     };
 
     self.isAction = function(value){
-        if (typeof value != "undefined") _isaction = value;
-        return _isaction;
+        return self.isKeyDown(KEY.action,value);
     };
+
+    self.isEnter = function(value){
+        return self.isKeyDown(KEY.enter,value);
+    };
+
+    self.isKeyDown = function(keyCode,value){
+        keyState[keyCode] = state(keyCode);
+        if (typeof value !== "undefined") keyState[keyCode].isDown = value;
+        return keyState[keyCode].isDown;
+    };
+
+    function state(keyCode){
+        return keyState[keyCode] || {};
+    }
 
    return self;
 

@@ -8,7 +8,10 @@ var UI = (function(){
     var scaleFactorH = 1;
     var touchData = {};
 
+    var debug = false;
+
     touchData.touches = [];
+    touchData.mouseWheels = [];
 
     self.init = function(){
 
@@ -45,7 +48,6 @@ var UI = (function(){
     };
 
     self.getEventElement = function(x,y){
-
         var result;
         var i = 0;
         var max = UIEventElements.length;
@@ -71,11 +73,17 @@ var UI = (function(){
         return result;
     };
 
-        self.clear = function(clearPattern){
+    self.clear = function(clearPattern){
         //ctx.fillStyle = backgroundPattern;
-        clearPattern = clearPattern || "Black";
-        ctx.fillStyle = clearPattern;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if(clearPattern){
+            clearPattern = clearPattern || "Black";
+            ctx.fillStyle = clearPattern;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }else{
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
 
         UIEventElements = [];
     };
@@ -110,6 +118,10 @@ var UI = (function(){
         }
     };
 
+    self.canvasToDocument = function(x,y){
+        return {x: x * scaleFactorW, y: y * scaleFactorH};
+    };
+
     var getTouchIndex = function (id) {
         for (var i=0; i < touchData.touches.length; i++) {
             if (touchData.touches[i].id === id) {
@@ -139,6 +151,7 @@ var UI = (function(){
         function initTouch(id,x,y){
             touchData.isTouchDown = true;
 
+
             var _x = x/scaleFactorW;
             var _y = y/scaleFactorH;
 
@@ -150,6 +163,12 @@ var UI = (function(){
                 startY: _y,
                 UIobject: UI.getEventElement(_x,_y)
             };
+
+            if (debug){
+                console.error("touch",x,y);
+                console.error(thisTouch);
+                console.error("on object",thisTouch.UIobject);
+            }
 
             touchData.touches.push(thisTouch);
 
@@ -174,6 +193,7 @@ var UI = (function(){
             updateTouch(getTouchIndex("notouch"),event.pageX,event.pageY);
             touchData.currentMouseX = event.pageX;
             touchData.currentMouseY = event.pageY;
+            touchData.mouseMoved = new Date().getTime();
         }
 
         function updateTouch(touchIndex,x,y){
@@ -192,6 +212,7 @@ var UI = (function(){
                 }
             }
         }
+
     }
 
     var handleUp = function(event){
@@ -237,21 +258,55 @@ var UI = (function(){
     var handleMouseWheel = function(event){
 
         if (touchData.currentMouseX){
-            var delta = event.wheelDelta || -event.detail;
+
+            var deltaY = event.wheelDeltaY || event.wheelDelta || -event.detail;
+            var deltaX = event.wheelDeltaX || 0;
+
+            touchData.mouseWheels.unshift(deltaY);
+            if (touchData.mouseWheels.length > 10) touchData.mouseWheels.pop();
 
             var _x = touchData.currentMouseX/scaleFactorW;
             var _y = touchData.currentMouseY/scaleFactorH;
             var UIobject =  UI.getEventElement(_x,_y);
 
-
             if (UIobject && UIobject.element && UIobject.element.onMouseWheel){
-                UIobject.element.onMouseWheel(delta);
+                UIobject.element.onMouseWheel(deltaY,deltaX);
             }
         }
     };
 
     self.isTouchDown = function(){
         return touchData.isTouchDown;
+    };
+
+    self.hasMouseMoved = function(){
+        return touchData.mouseMoved && touchData.mouseMoved > (new Date().getTime() - 500);
+    };
+
+    self.isInertiaMouseWheel = function(){
+        // detects if a mousewheel events are comming from trackpad or mouse
+        // TODO: test on more systems/mouses if this is always true
+        if (touchData.mouseWheels.length > 1){
+            for (var i = touchData.mouseWheels.length-2;i>=0;i--){
+                if (Math.abs(touchData.mouseWheels[i]) != Math.abs(touchData.mouseWheels[i+1])){
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    self.getTouchData = function(){
+        return touchData;
+    };
+
+    self.showDebug = function(){
+        debug=true;
+        Game.getSettings().showDebug = true;
+    };
+
+    self.hideDebug = function(){
+        debug=true;
     };
 
 

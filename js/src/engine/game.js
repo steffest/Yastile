@@ -74,11 +74,9 @@ var Game= (function(){
         tileSize = properties.tileSize;
         properties.borderScrollOffset = 8;
 
-        var preloadResources = [
-            {id: "spritesheet", url: properties.spriteSheet}
-        ];
+        var preloadResources = [];
+        if (properties.spriteSheet) preloadResources.push({id: "spritesheet", url: properties.spriteSheet});
         if (settings.backgroundImage) preloadResources.push({id: "backGroundImage", url: settings.backgroundImage});
-
         if (settings.preload) preloadResources = preloadResources.concat(settings.preload);
 
         Preloader.init(preloadResources,function(){
@@ -344,9 +342,8 @@ var Game= (function(){
     }
 
 
-
-
     function render(step,scrollOffset) {
+
         ctx.fillStyle = backgroundPattern;
         //ctx.fillStyle = "Black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -359,7 +356,7 @@ var Game= (function(){
 
         UI.renderElements();
 
-        if (settings.showDebug) drawDebug();
+        if (settings.showDebug) self.drawDebug();
 
     }
 
@@ -415,7 +412,7 @@ var Game= (function(){
         })
     };
 
-    function drawDebug(){
+    self.drawDebug = function(){
         var persistentDebugInfo = [];
         for (var i= 0,l=debugInfo.length;i<l;i++){
             var info = debugInfo[i];
@@ -430,7 +427,7 @@ var Game= (function(){
             if (info.persistent) persistentDebugInfo.push(info);
         }
         debugInfo = persistentDebugInfo;
-    }
+    };
 
     self.getTileSize = function(){
         return tileSize;
@@ -450,6 +447,14 @@ var Game= (function(){
 
     self.getSettings = function(){
         return settings;
+    };
+
+    self.showDebug = function(){
+        return settings.showDebug = true;
+    };
+
+    self.hideDebug = function(){
+        return settings.showDebug = false;
     };
 
     self.getRandomDirection = function(){
@@ -533,3 +538,4 @@ var Game= (function(){
 
     return self;
 }());
+

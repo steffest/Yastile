@@ -4,10 +4,13 @@ var MapObject = function(properties){
     }
 
     this.id = properties.id || this.gameObject.id;
-    this.staticFrame = this.gameObject.getStaticFrame();
-    var sprite = sprites[this.staticFrame];
-    this.height = sprite.canvas.height;
-    this.width = sprite.canvas.width;
+    if (this.gameObject){
+        this.staticFrame = this.gameObject.getStaticFrame();
+        var sprite = sprites[this.staticFrame];
+        this.height = sprite.canvas.height;
+        this.width = sprite.canvas.width;
+    }
+
     this.rotation = this.rotation || 0;
     this.scaleIndex = this.scaleIndex || 1;
     this.flipX = this.flipX ? 1 : 0;
@@ -19,10 +22,16 @@ var MapObject = function(properties){
         this.rotation = 0;
         this.rotate(r);
     }
-    if (this.gameObject.onCreate){
+
+    if (this.spriteMap){
+        Resource.getSpriteMap(this.spriteMap);
+    }
+
+    if (this.gameObject && this.gameObject.onCreate){
         this.gameObject.onCreate(this);
     }
 };
+
 
 MapObject.prototype.setStaticFrame = function(spriteIndex){
     this.staticFrame = spriteIndex;
@@ -43,10 +52,30 @@ MapObject.prototype.getCurrentFrame = function(){
     var frame;
     if (this.animation){
         this.animationStartFrame++;
-        if (this.animationStartFrame >= this.animation.length) this.animationStartFrame = 0;
-        frame = this.gameObject.getAnimationFrame(this.animation, this.animationStartFrame).canvas;
+        if (this.animationStartFrame >= this.animation.length) {
+            // TODO: loop?
+            //this.animationStartFrame = 0;
+            this.animation = false;
+            if (sprites[this.staticFrame]){
+                frame = sprites[this.staticFrame].canvas;
+            }
+        }
+        if (this.gameObject){
+            frame = this.gameObject.getAnimationFrame(this.animation, this.animationStartFrame).canvas;
+        }else{
+            var spriteName = this.animation[this.animationStartFrame];
+            var sprite = sprites[spriteName];
+            if (sprite){
+                frame = sprite.canvas;
+            }
+            //frame = sprites[spriteName].canvas;
+        }
+
     }else{
-        frame = sprites[this.staticFrame].canvas;
+        if (sprites[this.staticFrame]){
+            frame = sprites[this.staticFrame].canvas;
+        }
+
     }
 
     if (this.isTransformed()) {
@@ -81,7 +110,6 @@ MapObject.prototype.render = function(step,scrollOffset,layer){
         var frame = this.getCurrentFrame();
         ctx.drawImage(frame,x, y);
     }
-
 };
 
 MapObject.prototype.process = function(){
@@ -237,4 +265,6 @@ MapObject.prototype.isTransformed = function(){
 MapObject.prototype.getTransformation = function(){
     return "" + this.rotation + "_" + this.scaleIndex + "_" + this.flipX + "_" + this.flipY;
 };
+
+
 

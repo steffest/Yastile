@@ -2,8 +2,7 @@
 var canvas;
 var ctx;
 var map = [];
-var sprites = [];
-var spritesRotated = {};
+var sprites = {};
 var spriteNames = {};
 
 var DIRECTION = {
@@ -51,13 +50,13 @@ var MAPOBJECTTYPE = {
     GRID : 1,
     FIXED: 2,
     FREE: 3
-}
+};
 
 
 var DEBUGINFOTYPE  = {
     RECT: 1,
     TEXT: 2
-}
+};
 
 var ONSCREENCONTROLS = {
     _4WAY: {

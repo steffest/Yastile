@@ -100,40 +100,41 @@ Sprite.prototype.transform = function(rotation,scale,flipX,flipY){
     this.transformed[key] = canvas;
 };
 
+
 var buildSpriteSheet = function(img,callback){
 
-    var map = Game.getSettings().spriteMap;
+    if (img){
+        var map = Game.getSettings().spriteMap;
 
-    if (map){
-        for (var i = 0; i<spriteMap.length; i++){
-            var co = spriteMap[i];
-            var spriteImage = img;
+        if (map){
+            for (var i = 0; i<spriteMap.length; i++){
+                var co = spriteMap[i];
+                var spriteImage = img;
 
-            // todo build spritesheet from multiple source images
-            if (co.src){
-                spriteImage = userData[co.src];
+                // todo build spritesheet from multiple source images
+                if (co.src){
+                    spriteImage = userData[co.src];
+                }
+                if (co.canvas){
+                    spriteImage = co.canvas;
+                    co.l = 0;
+                    co.t = 0;
+                }
+
+                var  s = new Sprite(spriteImage,co.name,co.l,co.t,co.w,co.h);
+                sprites.push(s);
+                spriteNames[co.name] = sprites.length-1;
             }
-            if (co.canvas){
-                spriteImage = co.canvas;
-                co.l = 0;
-                co.t = 0;
+
+        }else{
+            // spritesheet of fixed size images
+            var t = Game.getSettings().tileSize;
+            var maxSprites = Math.floor(img.width/t) * Math.floor(img.height/t);
+            for (var i=0;i<maxSprites;i++){
+                var s = new Sprite(img,i,Game.getSettings().tileSize);
+                sprites.push(s);
             }
-
-            var  s = new Sprite(spriteImage,co.name,co.l,co.t,co.w,co.h);
-            sprites.push(s);
-            spriteNames[co.name] = sprites.length-1;
-        }
-
-    }else{
-        // spritesheet of fixed size images
-        var t = Game.getSettings().tileSize;
-        var maxSprites = Math.floor(img.width/t) * Math.floor(img.height/t);
-        for (var i=0;i<maxSprites;i++){
-            var s = new Sprite(img,i,Game.getSettings().tileSize);
-            sprites.push(s);
         }
     }
-
-
     if (callback) callback();
 };
