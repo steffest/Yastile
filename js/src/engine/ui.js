@@ -13,6 +13,8 @@ var UI = (function(){
     touchData.touches = [];
     touchData.mouseWheels = [];
 
+    var isTouched = false;
+
     self.init = function(){
 
         canvas.addEventListener("mousedown", handleDown,false);
@@ -79,9 +81,9 @@ var UI = (function(){
         if(clearPattern){
             clearPattern = clearPattern || "Black";
             ctx.fillStyle = clearPattern;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, screenWidth, screenHeight);
         }else{
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, screenWidth, screenHeight);
         }
 
 
@@ -106,6 +108,13 @@ var UI = (function(){
         }
     };
 
+    self.renderBackground = function(){
+        var backgroundImage = Game.getBackground();
+        if (backgroundImage){
+            ctx.drawImage(backgroundImage,0, 0);
+        }
+    };
+
     self.setScale = function(width,height){
         scaleFactorW = width;
         scaleFactorH = height;
@@ -122,6 +131,10 @@ var UI = (function(){
         return {x: x * scaleFactorW, y: y * scaleFactorH};
     };
 
+    self.documentToCanvas = function(x,y){
+        return {x: x/scaleFactorW, y: y/scaleFactorH};
+    };
+
     var getTouchIndex = function (id) {
         for (var i=0; i < touchData.touches.length; i++) {
             if (touchData.touches[i].id === id) {
@@ -135,6 +148,11 @@ var UI = (function(){
     function handleDown(event){
 
         event.preventDefault();
+
+        if (!isTouched){
+            // first touch - init media on IOS
+            //isTouched = Audio.activate();
+        }
 
         if (event.touches && event.touches.length>0){
             var touches = event.changedTouches;

@@ -26,16 +26,6 @@ var GameObject = function(properties){
     this.spriteIndexes = properties.spriteIndexes;
 
 
-    if (!isNumeric(this.spriteIndex)){
-
-        var index = spriteNames[this.spriteIndex];
-        if (index >= 0){
-            this.spriteIndex = index;
-        }else{
-            console.error("Warning: GameObject " + this.code + " doesn't seem to have a sprite!")
-        }
-    }
-
     // simple animation system;
     this.animationFrames = {};
     if (properties.animationRight) this.animationFrames[DIRECTION.RIGHT] = properties.animationRight;

@@ -5,6 +5,7 @@ window.addEventListener("load",function(){
         viewPortWidth: 12,
         viewPortHeight: 12,
         scaling: SCALING.CONTAIN,
+        targetFps: 60,
         showFPS: true,
         showOnScreenControls: true,
         showScore: true,

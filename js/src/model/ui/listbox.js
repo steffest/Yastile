@@ -66,8 +66,11 @@ UI.Listbox = function(properties){
     this.renderItemFunction = properties.renderItem || function(){};
     this.preRender = properties.preRender || function(){};
     this.postRender = properties.postRender || function(){};
+    this.needsDrawing = properties.needsDrawing || function(){return true};
+
 
     this.lastNavigateTime = 0;
+    this.lastAnimateTime = 0;
 
     this.onDown = function(touchData){
         self.isDown = true;
@@ -351,16 +354,19 @@ UI.Listbox.prototype.render = function(){
 
     this.preRender();
 
-    for (var i= 0, len= this.items.length; i<len; i++){
-        //if (this.itemY>0){
+    if (this.needsDrawing()){
+        for (var i= 0, len= this.items.length; i<len; i++){
+            //if (this.itemY>0){
             var newProps = this.renderItemFunction(this.items[i],this);
             this.itemY = newProps.y;
             this.itemX = newProps.x;
             if (newProps.break) break;
-        //}
+            //}
+        }
     }
 
     this.postRender();
+    UI.registerEventElement(this,this.left,this.top,this.left+this.width,this.top+this.height);
 };
 
 UI.Listbox.prototype.navigateUp = function(speed){
@@ -420,6 +426,15 @@ UI.Listbox.prototype.moveTo = function(co,speed){
     }
 };
 
+UI.Listbox.prototype.jumpTo = function(co){
+    var targetPosition;
+    if (this.canScrollX){
+        this.scrollOffetX = this.limitScrollX(co,true);
+    }else{
+        this.scrollOffetY = this.limitScrollY(co,true);
+    }
+};
+
 UI.Listbox.prototype.alignToGrid = function(direction,speed){
     speed = speed || 20;
     this.scrollElastic = speed;
@@ -440,4 +455,13 @@ UI.Listbox.prototype.alignToGrid = function(direction,speed){
 
 UI.Listbox.prototype.isNavigating = function(){
     return !!UI.isTouchDown() || this.scrollElastic > 0 || this.lastNavigateTime > Date.now()-50;
+};
+
+UI.Listbox.prototype.isAnimating = function(isAnimating){
+    if (isAnimating){
+        this.lastAnimateTime = Date.now();
+        return true;
+    }else{
+        return this.lastAnimateTime > Date.now()-200;
+    }
 };

@@ -38,7 +38,38 @@ var Intro = (function(){
             top: 30,
             width: Game.getSettings().canvasWidth - 40,
             height: Game.getSettings().canvasHeight - 100,
+            scrollVertical: true,
             scrollY: self.getState("listbox_scrollY") || 0,
+            renderItem : function (item){
+                var lineHeight = 0.5;
+                var lineTop = 54;
+                var listbox = item.parent;
+
+                var x = listbox.itemX;
+                var y = listbox.itemY;
+
+                var itemWidth = listbox.width;
+                var itemHeight= listbox.itemHeight;
+
+                y += itemHeight;
+                var frame = sprites[item.icon].canvas;
+
+                ctx.fillStyle = "Black";
+                ctx.clearRect(x,y+lineTop,itemWidth,lineHeight); // why is this white?
+
+                ctx.drawImage(frame,x, y);
+
+                ctx.fillStyle = "Grey";
+                ctx.font      = "normal 10pt Arial";
+                ctx.fillText(item.name, x + 40, y + 16);
+
+                UI.registerEventElement(item,x,y,x+itemWidth,y+itemHeight);
+
+                return {
+                    x: x,
+                    y: y
+                }
+            },
             onSelect: function(selectedItem){loadLevel(selectedItem)},
             onResize: function(listbox){
                 listbox.width = Game.getSettings().canvasWidth - 40;
@@ -65,7 +96,7 @@ var Intro = (function(){
     };
 
     self.levelSelector = function() {
-        UI.clear();
+        UI.clear("black");
         UI.renderElements();
     };
 

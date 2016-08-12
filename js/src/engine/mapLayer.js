@@ -192,7 +192,6 @@ MapLayer.prototype.removeObject = function(mapObject){
     var index = this.objects.indexOf(mapObject);
     if (index >= 0){
         this.objects.splice(index, 1);
-        console.log("removed object")
     }
     /*
     // if we need < IE9 support
@@ -283,9 +282,9 @@ MapLayer.prototype.render = function(){
 
             // only draw visible tiles
             if (tileX2 > 0
-                && tileX<canvas.width
+                && tileX<screenWidth
                 && tileY2 > 0
-                && tileY < canvas.height){
+                && tileY < screenHeight){
                 ctx.drawImage(tile.canvas,tileX, tileY);
             }
 
@@ -312,7 +311,6 @@ MapLayer.prototype.cleanUp = function(){
                         case DIRECTION.DOWN:
                             var canScrollOffscreen = 2;
                             if (this.scrollTilesY < canScrollOffscreen) ended = true;
-                            console.error(this.scrollTilesY);
                             break;
                         case DIRECTION.LEFT:
                             var canScrollOffscreen = this.width - viewPort.width - 2;

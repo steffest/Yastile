@@ -1,5 +1,5 @@
 var animation={
-    playerWalkRight: [11,12,13,12],
+    playerWalkRight: [11,12,13,12,11],
     playerWalkLeft: [16,17,18,17],
     playerWalkUp: [19,20,21,20],
     playerWalkDown: [8,9,10,9],

@@ -5,10 +5,28 @@ UI.Button = function(properties){
         this[key] = properties[key];
     }
 
-    this.image = new Image();
-    this.image.onload = function() {
-        if (!isDefined(self.width)) self.width = this.width;
-        if (!isDefined(self.height)) self.height = this.height;
+    if (this.url){
+        this.image = new Image();
+        this.image.onload = function() {
+            if (!isDefined(self.width)) self.width = this.width;
+            if (!isDefined(self.height)) self.height = this.height;
+            if (!self.states){
+                // button with 1 state
+                self.states = [[0,0,self.width,self.height]];
+            }
+            if (!isDefined(self.initialState)) self.initialState=0;
+            self.state = self.states[self.initialState];
+            self.imageLoaded = true;
+            self.setPosition();
+        };
+        this.image.src = Game.getSettings().resourcePath + this.url;
+    }
+
+    if (this.sprite){
+        this.image = this.sprite.canvas;
+
+        if (!isDefined(self.width)) self.width = this.image.width;
+        if (!isDefined(self.height)) self.height = this.image.height;
         if (!self.states){
             // button with 1 state
             self.states = [[0,0,self.width,self.height]];
@@ -17,8 +35,8 @@ UI.Button = function(properties){
         self.state = self.states[self.initialState];
         self.imageLoaded = true;
         self.setPosition();
-    };
-    this.image.src = Game.getSettings().resourcePath + this.url;
+
+    }
 
 };
 

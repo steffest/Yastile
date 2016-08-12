@@ -61,12 +61,12 @@ MapPosition.prototype.render = function(step,scrollOffset,layer){
         if (this.id>0){
             var frame;
             if (this.animation){
-                frame = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame).canvas;
+                var frameObj = this.gameObject.getAnimationFrame(this.animation, step + this.animationStartFrame);
+                if (frameObj) frame = frameObj.canvas;
             }else{
                 frame = sprites[this.staticFrame].canvas;
             }
-
-            ctx.drawImage(frame,x, y);
+            if (frame) ctx.drawImage(frame,x, y);
         }
 
         if (this.toplayer){
@@ -74,7 +74,6 @@ MapPosition.prototype.render = function(step,scrollOffset,layer){
             ctx.drawImage(frame,baseX, baseY);
         }
     }
-
 
 };
 

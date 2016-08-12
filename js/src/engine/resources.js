@@ -8,7 +8,7 @@ var Resources = {
 var Resource = (function(){
     var self = {};
 
-    self.getImage = function(id,onSuccess){
+    self.getImage = function(id,onLoad){
         if (Resources.loading[id]) return false;
 
         if (Resources.images[id]){
@@ -19,7 +19,7 @@ var Resource = (function(){
             img.onload = function() {
                 if (this.id) Resources.images[this.id] = this;
                 Resources.loading[id] = false;
-                if (onSuccess) onSuccess(this);
+                if (onLoad) onLoad(this);
             };
             img.onerror = function(){
                 console.error("Error loading url " + this.src);
@@ -56,13 +56,11 @@ var Resource = (function(){
         if (Resources.spritemaps[id]){
             return Resources.spritemaps[id];
         }else{
-            console.error("loading spritemap ",properties);
+
             var img = self.getImage(properties.img,function(){
-                console.error("spritemap image onSuccess");
                 self.getSpriteMap(properties);
             });
             if (img){
-                console.error("loading spritemap image");
                 var spriteProperties = {
                     width: properties.tileWidth,
                     height: properties.tileHeight,
@@ -92,7 +90,6 @@ var Resource = (function(){
                         var y = row*h;
                         var sName = name + ((row*colCount) + col);
                         var s = new Sprite(img,sName,x,y,w,h);
-                        console.error("new sprite " + sName);
                         sprites[sName] = s;
                     }
                 }
@@ -114,14 +111,12 @@ var Preloader = (function(){
 
     self.init = function(items,onDone){
 
-        console.error("preloaditem",items);
         width = 200;
         height = 10;
-        left = (canvas.width-width)/2;
-        top = (canvas.height-height)/2;
+        left = (screenWidth-width)/2;
+        top = (screenHeight-height)/2;
 
         totalItems = items.length;
-        console.error("pre loading " + totalItems + " items");
         if (totalItems == 0){
             onDone();
         }else{
@@ -147,11 +142,18 @@ var Preloader = (function(){
                 url = thisResource;
             }
 
+            console.log("preloading " + url);
+
+            if (thisResource.id && typeof userData != "undefined" && userData[thisResource.id]){
+                // resource already prefilled by user
+                console.log("userdata present for resource " + thisResource.id);
+                url = userData[thisResource.id];
+            }
+
             var img = new Image();
             img.onload = function() {
                 loadCount++;
                 if (this.id) Resources.images[this.id] = this;
-                console.error("loaded url " + this.src + " with name " + this.id);
                 if (onUpdate) onUpdate();
             };
             img.onerror = function(){

@@ -84,5 +84,9 @@ var Map = (function(){
         console.log("sorted layers",layers);
     };
 
+    self.clear = function(){
+        layers = [];
+    };
+
     return self;
 }());

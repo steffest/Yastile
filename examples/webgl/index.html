@@ -1,0 +1,387 @@
+<html>
+<head>
+
+    <script src="stats.js"></script>
+
+
+    <script>
+
+        // http://webglfundamentals.org/webgl/lessons/webgl-2-textures.html
+
+        var canvas;
+        var gl;
+
+        var stats;
+
+        var img1;
+        var img2;
+        var textures = [];
+        var bunnies = [];
+
+        var isDown = false;
+
+        var infoTexture;
+        var u_imageLocation;
+        var logBox;
+
+        window.addEventListener("DOMContentLoaded",function() {
+
+
+            stats = new Stats();
+            stats.setMode(0); // 0: fps, 1: ms
+
+            // align top-left
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+
+            document.body.appendChild( stats.domElement );
+
+
+            canvas = document.getElementById("canvas");
+            gl = canvas.getContext("experimental-webgl");
+
+            canvas.onmousedown = function(){ isDown = true;};
+            canvas.onmouseup = function(){ isDown = false;};
+            canvas.ontouchstart = function(){ isDown = true;};
+            canvas.ontouchend = function(){ isDown = false;};
+
+
+            logBox = document.getElementById("logbox");
+
+            img1 = new Image();
+            img1.src = "bunny.png";
+            img1.onload = function() {
+
+                textures.push(createTexture(img1));
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, textures[0]);
+
+                init();
+            }
+        });
+
+
+        function init(){
+
+
+            var fragmentShader = CompileFragmentShader(gl, shaderFragmentSrc2);
+            var vertexShader = CompileVertexShader(gl, shaderVertexSrc2);
+
+            var program = gl.createProgram();
+
+
+
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                alert("Could not initialise shaders");
+            }
+
+            gl.useProgram(program);
+
+            /*program.vertexPositionAttribute = gl.getAttribLocation(program, "aVertexPosition");
+            gl.enableVertexAttribArray(program.vertexPositionAttribute);
+
+            program.textureCoordAttribute = gl.getAttribLocation(program, "aTextureCoord");
+            gl.enableVertexAttribArray(program.textureCoordAttribute);
+
+            program.colorAttribute = gl.getAttribLocation(program, "aColor");
+            gl.enableVertexAttribArray(program.colorAttribute);
+
+            program.mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
+            program.samplerUniform = gl.getUniformLocation(program, "uSampler");
+            */
+
+
+
+            // look up where the vertex data needs to go.
+            var positionLocation = gl.getAttribLocation(program, "a_position");
+            var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
+
+            // provide texture coordinates for a rectangle.
+            var texCoordBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                0.0,  0.0,
+                1.0,  0.0,
+                0.0,  1.0,
+                0.0,  1.0,
+                1.0,  0.0,
+                1.0,  1.0]), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(texCoordLocation);
+            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+            // lookup uniforms
+            var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+
+            // set the resolution
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+
+            // Create a buffer for the position of the rectangle corners.
+            var buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.enable(gl.BLEND);
+
+
+            u_imageLocation = gl.getUniformLocation(program, "u_image");
+
+            drawSprite(0,20,20,32,32);
+            drawSprite(1,60,60,32,32);
+
+            addBunny();
+
+            main();
+
+        }
+
+
+        // Fill the buffer with the values that define a rectangle.
+        function setRectangle(gl, x, y, width, height) {
+            var x1 = x;
+            var x2 = x + width;
+            var y1 = y;
+            var y2 = y + height;
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                x1, y1,
+                x2, y1,
+                x1, y2,
+                x1, y2,
+                x2, y1,
+                x2, y2]), gl.STATIC_DRAW);
+        }
+
+        function createTexture(image){
+            // Create a texture.
+            var texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+
+            // Set the parameters so we can render any size image.
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+            // Upload the image into the texture.
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            return texture;
+        }
+
+        function drawSprite(index,x,y,w,h){
+            // TODO: test what is faster:
+            // load all textures or assigning each texture to the same one
+
+            // var u_imageLocation = gl.getUniformLocation(program, "u_image");
+
+            //gl.activeTexture(gl.TEXTURE1);
+            //gl.bindTexture(gl.TEXTURE_2D, textures[1]);
+
+            // then
+            //gl.uniform1i(u_imageLocation, 1);
+
+            //gl.bindTexture(gl.TEXTURE_2D, textures[index]);
+
+            //gl.uniform1i(u_imageLocation, index);
+            setRectangle(gl, x, y, w, h);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+
+
+        var requestAnimFrame = (function(){
+            return window.requestAnimationFrame       ||
+                    window.webkitRequestAnimationFrame ||
+                    window.mozRequestAnimationFrame    ||
+                    window.oRequestAnimationFrame      ||
+                    window.msRequestAnimationFrame     ||
+                    function(callback, element){
+                        window.setTimeout(function(){
+                            callback(+new Date);
+                        }, 1000 / 60);
+                    };
+        })();
+
+        var bunny = function(properties){
+            this.left = randomInt(50);
+            this.top = randomInt(50);
+            this.speed = 8;
+            this.drift = randomInt(3) + 2;
+            this.bounce = randomInt(20) + 10;
+        };
+
+        function addBunny(){
+            bunnies.push(new bunny());
+            //renderText(bunnies.length);
+            //console.error(bunnies.length);
+            logBox.innerHTML = bunnies.length;
+
+
+        }
+
+        function renderText(s){
+            var canvas = document.createElement("canvas");
+            canvas.width = 128;
+            canvas.height = 64;
+
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = "#333333"; 	// This determines the text colour, it can take a hex value or rgba value (e.g. rgba(255,0,0,0.5))
+            ctx.textAlign = "left";	// This determines the alignment of text, e.g. left, center, right
+            ctx.textBaseline = "top";	// This determines the baseline of the text, e.g. top, middle, bottom
+            ctx.font = "32px monospace";
+
+            ctx.fillText(s, 10, 30);
+
+            var texture = createTexture(canvas);
+            textures[1] = texture;
+
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, textures[1]);
+        }
+
+
+
+
+        function main(){
+            stats.begin();
+
+
+            if (isDown){
+                for (var j= 0; j<10; j++){
+                    addBunny();
+                }
+            }
+
+
+            for (var i= 0, len = bunnies.length; i<len; i++){
+                var me = bunnies[i];
+
+                me.speed += 1;
+
+                me.left += me.drift;
+                me.top += me.speed;
+
+                if (me.top>canvas.height-32) me.speed = -me.bounce;
+                if (me.left>canvas.width-32 || me.left<0) me.drift = -me.drift;
+
+                drawSprite(0, me.left, me.top,32,32);
+            }
+
+            //if (bunnies.length>0){
+                //drawSprite(1, 10, 10,128,128);
+            //}
+
+            stats.end();
+
+            requestAnimFrame(main);
+        }
+
+        function randomInt(range) {
+            return Math.floor(Math.random() * range);
+        }
+
+
+
+// pixi
+
+        var shaderFragmentSrc = [	"precision mediump float;",
+            "varying vec2 vTextureCoord;",
+            "varying float vColor;",
+            "uniform sampler2D u_image;",
+            "void main(void) {",
+                "gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.x, vTextureCoord.y));",
+                "gl_FragColor = gl_FragColor * vColor;",
+            "}"];
+
+    var shaderFragmentSrc2 = [
+        "precision mediump float;",
+        "uniform sampler2D u_image;",
+        "varying vec2 v_texCoord;",
+        "void main() {",
+            "gl_FragColor = texture2D(u_image, v_texCoord);",
+        "}"
+    ];
+
+        var shaderVertexSrc = [
+            "attribute vec2 aVertexPosition;",
+            "attribute vec2 aTextureCoord;",
+            "attribute float aColor;",
+            "uniform mat4 uMVMatrix;",
+            "varying vec2 vTextureCoord;",
+            "varying float vColor;",
+            "void main(void) {",
+                "gl_Position = uMVMatrix * vec4(aVertexPosition, 1.0, 1.0);",
+                "vTextureCoord = aTextureCoord;",
+                "vColor = aColor;",
+            "}"];
+
+
+        var shaderVertexSrc2 = [
+            "attribute vec2 a_position;",
+            "attribute vec2 a_texCoord;",
+            "uniform vec2 u_resolution;",
+            "varying vec2 v_texCoord;",
+        "void main() {",
+            "vec2 zeroToOne = a_position / u_resolution;",
+            "vec2 zeroToTwo = zeroToOne * 2.0;",
+            "vec2 clipSpace = zeroToTwo - 1.0;",
+            "gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);",
+            "v_texCoord = a_texCoord;",
+        "}"];
+
+        var CompileVertexShader = function(gl, shaderSrc)
+        {
+            var src = "";
+
+            for (var i=0; i < shaderSrc.length; i++) {
+                src += shaderSrc[i];
+            };
+
+            var shader;
+            shader = gl.createShader(gl.VERTEX_SHADER);
+
+            gl.shaderSource(shader, src);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert(gl.getShaderInfoLog(shader));
+                return null;
+            }
+
+            return shader;
+        };
+
+        var CompileFragmentShader = function(gl, shaderSrc)
+        {
+            var src = "";
+
+            for (var i=0; i < shaderSrc.length; i++) {
+                src += shaderSrc[i];
+            };
+
+            var shader;
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+
+            gl.shaderSource(shader, src);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert(gl.getShaderInfoLog(shader));
+                return null;
+            }
+
+            return shader;
+        }
+
+    </script>
+</head>
+<body>
+<canvas id="canvas" width="600" height="400"></canvas>
+<div id="logbox"></div>
+
+</body>
+</html>

@@ -41,6 +41,7 @@ var Game= (function(){
         }
 
         canvas = document.createElement("canvas");
+        if (!properties.antiAlias) canvas.className = "crisp";
 
         if(navigator.isCocoonJS) {
             //canvas.screencanvas = true;
@@ -63,6 +64,9 @@ var Game= (function(){
             }
             canvas.width  = targetWidth;
             canvas.height = targetHeight;
+            screenWidth = targetWidth;
+            screenHeight = targetHeight;
+
 
             scorePosition.hintTop = 0;
             scorePosition.hintLeft = 200;
@@ -103,8 +107,8 @@ var Game= (function(){
 
                 if (settings.backgroundImage){
                         backgroundImage = document.createElement("canvas");
-                        backgroundImage.width = canvas.width;
-                        backgroundImage.height = canvas.height;
+                        backgroundImage.width = screenWidth;
+                        backgroundImage.height = screenHeight;
 
                         var context = backgroundImage.getContext("2d");
                         context.globalAlpha = settings.backgroundImageAlpha || 1;
@@ -129,6 +133,7 @@ var Game= (function(){
     };
 
     var initDone = function(){
+        Game.isRunning = true;
         if (settings.start) {
             settings.start();
         }else if (settings.level){
@@ -142,14 +147,16 @@ var Game= (function(){
     self.start = function(){
         UI.removeAllElements(false);
         if (settings.showOnScreenControls){
-            gameController = new UI.GameController(settings.onScreenControls);
-            UI.addElement(gameController);
+            if (settings.onScreenControls) {
+                gameController = new UI.GameController(settings.onScreenControls);
+                UI.addElement(gameController);
+            }
 
             var actionButton = new UI.Button({
                 id: "action",
                 url: settings.actionButtonImage,
-                bottom: canvas.height - 40,
-                right: canvas.width - 20,
+                bottom: screenHeight - 40,
+                right: screenWidth - 20,
                 width: 74,
                 height: 74,
                 states:[
@@ -165,9 +172,9 @@ var Game= (function(){
                     this.setSate(0);
                 },
                 onResize:  function(button){
-                    button.right = canvas.width - 20;
+                    button.right = screenWidth - 20;
                     button.left = button.right - button.width;
-                    button.bottom = canvas.height - 40;
+                    button.bottom = screenHeight - 40;
                     button.top = button.bottom - button.height;
                 }
             });
@@ -180,12 +187,12 @@ var Game= (function(){
             id: "close",
             url: settings.closeButtonImage,
             top: 10,
-            right: canvas.width - 10,
+            right: screenWidth - 10,
             onClick: function(button){
                 self.exit();
             },
             onResize:  function(button){
-                button.right = canvas.width - 10;
+                button.right = screenWidth - 10;
                 button.left = button.right - button.width;
             }
         });
@@ -204,7 +211,7 @@ var Game= (function(){
     };
 
     self.loadLevel = function(levelData){
-        console.error("loading level ",levelData)
+        console.error("loading level ",levelData);
         if (typeof levelData == "string"){
             Map.loadFromUrl(levelData,function(){
                 self.start();
@@ -259,6 +266,9 @@ var Game= (function(){
         canvas.width  = targetWidth;
         canvas.height = targetHeight;
 
+        screenWidth = targetWidth;
+        screenHeight = targetHeight;
+
         if (gameController) gameController.setPosition();
 
         scorePosition.left = 0;
@@ -286,7 +296,7 @@ var Game= (function(){
             // scaling is done by Cocoon internaly
             UI.setScale(1,1);
         } else {
-            ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = true;
 
             // note: this produces blurry results in Chrome
             canvas.style.width = window.innerWidth + 'px';
@@ -306,6 +316,9 @@ var Game= (function(){
 
 
     function main(now) {
+
+        if (!Game.isRunning) return;
+
         if (settings.showStats) stats.begin();
         var delta = now - lastTickTime;
 
@@ -344,9 +357,10 @@ var Game= (function(){
 
     function render(step,scrollOffset) {
 
+
         ctx.fillStyle = backgroundPattern;
         //ctx.fillStyle = "Black";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, screenWidth, screenHeight);
 
         if (backgroundImage){
             ctx.drawImage(backgroundImage,0, 0);
@@ -449,6 +463,10 @@ var Game= (function(){
         return settings;
     };
 
+    self.getBackground = function(){
+        return backgroundImage;
+    };
+
     self.showDebug = function(){
         return settings.showDebug = true;
     };
@@ -500,6 +518,10 @@ var Game= (function(){
         _score += points;
     };
 
+    self.getScore = function(){
+        return _score;
+    };
+
     self.resetScore = function(){
         _score = 0;
         console.error("resetscore");
@@ -534,6 +556,15 @@ var Game= (function(){
 
     self.setGameSection = function(gameStepFunction){
         currentTickFunction = gameStepFunction;
+    };
+
+    self.getFps = function(calculateAverage){
+        var gameFps = Math.round(tickps);
+        return{
+            fps: fps,
+            gameFps: gameFps,
+            speedDiff: 60/gameFps
+        }
     };
 
     return self;

@@ -16,12 +16,12 @@ var Sprite = function(img,id,x,y,width,height){
         height = tilesize;
     }
 
-    var canvas = document.createElement("canvas");
-    canvas.width  = width;
-    canvas.height = height;
-    var ctx = canvas.getContext("2d");
+    var spriteCanvas = document.createElement("canvas");
+    spriteCanvas.width  = width;
+    spriteCanvas.height = height;
+    var ctx = spriteCanvas.getContext("2d");
 
-    this.canvas = canvas;
+    this.canvas = spriteCanvas;
     this.ctx = ctx;
     this.rotated = {};
     this.transformed = {};
@@ -52,42 +52,42 @@ Sprite.prototype.putColorAtPixel = function(color,x,y){
 Sprite.prototype.rotate = function(degree){
 
     degree = Math.round(degree);
-    var canvas = document.createElement("canvas");
-    canvas.width  = this.width;
-    canvas.height = this.height;
-    var ctx = canvas.getContext("2d");
+    var spriteCanvas = document.createElement("canvas");
+    spriteCanvas.width  = this.width;
+    spriteCanvas.height = this.height;
+    var ctx = spriteCanvas.getContext("2d");
     ctx.translate(this.width/2, this.height/2);
     ctx.rotate(degree*Math.PI/180);
     ctx.translate(-this.width/2, -this.height/2);
     ctx.drawImage(this.canvas,0,0);
 
-    this.rotated[degree] = canvas;
+    this.rotated[degree] = spriteCanvas;
 
 };
 
 Sprite.prototype.flip = function(horizontal,vertical){
-    var canvas = document.createElement("canvas");
-    canvas.width  = this.width;
-    canvas.height = this.height;
-    var ctx = canvas.getContext("2d");
+    var spriteCanvas = document.createElement("canvas");
+    spriteCanvas.width  = this.width;
+    spriteCanvas.height = this.height;
+    var ctx = spriteCanvas.getContext("2d");
     ctx.translate(this.width,0);
     ctx.scale(-1, 1);
     ctx.drawImage(this.canvas,0,0);
-    this.flipped = canvas;
+    this.flipped = spriteCanvas;
 };
 
 Sprite.prototype.transform = function(rotation,scale,flipX,flipY){
 
     var key = "" + rotation + "_" + scale + "_" + flipX + "_" + flipY;
 
-    var canvas = document.createElement("canvas");
-    canvas.width  = this.width * scale;
-    canvas.height = this.height * scale;
-    var ctx = canvas.getContext("2d");
+    var spriteCanvas = document.createElement("canvas");
+    spriteCanvas.width  = this.width * scale;
+    spriteCanvas.height = this.height * scale;
+    var ctx = spriteCanvas.getContext("2d");
 
-    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.translate(spriteCanvas.width/2, spriteCanvas.height/2);
     ctx.rotate(rotation*Math.PI/180);
-    ctx.translate(-canvas.width/2, -canvas.height/2);
+    ctx.translate(-spriteCanvas.width/2, -spriteCanvas.height/2);
 
     if (flipY){
         ctx.translate(this.width,0);
@@ -95,9 +95,9 @@ Sprite.prototype.transform = function(rotation,scale,flipX,flipY){
         ctx.drawImage(this.canvas,0,0);
     }
 
-    ctx.drawImage(this.canvas,0,0,canvas.width,canvas.height);
+    ctx.drawImage(this.canvas,0,0,spriteCanvas.width,spriteCanvas.height);
 
-    this.transformed[key] = canvas;
+    this.transformed[key] = spriteCanvas;
 };
 
 
@@ -122,8 +122,7 @@ var buildSpriteSheet = function(img,callback){
                 }
 
                 var  s = new Sprite(spriteImage,co.name,co.l,co.t,co.w,co.h);
-                sprites.push(s);
-                spriteNames[co.name] = sprites.length-1;
+                sprites[co.name] = s;
             }
 
         }else{
@@ -132,7 +131,7 @@ var buildSpriteSheet = function(img,callback){
             var maxSprites = Math.floor(img.width/t) * Math.floor(img.height/t);
             for (var i=0;i<maxSprites;i++){
                 var s = new Sprite(img,i,Game.getSettings().tileSize);
-                sprites.push(s);
+                sprites[i] = s;
             }
         }
     }

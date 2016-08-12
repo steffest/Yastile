@@ -1,9 +1,8 @@
 //global vars
-var canvas;
+var canvas,screenWidth,screenHeight;
 var ctx;
 var map = [];
 var sprites = {};
-var spriteNames = {};
 
 var DIRECTION = {
     LEFT: 37,
@@ -59,6 +58,7 @@ var DEBUGINFOTYPE  = {
 };
 
 var ONSCREENCONTROLS = {
+    NONE:false,
     _4WAY: {
         image: "controller_4way.png",
         input: 4

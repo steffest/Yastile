@@ -35,21 +35,22 @@ var MapObject = function(properties){
 
 MapObject.prototype.setStaticFrame = function(spriteIndex){
     this.staticFrame = spriteIndex;
-    if (!isNumeric(this.staticFrame)){
-        var index = spriteNames[this.staticFrame];
-        if (index >= 0){
-            this.staticFrame = index;
-        }else{
-            console.error("Warning: MapObject " + this.id + " doesn't seem to have a sprite!")
-        }
-    }
+
     var sprite = sprites[this.staticFrame];
-    this.height = sprite.canvas.height;
-    this.width = sprite.canvas.width;
+    if (sprite){
+        this.height = sprite.canvas.height;
+        this.width = sprite.canvas.width;
+    }else{
+        console.error("Warning: MapObject " + this.id + " doesn't seem to have a sprite!")
+    }
+
 };
 
 MapObject.prototype.getCurrentFrame = function(){
     var frame;
+    if (this.component){
+        return this.component.getCurrentFrame();
+    }
     if (this.animation){
         this.animationStartFrame++;
         if (this.animationStartFrame >= this.animation.length) {
@@ -75,7 +76,6 @@ MapObject.prototype.getCurrentFrame = function(){
         if (sprites[this.staticFrame]){
             frame = sprites[this.staticFrame].canvas;
         }
-
     }
 
     if (this.isTransformed()) {
@@ -106,7 +106,7 @@ MapObject.prototype.render = function(step,scrollOffset,layer){
     var x = this.left - offsetX;
     var y = this.top - offsetY;
 
-    if (this.id>0){
+    if (this.id){
         var frame = this.getCurrentFrame();
         ctx.drawImage(frame,x, y);
     }
@@ -117,15 +117,8 @@ MapObject.prototype.process = function(){
     if (this.processed) return;
 
     var me = this;
-    var obj = me.gameObject;
+    var obj = me.gameObject || me.component;
     if (obj.inActive) return; // inanimate object, don't bother;
-
-    if (obj.isPlayer()){
-
-
-    }else{
-
-    }
 
 
     //if (!this.isMoving()){
@@ -133,7 +126,6 @@ MapObject.prototype.process = function(){
         obj.eachStep(this);
     }
     //}
-
 
     this.processed = true;
 
@@ -234,6 +226,13 @@ MapObject.prototype.rotate = function(degree){
     if (this.rotation<0) this.rotation += 360;
     this.rotationRadiants = this.rotation * Math.PI/180;
 
+    this.generateTransformedSprite();
+};
+
+MapObject.prototype.setRotation = function(degree){
+    this.rotation = Math.round(degree % 360);
+    if (this.rotation<0) this.rotation += 360;
+    this.rotationRadiants = this.rotation * Math.PI/180;
     this.generateTransformedSprite();
 };
 

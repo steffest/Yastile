@@ -3,6 +3,7 @@ var Input = (function() {
     var self = {};
     var keyState = {};
 
+
     var KEY={
         left: 37,
         up: 38,
@@ -18,6 +19,7 @@ var Input = (function() {
     document.addEventListener("keyup",handleKeyUp, false);
 
     function handleKeyDown(event){
+
         var keyCode = event.keyCode;
         keyState[keyCode] = state(keyCode);
         keyState[keyCode].isDown = true;
@@ -37,6 +39,16 @@ var Input = (function() {
             keyState[KEY.action] = state(KEY.action);
             keyState[KEY.action].isDown = false;
         }
+
+        if (typeof EventBus != "undefined") EventBus.trigger("KEYUP",event.keyCode);
+    }
+
+    function virtualKeyPress(key){
+        keyState[KEY.action] = state(key);
+        keyState[KEY.action].isDown = true;
+        setTimeout(function(){
+            keyState[KEY.action].isDown = false;
+        },100);
     }
 
     self.isDown = function(value){

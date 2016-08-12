@@ -1,0 +1,20 @@
+{
+  "name": "Papergames",
+  "icons": [
+    {
+      "src": "icon_papergames_64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "density": 1.0
+    },
+    {
+      "src": "icon_papergames_256.png",
+      "sizes": "256x5§",
+      "type": "image/png",
+      "density": 4.0
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "any"
+}
