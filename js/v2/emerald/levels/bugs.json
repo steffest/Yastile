@@ -1,0 +1,43 @@
+{
+    "name": "emeralds_test",
+    "width": 64,
+    "height": 32,
+    "pointsNeeded" : 2,
+    "mapStructure" : {
+        "charCount" : 2
+    },
+    "map":[
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBu..BuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBu..P1..BuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBu..BuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuBuWs",
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs"
+    ]
+}

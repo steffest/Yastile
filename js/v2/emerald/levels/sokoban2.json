@@ -1,0 +1,23 @@
+{
+    "name": "Break Out!",
+    "source": "http://www.game-sokoban.com/index.php?mode=level&lid=403",
+    "width":11,
+    "height": 11,
+    "mapStructure" : {
+        "charCount" : 1
+    },
+    "minimumScore" : 12,
+    "map":[
+        "           ",
+        " WWWWWWWWW ",
+        " W ::: ::W ",
+        " W WW    W ",
+        " W W   W W ",
+        " W ooooo W ",
+        " W oP  o:W ",
+        " W ooooo:W ",
+        " W :::::WW ",
+        " WWWWWWWWW ",
+        "           "
+    ]
+}

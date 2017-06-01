@@ -1,0 +1,138 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <style>
+        html,body{margin: 0; padding:0; height: 100%}
+        body{overflow: hidden; background-color: black}
+        canvas{width: 100%; height: 100%}
+    </style>
+
+
+    <script src="Yascal/webgl/src/gl.js"></script>
+    <script src="Yascal/webgl/src/context.js"></script>
+    <script src="Yascal/webgl/src/texture.js"></script>
+    <script src="Yascal/webgl/src/textureRegion.js"></script>
+    <script src="Yascal/webgl/src/numberUtils.js"></script>
+    <script src="Yascal/webgl/src/shaderProgram.js"></script>
+    <script src="Yascal/webgl/src/mesh.js"></script>
+    <script src="Yascal/webgl/src/batcher.js"></script>
+    <script src="Yascal/webgl/src/spriteBatch.js"></script>
+    <script src="Yascal/webgl/src/frameBuffer.js"></script>
+
+
+    <script src="Yascal/src/boilerplate/enum.js"></script>
+    <script src="Yascal/src/boilerplate/eventbus.js"></script>
+    <script src="Yascal/src/yascal.js"></script>
+    <script src="Yascal/src/properties.js"></script>
+    <script src="Yascal/src/util.js"></script>
+    <script src="Yascal/src/screen.js"></script>
+    <script src="Yascal/src/screen.js"></script>
+    <script src="Yascal/src/sprite.js"></script>
+    <script src="Yascal/src/spriteSheet.js"></script>
+    <script src="Yascal/src/easing.js"></script>
+    <script src="Yascal/src/keyInput.js"></script>
+    <script src="Yascal/src/touchInput.js"></script>
+    <script src="Yascal/src/ticker.js"></script>
+    <script src="Yascal/src/components/element.js"></script>
+    <script src="Yascal/src/components/panel.js"></script>
+    <script src="Yascal/src/components/listbox.js"></script>
+    <script src="Yascal/src/components/stats.js"></script>
+
+    <script src="Yascal/src/renderer/canvas2d.js"></script>
+    <script src="Yascal/src/renderer/webgl.js"></script>
+
+    <script src="stats.js"></script>
+
+    <script>
+        var Main = function(){
+            var me = {};
+
+            var context;
+            var batch;
+            var texture;
+            var frameBuffer;
+
+            me.onLoad = function(){
+                var aspectRatio = window.innerWidth/window.innerHeight;
+                var height = 400;
+                var width = height*aspectRatio;
+                width = 600;
+
+                Yascal.initGl();
+                context = YascalGl.context(width, height);
+                Y.ctx = context;
+                document.body.appendChild(context.view);
+
+                batch = YascalGl.spriteBatch(context);
+
+                frameBuffer= YascalGl.frameBuffer(context,200,200,context.gl.RGBA);
+
+                //texture = YGL.texture(context, "img/VX-sprites.png", function(){
+                    console.log("texture loaded");
+
+                    var spritesheet = Y.spriteSheet();
+                    spritesheet.loadFromImage("img/VX-sprites.png",{tileWidth:32,tileHeight:32},function(){
+                        console.log("sprites loaded");
+                        console.error(spritesheet);
+                        window.spritesheet = spritesheet;
+                        render();
+                    });
+                //});
+
+
+                function render() {
+                    var gl = context.gl;
+                    gl.clear(gl.COLOR_BUFFER_BIT);
+
+                    batch.begin();
+                    batch.drawSprite(spritesheet.sprites[1], 0, 0, 200, 200);
+                    batch.end();
+
+                    frameBuffer.begin();
+                    batch.resize(frameBuffer.width,frameBuffer.height);
+                    batch.begin();
+
+                    //We can set RGB[A] colors for each sprite like so:
+                    //(always in floats, for GL compatibility)
+                    //batch.setColor(1.0, 0.0, 0.0);
+                    //batch.drawRegion(tile.region, tile.x + scrollX, tile.y + scrollY, tile.width, tile.height);
+
+                    batch.drawSprite(spritesheet.sprites[1], 0, 0, 100, 100);
+                    batch.drawSprite(spritesheet.sprites[2], 100, 0, 100, 100);
+
+                    batch.setColor(1.0, 0.0, 0.0);
+                    batch.drawSprite(spritesheet.sprites[0], 0, 100, 100, 100);
+                    batch.setColor(1, 1, 1);
+                    batch.drawRect(100, 100, 10, 10,[0,0,1]);
+                    //batch.draw(texture, 0, 0, 100, 100);
+
+
+                    batch.end();
+                    frameBuffer.end();
+                    batch.resize(context.width,context.height);
+
+                    batch.begin();
+
+                    // draw flipped ?
+                    batch.draw(frameBuffer.texture, 200, 200, 200, 200,0,1,1,0);
+                    //batch.draw(frameBuffer.texture, 400, 200, 200, 200);
+                    //batch.draw(frameBuffer.texture, 200, 0, 200, 200,0,1,1,0);
+                    batch.end();
+
+                    requestAnimationFrame(render);
+                }
+
+            };
+
+            return me;
+        }();
+    </script>
+
+</head>
+
+<body onload="Main.onLoad()">
+
+
+
+</body>
+</html>

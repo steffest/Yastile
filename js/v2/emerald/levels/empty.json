@@ -1,0 +1,43 @@
+{
+    "name": "level1",
+    "width": 64,
+    "height": 32,
+    "pointsNeeded" : 2,
+    "mapStructure" : {
+        "charCount" : 2
+    },
+    "map":[
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws      P1                                                                                                                    Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",    
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "Ws                                                                                                                            Ws",
+        "WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs"
+    ]
+}

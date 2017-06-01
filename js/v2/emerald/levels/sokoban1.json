@@ -1,0 +1,21 @@
+{
+    "name": "Sokoban1",
+    "source": "http://www.game-sokoban.com/index.php?mode=level&lid=404",
+    "width":9,
+    "height": 9,
+    "mapStructure" : {
+        "charCount" : 1
+    },
+    "minimumScore" : 8,
+    "map":[
+        "WWWWWWWWW",
+        "W    :::W",
+        "W W W:W:W",
+        "W W  :::W",
+        "W ooo W W",
+        "W oPo   W",
+        "W oooWW W",
+        "W       W",
+        "WWWWWWWWW"
+    ]
+}

@@ -1,0 +1,43 @@
+{
+    "name": "level1",
+    "width": 64,
+    "height": 32,
+    "minimumScore" : 2,
+    "mapStructure" : {
+        "charCount" : 2
+    },
+    "map":[
+		"WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs",
+		"WsP1  Ww$3$3$3Ww$3$3$3BoWwWwWwWwWwWw..$3$3$3$3$3$3..$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3..$3$3$3$3$3$3$3BoBoBoWs",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3$3..WwWwWwWwWwWwWw$3$3$3$3$3$3$3..Bo$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3Bo$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3WwBo$3$3$3$3WwBoBo$3$3$3$3WwWwWwWwWwWwWwWwWwBo$3$3$3$3$3$3$3..$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3XXdDXXWs",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3Bo$3Ww$3$3$3$3$3$3..$3$3$3$3$3$3$3WwWwWwWwWwWwWwWwWwWw$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3dDBoWs",
+		"Ws$3dDWw$3Bo$3..$3$3$3$3Ww$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3$3Bo$3$3Ww$3$3$3$3$3$3$3$3WwWwWwWwWwWwWwWwWwWwWw$3$3$3$3$3BoBo$3$3$3Ws",
+		"Ws$3$3WwWw..WwWw$3$3$3$3Ww$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3..$3$3$3$3$3$3$3$3$3WwWwWwWwWwWwWw..WwWwWwWs",
+		"Ws$3$3Ww$3$3BoWwWwWw..WwWw$3$3$3$3BoWw$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3BoWw$3$3$3$3$3$3$3$3WwBo$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3WwWwWwWw..WwWw$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Ww$3Bo$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3BoWw$3Bo$3$3$3$3$3$3$3BoWs",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3$3WwWwWw..WwWwWwWw$3$3$3$3$3$3$3Ww$3$3Bo$3$3$3$3$3Ww$3$3$3$3$3$3$3$3BoWw$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3$3Ww$3$3$3$3$3$3WwWwWwWwWwWwWw..Ww$3$3$3$3$3$3$3$3Ww$3$3$3$3$3Bo$3$3$3Ww$3$3$3Bo$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3BoWw$3BoBo$3$3$3Ww$3$3$3Bo$3Bo$3WwWwWwWw..WwWwWwWwWw$3$3Bo$3$3$3$3$3$3Ww$3Bo$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3Bo$3Ww$3$3$3Bo$3Ww$3$3$3$3Bo$3Ww$3$3$3Bo$3$3$3Ww$3$3$3$3$3$3$3BoWwWwWwWwWwWw..WwWwWwWw$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3BoWw$3$3$3Bo$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Ww$3Bo$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3BoWwWwWwWwWw..WwWwWwWwWwWs",
+		"Ws$3$3WwWwWw..Ww$3$3$3BoWw$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3WwWwWw..WwWw$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3Bo$3$3Bo$3Ww$3$3$3$3$3$3$3$3WwBo$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3WwWwWwWw..WwWw$3$3Bo$3$3$3Ww$3Bo$3$3Bo$3$3..$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3Ww$3Bo$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3$3WwWw..WwWwWwWwWw$3Bo$3$3$3$3$3Ww$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3Bo$3$3Ww$3$3$3$3$3$3WwWwWwWwWwWwWwWwWw$3$3$3$3$3$3$3$3Ww$3$3Bo$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Bo$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3Bo$3$3$3Bo$3WwWwWwWwWwWwWwWwWwWw$3$3$3$3Bo$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3WwWwWwWwWw$3$3$3$3..$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3$3..$3$3$3$3$3$3$3$3WwWwBoWwWwWwWwWwWw..WwBo$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3WwWwWwWwWwWw$3$3$3Bo$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3Ww$3$3$3$3Bo$3$3$3$3WwWwWwWw..WwWwWwWwWwWwWs",
+		"Ws$3$3Ww$3$3$3Ww$3$3Bo$3WwWwWwWwWwWwWw$3$3$3$3$3$3..$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3Ww$3$3$3$3Bo$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3Bo$3..$3$3$3$3Ww$3$3$3$3$3....WwWwWwWwWwWw$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3..$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3BoWw$3$3$3$3$3$3WwWwWwWwWwWwWwWwWw$3$3$3$3$3$3$3BoWw$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3..$3$3$3Ww$3Bo$3$3Ww$3Bo$3$3$3Ww$3$3$3$3$3$3..$3$3$3Bo$3$3$3WwWwWwWwWwWwWwWwWwWw$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3Bo$3Ww$3$3$3$3$3Ww$3$3Bo$3$3$3Ww$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3WwWwWwWwWwWwWwWwWwWwWw$3Bo$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3Ww$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3Bo$3$3$3Ww$3$3$3$3Bo$3$3$3..$3Bo$3$3$3$3$3$3$3WwWwWwWwWwWwWwWwWwWw..Ws",
+		"Ws$3$3WwBo$3$3Ww$3$3$3$3Ww$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3$3Ww$3Bo$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3Ww$3$3$3$3$3$3$3$3$3$3Ws",
+		"Ws$3$3Ww$3$3$3Ww$3$3$3$3..$3$3$3$3$3Ww$3$3$3$3$3$3Ww$3$3$3$3$3$3$3..$3$3$3$3$3$3$3$3WwBo$3$3$3$3$3$3$3$3..$3$3$3$3$3$3$3$3$3$3Ws",
+		"WsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWsWs"
+    ]
+}
